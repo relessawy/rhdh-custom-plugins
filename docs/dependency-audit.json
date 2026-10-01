@@ -1,0 +1,1123 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "@backstage/cli": {
+      "name": "@backstage/cli",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@backstage/cli-defaults",
+        "@backstage/cli-module-build"
+      ],
+      "effects": [],
+      "range": "<=0.0.0-nightly-20260928023907 || >=0.35.5-next.0",
+      "nodes": [
+        "node_modules/@backstage/cli"
+      ],
+      "fixAvailable": true
+    },
+    "@backstage/cli-defaults": {
+      "name": "@backstage/cli-defaults",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@backstage/cli-module-build"
+      ],
+      "effects": [
+        "@red-hat-developer-hub/cli"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/@backstage/cli-defaults"
+      ],
+      "fixAvailable": {
+        "name": "@red-hat-developer-hub/cli",
+        "version": "1.10.2",
+        "isSemVerMajor": true
+      }
+    },
+    "@backstage/cli-module-build": {
+      "name": "@backstage/cli-module-build",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@backstage/module-federation-common",
+        "node-stdlib-browser",
+        "webpack-dev-server"
+      ],
+      "effects": [
+        "@backstage/cli",
+        "@backstage/cli-defaults",
+        "@red-hat-developer-hub/cli"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/@backstage/cli-module-build"
+      ],
+      "fixAvailable": {
+        "name": "@red-hat-developer-hub/cli",
+        "version": "1.10.2",
+        "isSemVerMajor": true
+      }
+    },
+    "@backstage/core-app-api": {
+      "name": "@backstage/core-app-api",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@backstage/core-plugin-api",
+        "@backstage/ui",
+        "@backstage/version-bridge",
+        "react-router-dom"
+      ],
+      "effects": [],
+      "range": "<=0.0.0-nightly-20260928023907 || >=1.15.5-next.0",
+      "nodes": [
+        "node_modules/@backstage/core-app-api"
+      ],
+      "fixAvailable": true
+    },
+    "@backstage/core-compat-api": {
+      "name": "@backstage/core-compat-api",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@backstage/core-plugin-api",
+        "@backstage/frontend-plugin-api",
+        "@backstage/plugin-app-react",
+        "@backstage/plugin-catalog-react",
+        "@backstage/version-bridge",
+        "react-router-dom"
+      ],
+      "effects": [],
+      "range": "<=0.0.0-nightly-20260928023907 || >=0.3.6-next.0",
+      "nodes": [
+        "node_modules/@backstage/core-compat-api"
+      ],
+      "fixAvailable": true
+    },
+    "@backstage/core-components": {
+      "name": "@backstage/core-components",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@backstage/core-plugin-api",
+        "@backstage/theme",
+        "@backstage/ui",
+        "@backstage/version-bridge",
+        "react-router-dom",
+        "react-syntax-highlighter"
+      ],
+      "effects": [
+        "@backstage/frontend-defaults",
+        "@backstage/frontend-plugin-api"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/@backstage/core-components"
+      ],
+      "fixAvailable": {
+        "name": "@backstage/core-plugin-api",
+        "version": "1.10.3",
+        "isSemVerMajor": true
+      }
+    },
+    "@backstage/core-plugin-api": {
+      "name": "@backstage/core-plugin-api",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "@backstage/frontend-plugin-api",
+        "@backstage/version-bridge",
+        "react-router-dom"
+      ],
+      "effects": [
+        "@backstage/frontend-plugin-api",
+        "@backstage/plugin-permission-react"
+      ],
+      "range": "<=0.0.0-nightly-20260928023907 || >=1.10.4-next.0",
+      "nodes": [
+        "node_modules/@backstage/core-app-api/node_modules/@backstage/core-plugin-api",
+        "node_modules/@backstage/core-compat-api/node_modules/@backstage/core-plugin-api",
+        "node_modules/@backstage/core-components/node_modules/@backstage/core-plugin-api",
+        "node_modules/@backstage/core-plugin-api",
+        "node_modules/@backstage/frontend-app-api/node_modules/@backstage/core-plugin-api",
+        "node_modules/@backstage/frontend-defaults/node_modules/@backstage/core-plugin-api",
+        "node_modules/@backstage/frontend-plugin-api/node_modules/@backstage/core-plugin-api",
+        "node_modules/@backstage/integration-react/node_modules/@backstage/core-plugin-api",
+        "node_modules/@backstage/plugin-app-react/node_modules/@backstage/core-plugin-api",
+        "node_modules/@backstage/plugin-app/node_modules/@backstage/core-plugin-api",
+        "node_modules/@backstage/plugin-permission-react/node_modules/@backstage/core-plugin-api",
+        "node_modules/@backstage/test-utils/node_modules/@backstage/core-plugin-api"
+      ],
+      "fixAvailable": {
+        "name": "@backstage/core-plugin-api",
+        "version": "1.10.3",
+        "isSemVerMajor": true
+      }
+    },
+    "@backstage/frontend-app-api": {
+      "name": "@backstage/frontend-app-api",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@backstage/core-app-api",
+        "@backstage/core-plugin-api",
+        "@backstage/frontend-defaults",
+        "@backstage/frontend-plugin-api",
+        "@backstage/version-bridge",
+        "react-router-dom"
+      ],
+      "effects": [],
+      "range": ">=0.10.5-next.0",
+      "nodes": [
+        "node_modules/@backstage/frontend-app-api",
+        "node_modules/@backstage/frontend-defaults/node_modules/@backstage/frontend-app-api"
+      ],
+      "fixAvailable": true
+    },
+    "@backstage/frontend-defaults": {
+      "name": "@backstage/frontend-defaults",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@backstage/core-components",
+        "@backstage/frontend-app-api",
+        "@backstage/frontend-plugin-api",
+        "@backstage/plugin-app",
+        "react-router-dom"
+      ],
+      "effects": [],
+      "range": "<=0.0.0-nightly-20260928023907 || >=0.1.6-next.0",
+      "nodes": [
+        "node_modules/@backstage/frontend-defaults"
+      ],
+      "fixAvailable": true
+    },
+    "@backstage/frontend-plugin-api": {
+      "name": "@backstage/frontend-plugin-api",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@backstage/core-components",
+        "@backstage/core-plugin-api",
+        "@backstage/version-bridge",
+        "react-router-dom"
+      ],
+      "effects": [
+        "@backstage/core-plugin-api"
+      ],
+      "range": ">=0.9.5-next.0",
+      "nodes": [
+        "node_modules/@backstage/core-app-api/node_modules/@backstage/frontend-plugin-api",
+        "node_modules/@backstage/core-compat-api/node_modules/@backstage/frontend-plugin-api",
+        "node_modules/@backstage/core-components/node_modules/@backstage/frontend-plugin-api",
+        "node_modules/@backstage/frontend-app-api/node_modules/@backstage/core-plugin-api/node_modules/@backstage/frontend-plugin-api",
+        "node_modules/@backstage/frontend-app-api/node_modules/@backstage/frontend-plugin-api",
+        "node_modules/@backstage/frontend-defaults/node_modules/@backstage/core-plugin-api/node_modules/@backstage/frontend-plugin-api",
+        "node_modules/@backstage/frontend-defaults/node_modules/@backstage/frontend-plugin-api",
+        "node_modules/@backstage/frontend-plugin-api",
+        "node_modules/@backstage/frontend-plugin-api/node_modules/@backstage/frontend-plugin-api",
+        "node_modules/@backstage/integration-react/node_modules/@backstage/frontend-plugin-api",
+        "node_modules/@backstage/plugin-app-react/node_modules/@backstage/frontend-plugin-api",
+        "node_modules/@backstage/plugin-app/node_modules/@backstage/core-plugin-api/node_modules/@backstage/frontend-plugin-api",
+        "node_modules/@backstage/plugin-app/node_modules/@backstage/frontend-plugin-api",
+        "node_modules/@backstage/plugin-permission-react/node_modules/@backstage/frontend-plugin-api",
+        "node_modules/@backstage/test-utils/node_modules/@backstage/frontend-plugin-api"
+      ],
+      "fixAvailable": {
+        "name": "@backstage/core-plugin-api",
+        "version": "1.10.3",
+        "isSemVerMajor": true
+      }
+    },
+    "@backstage/frontend-test-utils": {
+      "name": "@backstage/frontend-test-utils",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@backstage/frontend-app-api",
+        "@backstage/frontend-plugin-api",
+        "@backstage/plugin-app",
+        "@backstage/test-utils",
+        "@backstage/version-bridge",
+        "react-router-dom"
+      ],
+      "effects": [],
+      "range": "<=0.0.0-nightly-20260928023907 || >=0.2.6-next.0",
+      "nodes": [
+        "node_modules/@backstage/frontend-test-utils"
+      ],
+      "fixAvailable": true
+    },
+    "@backstage/integration": {
+      "name": "@backstage/integration",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@octokit/auth-app",
+        "@octokit/rest"
+      ],
+      "effects": [
+        "@backstage/integration-react"
+      ],
+      "range": "<=0.0.0-nightly-20260928023907 || >=0.3.0",
+      "nodes": [
+        "node_modules/@backstage/integration"
+      ],
+      "fixAvailable": true
+    },
+    "@backstage/integration-react": {
+      "name": "@backstage/integration-react",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@backstage/core-plugin-api",
+        "@backstage/integration",
+        "react-router-dom"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/@backstage/integration-react"
+      ],
+      "fixAvailable": true
+    },
+    "@backstage/module-federation-common": {
+      "name": "@backstage/module-federation-common",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "react-router",
+        "react-router-dom"
+      ],
+      "effects": [
+        "@backstage/cli-module-build"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/@backstage/module-federation-common"
+      ],
+      "fixAvailable": {
+        "name": "@red-hat-developer-hub/cli",
+        "version": "1.10.2",
+        "isSemVerMajor": true
+      }
+    },
+    "@backstage/plugin-app": {
+      "name": "@backstage/plugin-app",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@backstage/core-components",
+        "@backstage/core-plugin-api",
+        "@backstage/frontend-plugin-api",
+        "@backstage/integration-react",
+        "@backstage/plugin-app-react",
+        "@backstage/plugin-permission-react",
+        "@backstage/theme",
+        "@backstage/version-bridge",
+        "react-router-dom"
+      ],
+      "effects": [],
+      "range": "<=0.0.0-nightly-20260928023907 || >=0.1.6-next.0",
+      "nodes": [
+        "node_modules/@backstage/plugin-app"
+      ],
+      "fixAvailable": true
+    },
+    "@backstage/plugin-app-react": {
+      "name": "@backstage/plugin-app-react",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@backstage/core-plugin-api",
+        "@backstage/frontend-plugin-api",
+        "react-router-dom"
+      ],
+      "effects": [
+        "@backstage/core-compat-api",
+        "@backstage/plugin-app"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/@backstage/plugin-app-react",
+        "node_modules/@backstage/plugin-app/node_modules/@backstage/plugin-app-react"
+      ],
+      "fixAvailable": true
+    },
+    "@backstage/plugin-catalog-react": {
+      "name": "@backstage/plugin-catalog-react",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "@backstage/core-compat-api",
+        "@backstage/core-components",
+        "@backstage/core-plugin-api",
+        "@backstage/frontend-plugin-api",
+        "@backstage/frontend-test-utils",
+        "@backstage/integration-react",
+        "@backstage/plugin-permission-react",
+        "@backstage/plugin-permission-react",
+        "@backstage/ui",
+        "@backstage/version-bridge",
+        "react-router-dom"
+      ],
+      "effects": [
+        "@backstage/core-compat-api"
+      ],
+      "range": ">=1.15.2-next.0",
+      "nodes": [
+        "node_modules/@backstage/core-compat-api/node_modules/@backstage/plugin-catalog-react",
+        "node_modules/@backstage/plugin-catalog-react"
+      ],
+      "fixAvailable": {
+        "name": "@backstage/plugin-catalog-react",
+        "version": "1.15.1",
+        "isSemVerMajor": true
+      }
+    },
+    "@backstage/plugin-permission-react": {
+      "name": "@backstage/plugin-permission-react",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@backstage/core-plugin-api",
+        "react-router-dom"
+      ],
+      "effects": [
+        "@backstage/plugin-app",
+        "@backstage/plugin-catalog-react"
+      ],
+      "range": "<=0.0.0-nightly-20260928023907 || >=0.4.31-next.0",
+      "nodes": [
+        "node_modules/@backstage/core-compat-api/node_modules/@backstage/plugin-permission-react",
+        "node_modules/@backstage/plugin-permission-react",
+        "node_modules/@backstage/test-utils/node_modules/@backstage/plugin-permission-react"
+      ],
+      "fixAvailable": {
+        "name": "@backstage/plugin-catalog-react",
+        "version": "1.15.1",
+        "isSemVerMajor": true
+      }
+    },
+    "@backstage/test-utils": {
+      "name": "@backstage/test-utils",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@backstage/core-app-api",
+        "@backstage/core-plugin-api",
+        "@backstage/plugin-permission-react",
+        "@backstage/theme",
+        "react-router-dom"
+      ],
+      "effects": [],
+      "range": "<=0.0.0-nightly-20260928023907 || >=1.7.5-next.0",
+      "nodes": [
+        "node_modules/@backstage/test-utils"
+      ],
+      "fixAvailable": true
+    },
+    "@backstage/theme": {
+      "name": "@backstage/theme",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "react-router-dom"
+      ],
+      "effects": [],
+      "range": "<=0.0.0-nightly-20260414031820 || >=0.6.4-next.0",
+      "nodes": [
+        "node_modules/@backstage/theme"
+      ],
+      "fixAvailable": true
+    },
+    "@backstage/ui": {
+      "name": "@backstage/ui",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@backstage/version-bridge",
+        "react-router-dom"
+      ],
+      "effects": [
+        "@backstage/core-app-api",
+        "@backstage/core-components",
+        "@backstage/plugin-catalog-react"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/@backstage/ui"
+      ],
+      "fixAvailable": {
+        "name": "@backstage/plugin-catalog-react",
+        "version": "1.15.1",
+        "isSemVerMajor": true
+      }
+    },
+    "@backstage/version-bridge": {
+      "name": "@backstage/version-bridge",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "react-router-dom"
+      ],
+      "effects": [
+        "@backstage/plugin-app",
+        "@backstage/ui"
+      ],
+      "range": "<=0.0.0-nightly-20260217031303 || >=1.0.11-next.0",
+      "nodes": [
+        "node_modules/@backstage/version-bridge"
+      ],
+      "fixAvailable": {
+        "name": "@backstage/plugin-catalog-react",
+        "version": "1.15.1",
+        "isSemVerMajor": true
+      }
+    },
+    "@material-table/core": {
+      "name": "@material-table/core",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "uuid"
+      ],
+      "effects": [],
+      "range": "0.1.0 - 0.2.62 || 3.2.0 - 7.0.0",
+      "nodes": [
+        "node_modules/@material-table/core"
+      ],
+      "fixAvailable": true
+    },
+    "@octokit/auth-app": {
+      "name": "@octokit/auth-app",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@octokit/auth-oauth-app",
+        "@octokit/auth-oauth-user",
+        "@octokit/request",
+        "@octokit/request-error"
+      ],
+      "effects": [
+        "@backstage/integration"
+      ],
+      "range": "<=5.0.6",
+      "nodes": [
+        "node_modules/@octokit/auth-app"
+      ],
+      "fixAvailable": true
+    },
+    "@octokit/auth-oauth-app": {
+      "name": "@octokit/auth-oauth-app",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@octokit/auth-oauth-device",
+        "@octokit/auth-oauth-user",
+        "@octokit/request"
+      ],
+      "effects": [
+        "@octokit/auth-app"
+      ],
+      "range": "<=6.0.1",
+      "nodes": [
+        "node_modules/@octokit/auth-oauth-app"
+      ],
+      "fixAvailable": true
+    },
+    "@octokit/auth-oauth-device": {
+      "name": "@octokit/auth-oauth-device",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@octokit/oauth-methods",
+        "@octokit/request"
+      ],
+      "effects": [
+        "@octokit/auth-oauth-app"
+      ],
+      "range": "<=5.0.2",
+      "nodes": [
+        "node_modules/@octokit/auth-oauth-device"
+      ],
+      "fixAvailable": true
+    },
+    "@octokit/auth-oauth-user": {
+      "name": "@octokit/auth-oauth-user",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@octokit/auth-oauth-device",
+        "@octokit/oauth-methods",
+        "@octokit/request"
+      ],
+      "effects": [],
+      "range": "<=3.0.1",
+      "nodes": [
+        "node_modules/@octokit/auth-oauth-user"
+      ],
+      "fixAvailable": true
+    },
+    "@octokit/core": {
+      "name": "@octokit/core",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@octokit/graphql",
+        "@octokit/request",
+        "@octokit/request-error"
+      ],
+      "effects": [
+        "@octokit/rest"
+      ],
+      "range": "<=5.0.0-beta.5",
+      "nodes": [
+        "node_modules/@octokit/core"
+      ],
+      "fixAvailable": true
+    },
+    "@octokit/graphql": {
+      "name": "@octokit/graphql",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@octokit/request"
+      ],
+      "effects": [],
+      "range": "<=2.1.3 || 3.0.0 - 6.0.1",
+      "nodes": [
+        "node_modules/@octokit/graphql"
+      ],
+      "fixAvailable": true
+    },
+    "@octokit/oauth-methods": {
+      "name": "@octokit/oauth-methods",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@octokit/request",
+        "@octokit/request-error"
+      ],
+      "effects": [
+        "@octokit/auth-oauth-device"
+      ],
+      "range": "<=3.0.2",
+      "nodes": [
+        "node_modules/@octokit/oauth-methods"
+      ],
+      "fixAvailable": true
+    },
+    "@octokit/plugin-paginate-rest": {
+      "name": "@octokit/plugin-paginate-rest",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1102898,
+          "name": "@octokit/plugin-paginate-rest",
+          "dependency": "@octokit/plugin-paginate-rest",
+          "title": "@octokit/plugin-paginate-rest has a Regular Expression in iterator Leads to ReDoS Vulnerability Due to Catastrophic Backtracking",
+          "url": "https://github.com/advisories/GHSA-h5c3-5r3r-rr8q",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-1333"
+          ],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=1.0.0 <9.2.2"
+        }
+      ],
+      "effects": [
+        "@octokit/rest"
+      ],
+      "range": "<=9.2.1",
+      "nodes": [
+        "node_modules/@octokit/plugin-paginate-rest"
+      ],
+      "fixAvailable": true
+    },
+    "@octokit/request": {
+      "name": "@octokit/request",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@octokit/request-error",
+        {
+          "source": 1112248,
+          "name": "@octokit/request",
+          "dependency": "@octokit/request",
+          "title": "@octokit/request has a Regular Expression in fetchWrapper that Leads to ReDoS Vulnerability Due to Catastrophic Backtracking",
+          "url": "https://github.com/advisories/GHSA-rmvr-2pp2-xj38",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-1333"
+          ],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=1.0.0 <8.4.1"
+        }
+      ],
+      "effects": [
+        "@octokit/auth-app",
+        "@octokit/auth-oauth-app",
+        "@octokit/auth-oauth-device",
+        "@octokit/auth-oauth-user",
+        "@octokit/core",
+        "@octokit/graphql",
+        "@octokit/oauth-methods"
+      ],
+      "range": "<=8.4.0",
+      "nodes": [
+        "node_modules/@octokit/request"
+      ],
+      "fixAvailable": true
+    },
+    "@octokit/request-error": {
+      "name": "@octokit/request-error",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1102256,
+          "name": "@octokit/request-error",
+          "dependency": "@octokit/request-error",
+          "title": "@octokit/request-error has a Regular Expression in index that Leads to ReDoS Vulnerability Due to Catastrophic Backtracking",
+          "url": "https://github.com/advisories/GHSA-xx4v-prfh-6cgc",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-1333"
+          ],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=1.0.0 <5.1.1"
+        }
+      ],
+      "effects": [
+        "@octokit/auth-app",
+        "@octokit/core",
+        "@octokit/request"
+      ],
+      "range": "<=5.1.0",
+      "nodes": [
+        "node_modules/@octokit/request-error"
+      ],
+      "fixAvailable": true
+    },
+    "@octokit/rest": {
+      "name": "@octokit/rest",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@octokit/core",
+        "@octokit/plugin-paginate-rest"
+      ],
+      "effects": [],
+      "range": "16.39.0 - 20.0.1",
+      "nodes": [
+        "node_modules/@octokit/rest"
+      ],
+      "fixAvailable": true
+    },
+    "@red-hat-developer-hub/cli": {
+      "name": "@red-hat-developer-hub/cli",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "@backstage/cli",
+        "@backstage/cli-defaults",
+        "@backstage/cli-module-build",
+        "node-stdlib-browser",
+        "webpack-dev-server"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/@red-hat-developer-hub/cli"
+      ],
+      "fixAvailable": {
+        "name": "@red-hat-developer-hub/cli",
+        "version": "1.10.2",
+        "isSemVerMajor": true
+      }
+    },
+    "@rspack/dev-server": {
+      "name": "@rspack/dev-server",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "sockjs"
+      ],
+      "effects": [],
+      "range": "1.2.0 - 1.2.1",
+      "nodes": [
+        "node_modules/@rspack/dev-server"
+      ],
+      "fixAvailable": true
+    },
+    "browserify-sign": {
+      "name": "browserify-sign",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        "elliptic"
+      ],
+      "effects": [
+        "crypto-browserify"
+      ],
+      "range": ">=2.4.0",
+      "nodes": [
+        "node_modules/browserify-sign"
+      ],
+      "fixAvailable": true
+    },
+    "create-ecdh": {
+      "name": "create-ecdh",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        "elliptic"
+      ],
+      "effects": [
+        "crypto-browserify"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/create-ecdh"
+      ],
+      "fixAvailable": true
+    },
+    "crypto-browserify": {
+      "name": "crypto-browserify",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        "browserify-sign",
+        "create-ecdh"
+      ],
+      "effects": [
+        "node-stdlib-browser"
+      ],
+      "range": ">=3.4.0",
+      "nodes": [
+        "node_modules/crypto-browserify"
+      ],
+      "fixAvailable": true
+    },
+    "elliptic": {
+      "name": "elliptic",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1112030,
+          "name": "elliptic",
+          "dependency": "elliptic",
+          "title": "Elliptic Uses a Cryptographic Primitive with a Risky Implementation",
+          "url": "https://github.com/advisories/GHSA-848j-6mx2-7j84",
+          "severity": "low",
+          "cwe": [
+            "CWE-1240"
+          ],
+          "cvss": {
+            "score": 5.6,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L"
+          },
+          "range": "<=6.6.1"
+        }
+      ],
+      "effects": [
+        "browserify-sign",
+        "create-ecdh"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/elliptic"
+      ],
+      "fixAvailable": true
+    },
+    "node-stdlib-browser": {
+      "name": "node-stdlib-browser",
+      "severity": "low",
+      "isDirect": false,
+      "via": [
+        "crypto-browserify"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/node-stdlib-browser"
+      ],
+      "fixAvailable": true
+    },
+    "prismjs": {
+      "name": "prismjs",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1105770,
+          "name": "prismjs",
+          "dependency": "prismjs",
+          "title": "PrismJS DOM Clobbering vulnerability",
+          "url": "https://github.com/advisories/GHSA-x7hr-w5r2-h6wg",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-79",
+            "CWE-94"
+          ],
+          "cvss": {
+            "score": 4.9,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:L/I:L/A:N"
+          },
+          "range": "<1.30.0"
+        }
+      ],
+      "effects": [
+        "refractor"
+      ],
+      "range": "<1.30.0",
+      "nodes": [
+        "node_modules/refractor/node_modules/prismjs"
+      ],
+      "fixAvailable": {
+        "name": "@backstage/core-plugin-api",
+        "version": "1.10.3",
+        "isSemVerMajor": true
+      }
+    },
+    "react-router": {
+      "name": "react-router",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1124268,
+          "name": "react-router",
+          "dependency": "react-router",
+          "title": "React Router: Open redirect via backslash in <Link> and useNavigate (CVE-2025-68470 bypass)",
+          "url": "https://github.com/advisories/GHSA-wrjc-x8rr-h8h6",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-601"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": ">=6.0.0 <7.18.0"
+        },
+        {
+          "source": 1124272,
+          "name": "react-router",
+          "dependency": "react-router",
+          "title": "React Router: Arbitrary Constructor Injection via deserializeErrors() in React Router SSR Hydration",
+          "url": "https://github.com/advisories/GHSA-337j-9hxr-rhxg",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-470"
+          ],
+          "cvss": {
+            "score": 6.1,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N"
+          },
+          "range": ">=6.4.0 <7.18.0"
+        }
+      ],
+      "effects": [
+        "@backstage/module-federation-common",
+        "react-router-dom"
+      ],
+      "range": "6.0.0 - 7.17.0",
+      "nodes": [
+        "node_modules/react-router"
+      ],
+      "fixAvailable": {
+        "name": "react-router-dom",
+        "version": "7.18.4",
+        "isSemVerMajor": true
+      }
+    },
+    "react-router-dom": {
+      "name": "react-router-dom",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "react-router"
+      ],
+      "effects": [
+        "@backstage/core-app-api",
+        "@backstage/core-compat-api",
+        "@backstage/core-components",
+        "@backstage/core-plugin-api",
+        "@backstage/frontend-app-api",
+        "@backstage/frontend-defaults",
+        "@backstage/frontend-plugin-api",
+        "@backstage/frontend-test-utils",
+        "@backstage/integration-react",
+        "@backstage/plugin-app",
+        "@backstage/plugin-app-react",
+        "@backstage/plugin-catalog-react",
+        "@backstage/plugin-permission-react",
+        "@backstage/test-utils",
+        "@backstage/theme",
+        "@backstage/ui",
+        "@backstage/version-bridge"
+      ],
+      "range": "6.0.0-alpha.0 - 7.17.0",
+      "nodes": [
+        "node_modules/react-router-dom"
+      ],
+      "fixAvailable": {
+        "name": "react-router-dom",
+        "version": "7.18.4",
+        "isSemVerMajor": true
+      }
+    },
+    "react-syntax-highlighter": {
+      "name": "react-syntax-highlighter",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "refractor"
+      ],
+      "effects": [
+        "@backstage/core-components"
+      ],
+      "range": "6.0.0 - 15.6.6",
+      "nodes": [
+        "node_modules/react-syntax-highlighter"
+      ],
+      "fixAvailable": {
+        "name": "@backstage/core-plugin-api",
+        "version": "1.10.3",
+        "isSemVerMajor": true
+      }
+    },
+    "refractor": {
+      "name": "refractor",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "prismjs"
+      ],
+      "effects": [
+        "react-syntax-highlighter"
+      ],
+      "range": "<=4.6.0",
+      "nodes": [
+        "node_modules/refractor"
+      ],
+      "fixAvailable": {
+        "name": "@backstage/core-plugin-api",
+        "version": "1.10.3",
+        "isSemVerMajor": true
+      }
+    },
+    "sockjs": {
+      "name": "sockjs",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "uuid"
+      ],
+      "effects": [
+        "@rspack/dev-server",
+        "webpack-dev-server"
+      ],
+      "range": ">=0.3.17",
+      "nodes": [
+        "node_modules/sockjs"
+      ],
+      "fixAvailable": {
+        "name": "@red-hat-developer-hub/cli",
+        "version": "1.10.2",
+        "isSemVerMajor": true
+      }
+    },
+    "uuid": {
+      "name": "uuid",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1119441,
+          "name": "uuid",
+          "dependency": "uuid",
+          "title": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
+          "url": "https://github.com/advisories/GHSA-w5hq-g745-h8pq",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-787",
+            "CWE-1285"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N"
+          },
+          "range": "<11.1.1"
+        }
+      ],
+      "effects": [
+        "@material-table/core",
+        "sockjs"
+      ],
+      "range": "<11.1.1",
+      "nodes": [
+        "node_modules/sockjs/node_modules/uuid",
+        "node_modules/uuid"
+      ],
+      "fixAvailable": {
+        "name": "@red-hat-developer-hub/cli",
+        "version": "1.10.2",
+        "isSemVerMajor": true
+      }
+    },
+    "webpack-dev-server": {
+      "name": "webpack-dev-server",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "sockjs"
+      ],
+      "effects": [
+        "@red-hat-developer-hub/cli"
+      ],
+      "range": "2.0.0-beta - 5.2.6",
+      "nodes": [
+        "node_modules/webpack-dev-server"
+      ],
+      "fixAvailable": {
+        "name": "@red-hat-developer-hub/cli",
+        "version": "1.10.2",
+        "isSemVerMajor": true
+      }
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 5,
+      "moderate": 44,
+      "high": 0,
+      "critical": 0,
+      "total": 49
+    },
+    "dependencies": {
+      "prod": 561,
+      "dev": 1576,
+      "optional": 135,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 2136
+    }
+  }
+}

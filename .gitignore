@@ -1,0 +1,8 @@
+node_modules/
+dist/
+dist-dynamic/
+dist-scalprum/
+artifacts/
+*.local.*
+.env
+.DS_Store

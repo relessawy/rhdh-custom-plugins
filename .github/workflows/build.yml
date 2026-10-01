@@ -1,0 +1,20 @@
+name: Build dynamic plugins
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        plugin: [jenkins-stage-progress]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: bash scripts/build.sh '${{ matrix.plugin }}'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: '${{ matrix.plugin }}-packages'
+          path: artifacts/${{ matrix.plugin }}/

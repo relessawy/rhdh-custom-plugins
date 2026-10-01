@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: payments-api
+  annotations:
+    jenkins.io/job-full-name: applications/payments-api/main
+spec:
+  type: service
+  lifecycle: experimental
+  owner: group:default/platform-team

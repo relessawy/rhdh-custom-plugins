@@ -1,0 +1,11 @@
+{
+  "name": "@rhdh-custom-plugins/plugin-jenkins-stage-progress-backend",
+  "version": "0.1.0",
+  "main": "index.cjs",
+  "backstage": {
+    "role": "backend-plugin",
+    "pluginId": "ci-progress"
+  },
+  "license": "Apache-2.0",
+  "configSchema": "config-schema.json"
+}

@@ -1,0 +1,9 @@
+ciProgress:
+  baseUrl: ${JENKINS_URL}
+  publicUrl: ${JENKINS_PUBLIC_URL}
+  username: ${JENKINS_USERNAME}
+  apiKey: ${JENKINS_TOKEN}
+  bindings:
+    - entityRef: component:default/payments-api
+      jobFullName: applications/payments-api/main
+      branch: main
