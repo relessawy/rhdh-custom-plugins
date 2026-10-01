@@ -1,0 +1,23 @@
+# Helm values fragment; merge with existing volumes/Secrets.
+upstream:
+  backstage:
+    extraVolumes:
+      - name: splunk-trust
+        configMap: {name: rhdh-splunk-trust}
+    extraVolumeMounts:
+      - name: splunk-trust
+        mountPath: /splunk-trust
+        readOnly: true
+    # Authenticated search only:
+    # extraEnvVarsSecrets: [rhdh-splunk-api]
+---
+# Operator Backstage resource fragment.
+spec:
+  application:
+    extraFiles:
+      configMaps:
+        - name: rhdh-splunk-trust
+          mountPath: /splunk-trust
+    # Authenticated search only:
+    # extraEnvs:
+    #   secrets: [{name: rhdh-splunk-api}]

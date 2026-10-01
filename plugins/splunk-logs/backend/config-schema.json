@@ -1,0 +1,61 @@
+{
+  "type": "object",
+  "properties": {
+    "splunkLogs": {
+      "type": "object",
+      "visibility": "backend",
+      "required": [
+        "baseUrl",
+        "bindings"
+      ],
+      "properties": {
+        "baseUrl": {
+          "type": "string"
+        },
+        "caFile": {
+          "type": "string"
+        },
+        "serverName": {
+          "type": "string"
+        },
+        "apiToken": {
+          "type": "string",
+          "visibility": "secret"
+        },
+        "bindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "entityRef",
+              "binding",
+              "service",
+              "environment",
+              "index"
+            ],
+            "properties": {
+              "entityRef": {
+                "type": "string"
+              },
+              "binding": {
+                "type": "string"
+              },
+              "service": {
+                "type": "string"
+              },
+              "environment": {
+                "type": "string"
+              },
+              "index": {
+                "type": "string"
+              },
+              "annotationKey": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

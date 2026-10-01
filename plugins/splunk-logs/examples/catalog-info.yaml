@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: payments-api
+  annotations:
+    splunk-logs.io/binding: payments-logs
+spec:
+  type: service
+  lifecycle: production
+  owner: group:default/platform

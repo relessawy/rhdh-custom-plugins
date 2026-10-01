@@ -4,6 +4,8 @@
 |---|---|---|
 | Jenkins Stage Progress & Logs 0.1.1 | 8 backend behavior tests, TypeScript check, frontend export, backend bundle and real loader test | Pending |
 | Snyk Security 0.2.0 | 12 backend authorization/report tests, 9 pipeline tests, 4 frontend state tests, TypeScript check, frontend export, backend bundle and real loader test | Passed: RHDH 1.10.4 + Jenkins reports |
+| Splunk Application Logs 0.1.0 | 8 backend tests, 3 frontend tests, 2 collector tests; build/package/loader verification | Installed; live outage handling passed, data check blocked by Splunk |
+| Jira Work Items 0.1.0 | 9 backend tests, 3 frontend tests; build/package/loader verification | Passed: RHDH 1.10.4 + Jira Cloud |
 
 Snyk 0.2.0 frontend and backend archives were installed in RHDH 1.10.4.
 The authenticated tab displayed real Jenkins build 11, the matching commit,
@@ -19,6 +21,30 @@ Snyk Security displaying build-linked scan evidence in Red Hat Developer Hub.
 
 Live installation validation of the packaged Jenkins dynamic plugin has not yet
 been completed. Jenkins behavior and package-loader tests passed.
+
+## Jira and Splunk live checks
+
+Jira Work Items 0.1.0 archives were installed in RHDH 1.10.4. The tab read real
+Jira Cloud issues, loaded available transitions without the current status, and
+moved a designated issue from Done to In Progress and back to Done. Each change
+returned a persisted audit reference. Anonymous API access returned 401. Group
+denial, stale versions, required fields and uncertain writes are automated checks;
+a complete live multi-persona matrix has not been run.
+
+![Jira Work Items in RHDH](images/jira-work-items-rhdh.png)
+
+Splunk Application Logs 0.1.0 archives also loaded in RHDH 1.10.4. The seven-day
+selector and explicit upstream-unavailable state were verified; anonymous API
+access returned 401. Live request counts and ingestion could not be qualified:
+the existing Splunk service was already crash-looping on a KV Store upgrade
+precheck before this installation. No fabricated metrics or older screenshots
+are presented as evidence for this package. The collector and query behavior
+passed automated tests; repeat the live data checks after Splunk is recovered.
+
+![Splunk Application Logs during upstream outage](images/splunk-logs-rhdh.png)
+
+The live test used additional Work items/Application logs tabs to avoid replacing
+existing integrations. The reusable examples use Jira/Splunk tab names.
 
 ## Versions and packaging
 
@@ -45,6 +71,10 @@ Run each command separately from the repository root:
 ```sh
 bash scripts/build.sh jenkins-stage-progress
 bash scripts/build.sh snyk-security
+bash scripts/build.sh splunk-logs
+bash scripts/build.sh jira-work-items
+# Or run all four sequentially:
+bash scripts/build.sh all
 ```
 
 Tests include denied access, mapping checks, malformed/oversized upstream responses,
@@ -59,10 +89,11 @@ Git history. Tracked-text checks passed. These checks reduce risk; they do not c
 possible secret or vulnerability. Dependency audit results describe development
 and host-shared packages as well as runtime code; review them for the target host.
 
-Dependency audit: both frontend trees report 0 critical, 0 high, 44 moderate and
-5 low findings. The shared build/test tree retains four high advisories through
-its RHDH loader's Infinispan/urllib/undici dependency chain. Those packages are not
-bundled in either backend archive and are not called by the loader smoke test.
-The loader version remains pinned for compatibility testing; replacing it with a
-different version requires requalification. The Express query-parser advisory was
-resolved by pinning its bundled qs dependency to 6.16.0.
+Dependency audit: all four frontend trees report 0 critical, 0 high, 35 moderate
+and 5 low findings. The shared build/test tree reports 0 critical, 8 high and
+23 moderate findings, including the RHDH loader's Infinispan/urllib/undici chain
+and test tooling's mockttp/pac-proxy-agent/get-uri/basic-ftp chain. These packages
+are not bundled into the plugin backends. The toolchain remains pinned for host
+compatibility testing; upgrades require requalification. The Express query-parser
+advisory was resolved by pinning bundled qs to 6.16.0. Counts reflect the registry
+advisory data available on the validation date and may change.

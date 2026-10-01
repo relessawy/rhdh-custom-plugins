@@ -1,0 +1,10 @@
+# Helm values fragment; merge with existing Secret references.
+upstream:
+  backstage:
+    extraEnvVarsSecrets: [rhdh-jira-credentials]
+---
+# Operator Backstage resource fragment.
+spec:
+  application:
+    extraEnvs:
+      secrets: [{name: rhdh-jira-credentials}]
