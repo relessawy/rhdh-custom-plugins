@@ -4,10 +4,10 @@ permissions:
   contents: read
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
-        plugin: [jenkins-stage-progress]
+        plugin: [jenkins-stage-progress, snyk-security]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

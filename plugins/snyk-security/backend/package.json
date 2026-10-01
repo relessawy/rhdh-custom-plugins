@@ -1,10 +1,10 @@
 {
-  "name": "@rhdh-custom-plugins/plugin-jenkins-stage-progress-backend",
-  "version": "0.1.1",
+  "name": "@rhdh-custom-plugins/plugin-snyk-security-backend",
+  "version": "0.1.0",
   "main": "index.cjs",
   "backstage": {
     "role": "backend-plugin",
-    "pluginId": "ci-progress"
+    "pluginId": "snyk-security"
   },
   "license": "Apache-2.0",
   "configSchema": "config-schema.json",
@@ -16,6 +16,7 @@
   },
   "files": [
     "index.cjs",
+    "client.cjs",
     "config-schema.json"
   ]
 }

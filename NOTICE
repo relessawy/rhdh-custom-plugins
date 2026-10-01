@@ -1,5 +1,6 @@
 RHDH Custom Plugins
-Jenkins Stage Progress & Logs is derived from the user's Demo-Library custom
-ci-progress frontend/backend implementation (provenance in PROVENANCE.json).
-The original frontend declares Apache-2.0. Dependencies retain their own licenses.
-No vendor affiliation or support is implied by product names or screenshots.
+Copyright 2026 RHDH Custom Plugins contributors.
+
+Distributed under the Apache License, Version 2.0.
+Bundled dependencies retain their own licenses; backend archives include
+THIRD_PARTY_LICENSES.txt. Product names remain the property of their owners.

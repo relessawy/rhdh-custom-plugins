@@ -1,7 +1,0 @@
-{
-  "source_repository": "relessawy/Demo-Library",
-  "source_commit": "3359953aaa69f11e39dff96ed09f44c37b20f1e4",
-  "source_path": "plugins/ci-progress",
-  "extraction_date": "2026-10-01",
-  "note": "Independent extraction; no build, deployment or runtime dependency on the source repository."
-}

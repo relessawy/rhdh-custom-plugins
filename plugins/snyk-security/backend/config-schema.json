@@ -1,0 +1,76 @@
+{
+  "type": "object",
+  "properties": {
+    "snykSecurity": {
+      "type": "object",
+      "visibility": "backend",
+      "required": [
+        "apiBaseUrl",
+        "webBaseUrl",
+        "token",
+        "bindings"
+      ],
+      "properties": {
+        "apiBaseUrl": {
+          "type": "string"
+        },
+        "webBaseUrl": {
+          "type": "string"
+        },
+        "apiVersion": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string",
+          "visibility": "secret"
+        },
+        "bindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "entityRef",
+              "bindingKey",
+              "projects"
+            ],
+            "properties": {
+              "entityRef": {
+                "type": "string"
+              },
+              "bindingKey": {
+                "type": "string"
+              },
+              "projects": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 5,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "orgId",
+                    "orgSlug",
+                    "projectId"
+                  ],
+                  "properties": {
+                    "orgId": {
+                      "type": "string"
+                    },
+                    "orgSlug": {
+                      "type": "string"
+                    },
+                    "projectId": {
+                      "type": "string"
+                    },
+                    "targetId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

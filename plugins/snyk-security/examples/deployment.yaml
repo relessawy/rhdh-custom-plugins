@@ -1,0 +1,12 @@
+# Helm values fragment; create this Secret separately with key SNYK_TOKEN.
+upstream:
+  backstage:
+    extraEnvVarsSecrets:
+      - rhdh-snyk-credentials
+---
+# Operator resource fragment; merge into your existing Backstage resource.
+spec:
+  application:
+    extraEnvs:
+      secrets:
+        - name: rhdh-snyk-credentials
