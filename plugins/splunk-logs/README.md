@@ -10,9 +10,9 @@ RHDH Splunk tab -> authenticated backend -> catalog + administrator binding
                                        -> fixed Splunk searches over HTTPS
 ```
 
-![splunk-logs in RHDH](../../docs/images/splunk-logs-rhdh.png)
+![splunk-logs in RHDH](../../docs/images/splunk-logs-recovered-rhdh.png)
 
-Live RHDH installation showing the existing upstream outage; see validation for the outstanding data check.
+Live RHDH installation showing real indexed application events after runtime recovery.
 
 ## Prerequisites
 
@@ -67,6 +67,17 @@ counts with the corresponding Splunk search and check a real request/error event
 Confirm no activity is displayed as an empty window, while connection failure is
 shown as unavailable. Test an anonymous user, a catalog-denied user, an unmapped
 entity and a mismatched binding. None should cause a search for that component.
+
+## Minimal indexed-log runtime
+
+The demonstrated Free instance does not use KV Store collections. Its deployment
+sets `[kvstore] disabled = 1` in server.conf. With Splunk Operator/container
+configuration, use `kvstore: {disabled: "1"}` under
+`spec.defaults.splunk.conf.server.content`. The container tooling converted both
+YAML `true` and quoted `"true"` to `True`, which the 9.4.15 migration precheck did
+not recognize on restart. The numeric value survived reconciliation and restart.
+This runtime choice is not required by the plugin: keep KV Store enabled on
+instances whose other applications need it. Back up persistent data before repair.
 
 ## Limits and troubleshooting
 

@@ -1,10 +1,10 @@
-# Validation — 1 October 2026
+# Validation — updated 2 October 2026
 
 | Plugin | Build and automated checks | Live installation |
 |---|---|---|
 | Jenkins Stage Progress & Logs 0.1.1 | 8 backend behavior tests, TypeScript check, frontend export, backend bundle and real loader test | Pending |
 | Snyk Security 0.2.0 | 12 backend authorization/report tests, 9 pipeline tests, 4 frontend state tests, TypeScript check, frontend export, backend bundle and real loader test | Passed: RHDH 1.10.4 + Jenkins reports |
-| Splunk Application Logs 0.1.0 | 8 backend tests, 3 frontend tests, 2 collector tests; build/package/loader verification | Installed; live outage handling passed, data check blocked by Splunk |
+| Splunk Application Logs 0.1.0 | 8 backend tests, 3 frontend tests, 2 collector tests; build/package/loader verification | Passed: RHDH 1.10.4 + Splunk Free 9.4.15 |
 | Jira Work Items 0.1.0 | 9 backend tests, 3 frontend tests; build/package/loader verification | Passed: RHDH 1.10.4 + Jira Cloud |
 
 Snyk 0.2.0 frontend and backend archives were installed in RHDH 1.10.4.
@@ -33,15 +33,20 @@ a complete live multi-persona matrix has not been run.
 
 ![Jira Work Items in RHDH](images/jira-work-items-rhdh.png)
 
-Splunk Application Logs 0.1.0 archives also loaded in RHDH 1.10.4. The seven-day
-selector and explicit upstream-unavailable state were verified; anonymous API
-access returned 401. Live request counts and ingestion could not be qualified:
-the existing Splunk service was already crash-looping on a KV Store upgrade
-precheck before this installation. No fabricated metrics or older screenshots
-are presented as evidence for this package. The collector and query behavior
-passed automated tests; repeat the live data checks after Splunk is recovered.
+Splunk Application Logs 0.1.0 archives loaded in RHDH 1.10.4. Initial testing
+verified the unavailable state during an existing Splunk startup failure. On
+2 October, the unused KV Store was disabled in the demo runtime using the numeric
+configuration value `1`; the operator-created replacement pod became Ready with
+zero container restarts. Both PVCs were preserved and backed up beforehand.
 
-![Splunk Application Logs during upstream outage](images/splunk-logs-rhdh.png)
+The recovered seven-day view displayed 33 requests and 7 HTTP 5xx events, including
+historical events from 29 September. A new controlled application error was
+correlated by request ID through both the original and standalone plugin APIs.
+The subsequent request returned HTTP 200. Splunk Free HEC ingestion/search passed.
+Anonymous access was previously verified as 401; authorization-denial cases remain
+covered by automated tests. No full-environment restart was performed.
+
+![Splunk Application Logs after recovery](images/splunk-logs-recovered-rhdh.png)
 
 The live test used additional Work items/Application logs tabs to avoid replacing
 existing integrations. The reusable examples use Jira/Splunk tab names.
