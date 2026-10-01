@@ -1,36 +1,32 @@
-import React, { useEffect, useState } from "react";
-export type Issue = {
-  id: string;
-  title: string;
-  severity: string;
-  status: string;
-  ignored: boolean;
-  type: string;
+import React, { useState, useEffect } from "react";
+export type Summary = {
+  entityRef: string;
+  commit: string;
+  buildNumber: string;
+  observedAt: string;
+  stale: boolean;
+  gate: string;
+  buildResult?: string;
+  jenkinsUrl?: string;
+  scans: any[];
 };
-export type Project = {
-  id: string;
-  name: string;
-  type: string;
-  status: string;
-  targetId: string;
-  reference: string | null;
-  url: string;
-  issues: Issue[];
-  partial: boolean;
-  counts: Record<string, number>;
-};
-export type Summary = { projects: Project[]; observedAt: string };
-const severities = ["critical", "high", "medium", "low", "info"];
-export function safeLink(value: string) {
+export function safeLink(value?: string) {
   try {
-    const u = new URL(value);
-    return u.protocol === "https:" && !u.username && !u.password
+    const u = new URL(value || "");
+    return ["https:", "http:"].includes(u.protocol) &&
+      !u.username &&
+      !u.password
       ? u.href
       : undefined;
   } catch {
     return undefined;
   }
 }
+const labels: any = {
+  code: "Source code",
+  dependencies: "Dependencies",
+  container: "Container image",
+};
 export function SecurityPanel({
   entityRef,
   load,
@@ -38,155 +34,181 @@ export function SecurityPanel({
   entityRef: string;
   load: (ref: string) => Promise<Summary>;
 }) {
-  const [data, setData] = useState<Summary>(),
-    [error, setError] = useState(""),
-    [loading, setLoading] = useState(true),
-    [revision, setRevision] = useState(0),
-    [severity, setSeverity] = useState("all");
+  const [data, setData] = useState<Summary>();
+  const [error, setError] = useState("");
+  const [revision, setRevision] = useState(0);
+  const [selected, setSelected] = useState("dependencies");
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
-    let current = true;
+    let active = true;
     setLoading(true);
-    setData(undefined);
     setError("");
+    setData(undefined);
     load(entityRef)
-      .then((value) => {
-        if (current) setData(value);
+      .then((d) => {
+        if (active) setData(d);
       })
       .catch(() => {
-        if (current)
+        if (active)
           setError(
-            "Snyk data is unavailable. Check API access, configuration and backend logs. No successful scan is implied."
+            "Security evidence unavailable. No successful scan is implied."
           );
       })
       .finally(() => {
-        if (current) setLoading(false);
+        if (active) setLoading(false);
       });
     return () => {
-      current = false;
+      active = false;
     };
   }, [entityRef, load, revision]);
+  const scan = data?.scans.find((s: any) => s.kind === selected);
   return (
-    <section className="snyk-security" aria-label="Snyk security">
-      <style>{`
-.snyk-security{padding:24px;border:1px solid #7c8a9855;border-radius:14px}.snyk-security h2{font-size:26px;margin:4px 0}.snyk-security h3{margin:0 0 8px}.snyk-security .header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}.snyk-security .muted{opacity:.75;font-size:13px}.snyk-security .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin:20px 0}.snyk-security .metric{padding:16px;border:1px solid #7c8a9855;border-top:3px solid #617689;border-radius:8px}.snyk-security .metric strong{display:block;font-size:27px}.snyk-security .critical{border-color:#b4231855;border-top-color:#b42318}.snyk-security .high{border-color:#c6502255;border-top-color:#c65022}.snyk-security .medium{border-top-color:#b88616}.snyk-security button,.snyk-security select{font:inherit;color:inherit;background:transparent;border:1px solid #7c8a98;border-radius:7px;padding:8px 12px}.snyk-security button:focus-visible,.snyk-security select:focus-visible,.snyk-security a:focus-visible{outline:3px solid #3f91ca;outline-offset:2px}.snyk-security article{padding:20px;border:1px solid #7c8a9855;border-radius:10px;margin-top:20px}.snyk-security .notice{padding:14px;background:#c98c1918;border-radius:8px}.snyk-security .table-wrap{overflow:auto}.snyk-security table{width:100%;border-collapse:collapse;margin-top:16px;text-align:left}.snyk-security th,.snyk-security td{padding:12px 10px;border-bottom:1px solid #7c8a9844;vertical-align:top}.snyk-security .badge{display:inline-block;border:1px solid #7c8a9877;border-radius:20px;padding:3px 10px;font-size:12px;text-transform:capitalize}.snyk-security a{color:inherit;text-decoration:underline;text-underline-offset:3px}.snyk-security code{overflow-wrap:anywhere}
-`}</style>
-      <div className="header">
+    <section className="snyk-security">
+      <style>{`.snyk-security{padding:28px;max-width:1400px;margin:auto}.snyk-security h2{font-size:28px;margin:8px 0}.snyk-security .muted{opacity:.7;font-size:14px}.snyk-security .top{display:flex;justify-content:space-between;gap:20px;align-items:center}.snyk-security button{background:transparent;color:inherit;border:1px solid #87959d;border-radius:8px;padding:10px 16px;cursor:pointer}.snyk-security button:focus-visible{outline:3px solid #168577}.snyk-security .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:24px 0}.snyk-security .card{padding:20px;border:1px solid #87959d66;border-radius:12px;text-align:left}.snyk-security .card[aria-pressed=true]{border:2px solid #168577}.snyk-security .status{display:block;margin:12px 0;font-weight:bold}.snyk-security .BLOCKED,.snyk-security .ERROR{color:#b54727}.snyk-security .PASSED{color:#168577}.snyk-security .notice{padding:14px;background:#cb743a15;border-radius:8px;margin:16px 0}.snyk-security table{width:100%;border-collapse:collapse;font-size:13px}.snyk-security td,.snyk-security th{padding:12px;text-align:left;border-bottom:1px solid #87959d44;vertical-align:top}.snyk-security code{overflow-wrap:anywhere}.snyk-security .scroll{overflow:auto}.snyk-security .eyebrow{color:#168577;text-transform:uppercase;font-size:12px;letter-spacing:1.5px}@media(max-width:700px){.snyk-security .cards{grid-template-columns:1fr}.snyk-security{padding:16px}}`}</style>
+      <div className="top">
         <div>
-          <div className="muted">APPLICATION SECURITY</div>
-          <h2>Snyk findings</h2>
-          <p>Open, non-ignored findings from the mapped Snyk projects.</p>
+          <span className="eyebrow">Security · Snyk via Jenkins</span>
+          <h2>Review before release</h2>
+          <p className="muted">Scan evidence for {entityRef}</p>
         </div>
-        <button disabled={loading} onClick={() => setRevision((r) => r + 1)}>
+        <button disabled={loading} onClick={() => setRevision((x) => x + 1)}>
           {loading ? "Loading…" : "Refresh"}
         </button>
       </div>
-      {loading && <p role="status">Loading Snyk project data…</p>}
       {error && (
         <p role="alert" className="notice">
           {error}
         </p>
       )}
+      {loading && <p role="status">Loading scan evidence…</p>}
       {data && (
         <>
-          {data.projects.some((p) => p.partial) && (
-            <p className="notice" role="status">
-              Partial results: up to 100 findings per project. Counts describe
-              the findings shown here. Open Snyk for the complete results.
+          <p className="muted">
+            Commit <code>{data.commit.slice(0, 12)}</code> · Scanned{" "}
+            {new Date(data.observedAt).toLocaleString()} ·{" "}
+            {data.buildNumber
+              ? `Build ${data.buildNumber}`
+              : "Recorded evidence"}
+          </p>
+          {data.stale && (
+            <p className="notice">
+              This report is more than 24 hours old. It is historical evidence,
+              not current release approval.
             </p>
           )}
-          <div className="summary">
-            {severities.map((s) => (
-              <div key={s} className={`metric ${s}`}>
-                <span style={{ textTransform: "capitalize" }}>{s}</span>
-                <strong>
-                  {data.projects.reduce((n, p) => n + (p.counts[s] || 0), 0)}
-                </strong>
-                <span className="muted">shown findings</span>
-              </div>
+          <p className="notice">
+            Scan policy: <strong>{data.gate}</strong>
+            {data.buildResult && <> · Build: {data.buildResult}</>} · These scan
+            results do not establish that publication or deployment completed.
+          </p>
+          {safeLink(data.jenkinsUrl) && (
+            <a
+              href={safeLink(data.jenkinsUrl)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open Jenkins build and full reports ↗
+            </a>
+          )}
+          <div className="cards">
+            {data.scans.map((s: any) => (
+              <button
+                key={s.kind}
+                className="card"
+                aria-pressed={selected === s.kind}
+                onClick={() => setSelected(s.kind)}
+              >
+                <strong>{labels[s.kind]}</strong>
+                <span className={`status ${s.status}`}>
+                  {s.status.replace("_", " ")}
+                </span>
+                <span className="muted">
+                  {s.status === "NOT_RUN"
+                    ? "No evidence for this build"
+                    : s.status === "ERROR"
+                    ? "Scan could not complete"
+                    : `${s.counts?.critical || 0} critical · ${
+                        s.counts?.high || 0
+                      } high · ${s.counts?.medium || 0} medium`}
+                </span>
+              </button>
             ))}
           </div>
-          <label>
-            Severity{" "}
-            <select
-              value={severity}
-              onChange={(e) => setSeverity(e.target.value)}
-            >
-              <option value="all">All severities</option>
-              {severities.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </label>
-          {data.projects.map((p) => (
-            <article key={p.id}>
-              <div className="header">
-                <div>
-                  <h3>{p.name}</h3>
-                  <span className="badge">{p.status}</span>{" "}
-                  <span className="muted">
-                    {p.type}
-                    {p.reference ? ` · ${p.reference}` : ""}
-                  </span>
-                </div>
-                {safeLink(p.url) && (
-                  <a
-                    href={safeLink(p.url)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    View project in Snyk ↗
-                  </a>
-                )}
-              </div>
+          {scan && (
+            <>
+              <h3>{labels[scan.kind]} findings</h3>
               <p className="muted">
-                Target: <code>{p.targetId}</code> · Project activity is not a
-                scan pass/fail result.
+                {scan.threshold ? `Gate threshold: ${scan.threshold}. ` : ""}
+                Results require review; counts across scan types may overlap.
               </p>
-              {p.issues.length === 0 ? (
+              {scan.error && <p className="notice">{scan.error}</p>}
+              {scan.findings.length === 0 ? (
                 <p className="notice">
-                  No open, non-ignored findings returned
-                  {p.partial ? " in this page" : ""}. This does not establish
-                  scan coverage or a clean release.
+                  {scan.status === "PASSED"
+                    ? "No reported findings at this scan."
+                    : scan.status === "NOT_RUN"
+                    ? "This scan has not run for this build."
+                    : "No completed findings available."}
                 </p>
               ) : (
-                <div className="table-wrap">
+                <div className="scroll">
                   <table>
                     <thead>
                       <tr>
-                        <th scope="col">Severity</th>
-                        <th scope="col">Finding</th>
-                        <th scope="col">Type</th>
+                        <th>Severity</th>
+                        <th>Finding</th>
+                        <th>Affected location</th>
+                        <th>Suggested fixed versions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {p.issues
-                        .filter(
-                          (i) => severity === "all" || i.severity === severity
-                        )
-                        .map((i) => (
-                          <tr key={i.id}>
-                            <td>
-                              <span className="badge">{i.severity}</span>
-                            </td>
-                            <td>{i.title}</td>
-                            <td>{i.type}</td>
-                          </tr>
-                        ))}
+                      {scan.findings.map((f: any, i: number) => (
+                        <tr key={i}>
+                          <td>{f.severity}</td>
+                          <td>
+                            <strong>{f.id}</strong>
+                            <p>{f.title}</p>
+                          </td>
+                          <td>
+                            <code>
+                              {f.package ? `${f.package}@${f.version}` : f.file}
+                              {f.line ? `:${f.line}` : ""}
+                            </code>
+                          </td>
+                          <td>
+                            {f.fixedIn?.length
+                              ? f.fixedIn.join(", ")
+                              : "Review required"}
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
-                  {severity !== "all" &&
-                    !p.issues.some((i) => i.severity === severity) && (
-                      <p>No displayed findings match this severity.</p>
-                    )}
                 </div>
               )}
-            </article>
-          ))}
+              {scan.truncated && (
+                <p>
+                  Showing the first 200 findings. Full reports are retained in
+                  Jenkins.
+                </p>
+              )}
+            </>
+          )}
+          {data.scans.find((s: any) => s.kind === "container")
+            ?.archiveSha256 && (
+            <p className="muted">
+              Scanned image archive SHA-256:{" "}
+              <code>
+                {
+                  data.scans.find((s: any) => s.kind === "container")
+                    ?.archiveSha256
+                }
+              </code>
+            </p>
+          )}
           <p className="muted">
-            Retrieved {new Date(data.observedAt).toLocaleString()}. Refresh
-            manually for new results. This panel does not run scans.
+            Reports describe the recorded build, not unscanned changes. The
+            pipeline must enforce source and image gates before publication.
           </p>
         </>
       )}

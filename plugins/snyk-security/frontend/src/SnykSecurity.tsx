@@ -8,7 +8,10 @@ import {
 } from "@backstage/core-plugin-api";
 import { SecurityPanel, Summary } from "./SecurityPanel";
 export const isSnykSecurityAvailable = (entity: Entity) =>
-  Boolean(entity.metadata.annotations?.["snyk-security.io/binding"]);
+  Boolean(
+    entity.metadata.annotations?.["snyk-security.io/binding"] ||
+      entity.metadata.annotations?.["jenkins.io/job-full-name"]
+  );
 export function SnykSecurity() {
   const { entity } = useEntity(),
     discovery = useApi(discoveryApiRef),
@@ -19,18 +22,10 @@ export function SnykSecurity() {
       const r = await fetcher.fetch(
         `${base}/summary?entity=${encodeURIComponent(ref)}`
       );
-      if (!r.ok) throw Error("Snyk unavailable");
+      if (!r.ok) throw Error("Security evidence unavailable");
       const value = await r.json();
-      if (
-        !Array.isArray(value.projects) ||
-        !value.projects.length ||
-        value.projects.length > 5 ||
-        !value.projects.every(
-          (p: any) =>
-            Array.isArray(p.issues) && p.issues.length <= 100 && p.counts
-        )
-      )
-        throw Error("Invalid summary");
+      if (!Array.isArray(value.scans) || value.scans.length !== 3)
+        throw Error("Invalid report");
       return value;
     },
     [discovery, fetcher]

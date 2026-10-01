@@ -1,0 +1,62 @@
+// Place pipeline/*.py under ci/security in the application checkout.
+// The security-tools agent needs Python 3, the pinned Snyk CLI, Maven and
+// the application's configured OCI image builder/publisher. Use trusted branches.
+pipeline {
+  agent { label 'security-tools' }
+  options { disableConcurrentBuilds(); timeout(time: 40, unit: 'MINUTES') }
+  environment {
+    ENTITY_REF = 'component:default/payments-api'
+    SNYK_ORG = 'REPLACE_WITH_ORGANIZATION_ID_OR_SLUG'
+    REPORTS = 'evidence/security'
+    IMAGE_ARCHIVE = 'target/image.oci.tar'
+  }
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+        script { env.SOURCE_COMMIT = sh(script: 'git rev-parse HEAD', returnStdout: true).trim() }
+        sh 'mkdir -p "$REPORTS"; rm -f "$REPORTS"/*.json'
+      }
+    }
+    stage('Source and dependency scans') {
+      steps {
+        withCredentials([string(credentialsId: 'snyk-cli-token', variable: 'SNYK_TOKEN')]) {
+          script {
+            def code = sh(returnStatus: true, script: 'python3 ci/security/scan.py code --org="$SNYK_ORG" --entity="$ENTITY_REF" --commit="$SOURCE_COMMIT" --output="$REPORTS"')
+            def deps = sh(returnStatus: true, script: 'python3 ci/security/scan.py dependencies --org="$SNYK_ORG" --entity="$ENTITY_REF" --commit="$SOURCE_COMMIT" --output="$REPORTS"')
+            if (code != 0 || deps != 0) error('Source policy denied publication')
+          }
+        }
+      }
+    }
+    stage('Build and test') { steps { sh 'mvn -B verify' } }
+    stage('Build image archive') {
+      // Supply this application-specific script; it must create IMAGE_ARCHIVE.
+      steps { sh './ci/build-image-archive.sh "$IMAGE_ARCHIVE"' }
+    }
+    stage('Container security') {
+      steps {
+        withCredentials([string(credentialsId: 'snyk-cli-token', variable: 'SNYK_TOKEN')]) {
+          sh 'python3 ci/security/scan.py container --image="oci-archive:$IMAGE_ARCHIVE" --org="$SNYK_ORG" --entity="$ENTITY_REF" --commit="$SOURCE_COMMIT" --output="$REPORTS"'
+        }
+      }
+    }
+    stage('Exact image gate') {
+      steps { sh 'python3 ci/security/gate.py --reports="$REPORTS" --entity="$ENTITY_REF" --commit="$SOURCE_COMMIT" --archive="$IMAGE_ARCHIVE"' }
+    }
+    stage('Publish image') {
+      // Publish this exact archive; do not rebuild it after scanning.
+      steps { sh './ci/publish-image-archive.sh "$IMAGE_ARCHIVE"' }
+    }
+  }
+  post {
+    always {
+      script {
+        if (env.SOURCE_COMMIT) {
+          sh 'python3 ci/security/assemble.py --reports="$REPORTS" --entity="$ENTITY_REF" --commit="$SOURCE_COMMIT" --build-number="$BUILD_NUMBER"'
+          archiveArtifacts artifacts: 'evidence/security/*.json', allowEmptyArchive: false
+        }
+      }
+    }
+  }
+}

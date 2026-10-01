@@ -5,51 +5,39 @@ const { ConfigReader } = require("@backstage/config");
 const { createRouter, readSettings } = require("../index.cjs");
 const {
   json,
-  parseProject,
-  parseIssues,
+  validateReport,
   loadSecurity,
   endpoint,
 } = require("../client.cjs");
-const orgId = "11111111-1111-4111-8111-111111111111",
-  projectId = "22222222-2222-4222-8222-222222222222",
-  targetId = "33333333-3333-4333-8333-333333333333";
-const b = { orgId, projectId, targetId, orgSlug: "example" },
-  settings = {
-    apiBase: "https://api.snyk.io",
-    webBase: "https://app.snyk.io",
-    apiVersion: "2024-10-15",
-    token: "test-only-credential",
-  };
-const project = () => ({
-  data: {
-    id: projectId,
-    type: "project",
-    attributes: {
-      name: "payments-api",
-      type: "npm",
-      status: "active",
-      target_reference: "main",
-    },
-    relationships: {
-      organization: { data: { id: orgId } },
-      target: { data: { id: targetId } },
-    },
-  },
-});
-const issue = () => ({
-  id: "44444444-4444-4444-8444-444444444444",
-  type: "issue",
-  attributes: {
-    title: "Example finding",
-    effective_severity_level: "high",
-    status: "open",
-    ignored: false,
-    type: "package_vulnerability",
-  },
-  relationships: {
-    organization: { data: { id: orgId } },
-    scan_item: { data: { id: projectId, type: "project" } },
-  },
+const settings = {
+  base: "https://jenkins.example.com",
+  publicBase: "https://jenkins.example.com",
+  authorization: "test-only-credential",
+};
+const binding = {
+  entityRef: "component:default/payments-api",
+  key: "payments",
+  job: "apps/payments/main",
+  artifact: "evidence/security/report.json",
+};
+const report = () => ({
+  schemaVersion: 1,
+  entityRef: binding.entityRef,
+  commit: "a".repeat(40),
+  buildNumber: "7",
+  observedAt: new Date().toISOString(),
+  scans: ["code", "dependencies", "container"].map((kind) => ({
+    schemaVersion: 1,
+    entityRef: binding.entityRef,
+    commit: "a".repeat(40),
+    kind,
+    status: "PASSED",
+    threshold: "high",
+    exitCode: 0,
+    counts: {},
+    findings: [],
+    ...(kind === "container" ? { archiveSha256: "b".repeat(64) } : {}),
+  })),
 });
 const entity = {
   kind: "Component",
@@ -66,9 +54,7 @@ async function request(
   let calls = 0;
   const services = {
     settings,
-    bindings: new Map([
-      ["component:default/payments-api", { key: "payments", projects: [b] }],
-    ]),
+    bindings: new Map([["component:default/payments-api", binding]]),
     httpAuth: { credentials: async () => ({ principal: { type: "user" } }) },
     auth: { getPluginRequestToken: async () => ({ token: "catalog-test" }) },
     discovery: { getBaseUrl: async () => "https://catalog.example.com" },
@@ -144,115 +130,146 @@ test("unmapped or injected entity cannot choose another project", async () => {
 test("provider details and tokens never leave error handler", async () => {
   const r = await request({
     loader: async () => {
-      throw Error(settings.token);
+      throw Error(settings.authorization);
     },
   });
   assert.equal(r.status, 503);
-  assert.ok(!JSON.stringify(r.body).includes(settings.token));
+  assert.ok(!JSON.stringify(r.body).includes(settings.authorization));
 });
-test("project identity, organization and optional target are verified", () => {
-  assert.equal(parseProject(project(), b, settings.webBase).status, "active");
-  for (const field of ["id", "target", "org"]) {
-    const x = project();
-    if (field === "id") x.data.id = targetId;
-    if (field === "target") x.data.relationships.target.data.id = orgId;
-    if (field === "org") x.data.relationships.organization.data.id = targetId;
-    assert.throws(() => parseProject(x, b, settings.webBase));
-  }
-});
-test("issues validate relationship, severity and duplicate IDs", () => {
-  assert.equal(parseIssues({ data: [issue()] }, b).issues.length, 1);
-  for (const mutate of [
-    (i) => (i.relationships.scan_item.data.id = orgId),
-    (i) => (i.relationships.organization.data.id = targetId),
-    (i) => (i.attributes.effective_severity_level = "unknown"),
-    (i) => (i.attributes.ignored = null),
+test("scan identities, unknown states, missing image and timestamps fail closed", () => {
+  assert.equal(validateReport(report(), binding).gate, "PASSED");
+  for (const change of [
+    (r) => (r.entityRef = "component:default/other"),
+    (r) => (r.scans[0].commit = "c".repeat(40)),
+    (r) => (r.scans[0].status = "SUCCESS"),
+    (r) => delete r.scans[2].archiveSha256,
+    (r) => (r.observedAt = "invalid"),
+    (r) => r.scans.pop(),
+    (r) => (r.scans[0].exitCode = 2),
   ]) {
-    const i = issue();
-    mutate(i);
-    assert.throws(() => parseIssues({ data: [i] }, b));
+    const r = report();
+    change(r);
+    assert.throws(() => validateReport(r, binding));
   }
-  assert.throws(() => parseIssues({ data: [issue(), issue()] }, b));
 });
-test("provider status, oversized body and malformed JSON fail clearly", async () => {
-  for (const status of [401, 403, 404, 429, 500])
-    await assert.rejects(
-      json(
-        "https://api.snyk.io",
-        settings.token,
-        undefined,
-        async () => new Response("", { status })
-      )
-    );
-  await assert.rejects(
-    json(
-      "https://api.snyk.io",
-      settings.token,
-      undefined,
-      async () => new Response("x".repeat(1000001))
-    )
-  );
-  await assert.rejects(
-    json(
-      "https://api.snyk.io",
-      settings.token,
-      undefined,
-      async () => new Response("{broken")
-    )
-  );
+test("partial and blocked scans never become a passing policy", () => {
+  for (const [status, gate] of [
+    ["NOT_RUN", "INCOMPLETE"],
+    ["BLOCKED", "BLOCKED"],
+    ["ERROR", "ERROR"],
+  ]) {
+    const r = report();
+    r.scans[0].status = status;
+    if (status === "BLOCKED") r.scans[0].counts.high = 1;
+    assert.equal(validateReport(r, binding).gate, gate);
+  }
 });
-test("bounded API requests use exact filters and never follow pagination links", async () => {
+test("old evidence and oversized findings are labelled", () => {
+  const r = report();
+  r.observedAt = "2020-01-01T00:00:00Z";
+  r.scans[0].counts.low = 201;
+  r.scans[0].findings = Array.from({ length: 201 }, () => ({
+    severity: "low",
+    title: "x",
+  }));
+  const out = validateReport(r, binding);
+  assert.equal(out.stale, true);
+  assert.equal(out.scans[0].findings.length, 200);
+  assert.equal(out.scans[0].truncated, true);
+});
+test("Jenkins build resolved once and report bound to metadata", async () => {
   const calls = [];
-  const result = await loadSecurity(settings, [b], async (url, opts) => {
-    calls.push(String(url));
+  const out = await loadSecurity(settings, binding, async (url, opts) => {
+    calls.push(url);
     assert.equal(opts.redirect, "error");
-    assert.equal(opts.headers.Authorization, `token ${settings.token}`);
     return Response.json(
       calls.length === 1
-        ? project()
-        : { data: [issue()], links: { next: "https://evil.example/page" } }
+        ? {
+            number: 7,
+            building: false,
+            result: "SUCCESS",
+            actions: [{ lastBuiltRevision: { SHA1: "a".repeat(40) } }],
+          }
+        : report()
     );
   });
   assert.equal(calls.length, 2);
-  const u = new URL(calls[1]);
-  assert.equal(u.searchParams.get("scan_item.id"), projectId);
-  assert.equal(u.searchParams.get("status"), "open");
-  assert.equal(result.projects[0].counts.high, 1);
-  assert.equal(result.projects[0].partial, true);
-  assert.ok(!JSON.stringify(result).includes(settings.token));
+  assert.match(calls[1], /\/7\/artifact\/evidence\/security\/report.json$/);
+  assert.equal(out.buildNumber, "7");
+  assert.ok(out.jenkinsUrl.endsWith("/7/"));
+  for (const mutate of [
+    (r) => (r.buildNumber = "6"),
+    (r) => (r.commit = "c".repeat(40)),
+  ]) {
+    let n = 0;
+    await assert.rejects(
+      loadSecurity(settings, binding, async () => {
+        const r = report();
+        mutate(r);
+        return Response.json(
+          n++
+            ? r
+            : {
+                number: 7,
+                building: false,
+                actions: [{ lastBuiltRevision: { SHA1: "a".repeat(40) } }],
+              }
+        );
+      })
+    );
+  }
 });
-test("empty and ignored results are not invented findings", async () => {
-  const i = issue();
-  i.attributes.ignored = true;
-  const result = await loadSecurity(settings, [b], async (u) =>
-    Response.json(String(u).includes("/projects/") ? project() : { data: [i] })
-  );
-  assert.equal(result.projects[0].issues.length, 0);
-  assert.equal(result.projects[0].partial, false);
-});
-test("configuration requires HTTPS origins and bounded explicit mappings", () => {
-  for (const u of [
-    "http://api.snyk.io",
-    "https://user:pass@api.snyk.io",
-    "https://api.snyk.io/rest",
-    "https://api.snyk.io?token=abc",
+test("upstream failures, malformed JSON and oversized responses rejected", async () => {
+  for (const r of [
+    new Response("", { status: 403 }),
+    new Response("{"),
+    new Response("x".repeat(900001)),
   ])
-    assert.throws(() => endpoint(u));
-  const config = {
+    await assert.rejects(
+      json(settings.base, settings.authorization, undefined, async () => r)
+    );
+});
+test("mounted report source uses the same validation", async () => {
+  const fs = require("node:fs/promises"),
+    os = require("node:os"),
+    path = require("node:path");
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "security-"));
+  try {
+    const file = path.join(dir, "report.json");
+    await fs.writeFile(file, JSON.stringify(report()));
+    assert.equal(
+      (await loadSecurity({}, { ...binding, file })).buildNumber,
+      "7"
+    );
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
+});
+test("configuration selects exactly one source and rejects unsafe paths", () => {
+  const c = {
     snykSecurity: {
-      apiBaseUrl: settings.apiBase,
-      webBaseUrl: settings.webBase,
-      token: settings.token,
+      jenkins: {
+        baseUrl: settings.base,
+        publicUrl: settings.publicBase,
+        username: "reader",
+        apiKey: "test",
+      },
       bindings: [
         {
-          entityRef: "component:default/payments-api",
+          entityRef: binding.entityRef,
           bindingKey: "payments",
-          projects: [b],
+          jobFullName: binding.job,
         },
       ],
     },
   };
-  assert.equal(readSettings(new ConfigReader(config)).bindings.size, 1);
-  config.snykSecurity.bindings.push(config.snykSecurity.bindings[0]);
-  assert.throws(() => readSettings(new ConfigReader(config)));
+  assert.equal(readSettings(new ConfigReader(c)).bindings.size, 1);
+  c.snykSecurity.bindings[0].jobFullName = "../other";
+  assert.throws(() => readSettings(new ConfigReader(c)));
+  for (const url of [
+    "https://user:pass@example.com",
+    "https://example.com?token=x",
+    "file:///tmp/report",
+  ])
+    assert.throws(() => endpoint(url));
 });

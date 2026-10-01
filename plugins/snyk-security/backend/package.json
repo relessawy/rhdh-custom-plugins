@@ -1,6 +1,6 @@
 {
   "name": "@rhdh-custom-plugins/plugin-snyk-security-backend",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "main": "index.cjs",
   "backstage": {
     "role": "backend-plugin",
