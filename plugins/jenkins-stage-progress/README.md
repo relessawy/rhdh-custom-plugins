@@ -21,7 +21,7 @@ The stock Jenkins RHDH plugin is optional; this panel works independently of it.
 
 ## 1. Get the packages
 
-Download the `jenkins-stage-progress-v0.1.1` release assets, or build from this clone:
+Build the 0.1.1 packages from this clone, or download the matching CI build artifact:
 
 ```sh
 # Node 24 and npm; tar must be on PATH. No cluster is touched.

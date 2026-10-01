@@ -13,7 +13,7 @@ fs.mkdirSync(out, { recursive: true });
 const sourceManifest = JSON.parse(
   fs.readFileSync(path.join(dir, "package.json"))
 );
-const resolve = createRequire(path.join(dir, "package.json"));
+const resolve = createRequire(path.join(root, "package.json"));
 assertDependency("express", sourceManifest.dependencies.express);
 assertDependency(
   "@backstage/backend-plugin-api",
@@ -30,6 +30,7 @@ const result = await build({
   format: "cjs",
   target: "node22",
   bundle: true,
+  alias: {express: resolve.resolve("express")},
   external: ["@backstage/backend-plugin-api"],
   metafile: true,
   legalComments: "eof",

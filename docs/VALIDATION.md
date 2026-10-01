@@ -17,7 +17,7 @@ establish installation acceptance of these release archives.
   `CommonJSModuleLoader.bootstrap/load`, the real backend feature registrations,
   and real Express router initialization. This is a package smoke test, not a full
   RHDH server boot or cluster deployment.
-- Express **4.22.1** and private dependencies are bundled by esbuild **0.25.12**.
+- Express **4.22.1**, patched query parser qs **6.16.0**, and private dependencies are bundled by esbuild **0.25.12**.
   Build verification rejects unexpected external runtime imports. Release archives
   retain only the explicit Backstage backend API peer; no host Express is assumed.
   Backend archives include the actual private dependency list and license texts.
@@ -58,3 +58,11 @@ Git history. Text review found no unwanted implementation-specific references in
 current files. These checks reduce risk; they do not certify the absence of every
 possible secret or vulnerability. Dependency audit results describe development
 and host-shared packages as well as runtime code; review them for the target host.
+
+Dependency audit: both frontend trees report 0 critical, 0 high, 44 moderate and
+5 low findings. The shared build/test tree retains four high advisories through
+its RHDH loader's Infinispan/urllib/undici dependency chain. Those packages are not
+bundled in either backend archive and are not called by the loader smoke test.
+The loader version remains pinned for compatibility testing; replacing it with a
+different version requires requalification. The Express query-parser advisory was
+resolved by pinning its bundled qs dependency to 6.16.0.
