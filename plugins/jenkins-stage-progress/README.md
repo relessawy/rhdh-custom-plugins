@@ -1,7 +1,7 @@
 # Jenkins Stage Progress & Logs
 
-Shows pipeline stages, status, duration, ten-build history and on-demand stage logs
-in a catalog component's **CI** tab. Progress refreshes every five seconds. The
+Shows pipeline stages, status, duration, a selector for the ten most recent builds,
+and on-demand stage logs in a catalog component's **CI** tab. Progress refreshes every five seconds. The
 frontend calls `/api/ci-progress`; the backend checks the signed-in user's catalog
 access, resolves an administrator-owned job mapping, then reads Jenkins.
 The stock Jenkins RHDH plugin is optional; this panel works independently of it.
@@ -11,7 +11,7 @@ The stock Jenkins RHDH plugin is optional; this panel works independently of it.
 - RHDH with authenticated users and a working catalog. Target baseline: **RHDH
   1.10.4**; standalone installation still needs live qualification on your target.
 - Jenkins Pipeline jobs with named stages and **Pipeline: REST API** installed.
-  Source-demo baseline: Jenkins **2.568.3**, Pipeline REST API **2.41**.
+  Reference service versions: Jenkins **2.568.3**, Pipeline REST API **2.41**.
 - A Jenkins username/API token restricted to Overall/Read and Job/Read for the
   mapped jobs (including access through their folders). No build/admin permission.
 - Backend network access to Jenkins, browser access to its public URL and trusted
@@ -21,14 +21,14 @@ The stock Jenkins RHDH plugin is optional; this panel works independently of it.
 
 ## 1. Get the packages
 
-Download the `jenkins-stage-progress-v0.1.0` release assets, or build from this clone:
+Build the 0.1.1 packages from this clone, or download the matching CI build artifact:
 
 ```sh
 # Node 24 and npm; tar must be on PATH. No cluster is touched.
 bash scripts/build.sh jenkins-stage-progress
 ```
 
-Build output is `artifacts/jenkins-stage-progress/0.1.0/`: frontend/backend `.tgz`,
+Build output is `artifacts/jenkins-stage-progress/0.1.1/`: frontend/backend `.tgz`,
 `SHA256SUMS`, `packages.json` and `dynamic-plugins.yaml`. It uses the pinned RHDH
 CLI 2.0.0 and lockfile. On Linux use `sha256sum -c SHA256SUMS`; on macOS use
 `shasum -a 256 -c SHA256SUMS` from the artifact directory.
@@ -37,7 +37,7 @@ Host both archives at an HTTPS artifact endpoint reachable by the RHDH installer
 Replace only the two `https://plugins.example.com/...` URLs in generated
 `dynamic-plugins.yaml`; preserve its integrity hashes and frontend wiring.
 Private GitHub release URLs are not directly usable without authentication: download
-with your GitHub access and place the files on your approved artifact service.
+with your GitHub access and place the files on your artifact service.
 This does not require an npm publish or a container registry.
 
 ## 2. Configure your RHDH
@@ -110,17 +110,17 @@ claiming standalone acceptance; building packages alone does not establish it.
 - Logs are plain text, limited to 65,536 characters; full console opens Jenkins.
   Pipeline credential masking remains essential. Jenkins permission changes for
   individual developers are not mirrored: the integration uses its shared reader.
-- Backend ID remains `ci-progress`; do not install alongside the original custom
-  CI-progress extension. No Snyk, Jira, Splunk, Bitbucket or application dependency.
+- Backend ID is `ci-progress`; install only one backend with that ID.
+  No Snyk, Jira, Splunk, Bitbucket or application dependency.
 - To uninstall, remove these two entries and configuration, then roll out RHDH.
   No database, CRD or persistent volume is created by this plugin.
 
 ## Reference screenshot and validation
 
-![Source-demo Jenkins CI panel](../../docs/images/jenkins-stage-progress-rhdh.png)
+![Jenkins CI stage progress in RHDH](../../docs/images/jenkins-stage-progress-rhdh.png)
 
-This is a real screenshot of the original demo implementation. It demonstrates the
-interface, not a deployment of this extracted package. See [validation and changes](../../docs/VALIDATION.md).
+Jenkins pipeline stages and inline logs displayed in Red Hat Developer Hub.
+See [validation](../../docs/VALIDATION.md) for package testing and live-installation status.
 
 References: [RHDH 1.10 dynamic plugins](https://docs.redhat.com/en/documentation/red_hat_developer_hub/1.10/html/develop_and_deploy_dynamic_plugins_in_red_hat_developer_hub/deployment-configurations_develop-and-deploy-plugins-in-rhdh),
 [RHDH frontend wiring](https://github.com/redhat-developer/rhdh/blob/release-1.10/docs/dynamic-plugins/frontend-plugin-wiring.md),

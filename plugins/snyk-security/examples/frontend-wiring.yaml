@@ -1,0 +1,13 @@
+dynamicPlugins:
+  frontend:
+    rhdh-custom-plugins.plugin-snyk-security:
+      entityTabs:
+        - path: /snyk
+          title: Snyk
+          mountPoint: entity.page.snyk
+      mountPoints:
+        - mountPoint: entity.page.snyk/cards
+          importName: SnykSecurity
+          config:
+            layout: {gridColumn: '1 / -1'}
+            if: {allOf: [isSnykSecurityAvailable]}
