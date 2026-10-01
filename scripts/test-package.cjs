@@ -70,9 +70,6 @@ const express = require("express");
           }
         : {
             snykSecurity: {
-              apiBaseUrl: "https://api.snyk.io",
-              webBaseUrl: "https://app.snyk.io",
-              token: "test-only",
               bindings: [],
             },
           };

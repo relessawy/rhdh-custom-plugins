@@ -1,5 +1,13 @@
 # Releases
 
+## Snyk Security 0.2.0
+
+- Display source, dependency and container scan policies with build/commit context.
+- Read bounded Jenkins artifacts or read-only mounted reports.
+- Include CLI scan, normalization, exact-image gate and report assembly scripts.
+- Validate catalog bindings, build identity and scan evidence; flag stale reports.
+- Configure Jenkins credentials instead of Snyk REST credentials (breaking change).
+
 ## Jenkins Stage Progress & Logs 0.1.1
 
 - Bundle Express and its private dependencies; declare the host Backstage API peer.

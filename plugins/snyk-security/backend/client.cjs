@@ -1,190 +1,217 @@
 "use strict";
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const SEVERITIES = ["critical", "high", "medium", "low", "info"];
-class SnykError extends Error {
-  constructor(code) {
-    super(code);
-    this.code = code;
-  }
-}
-function text(v, max = 2048) {
-  if (typeof v !== "string" || !v.length || v.length > max)
-    throw new SnykError("invalid_response");
-  return v;
-}
+const fs = require("node:fs/promises");
+const kinds = ["code", "dependencies", "container"];
+const statuses = ["PASSED", "BLOCKED", "ERROR", "NOT_RUN"];
+const severities = ["critical", "high", "medium", "low", "info"];
+const sha = /^[0-9a-f]{40}$/;
 function endpoint(value) {
   const u = new URL(value);
   if (
-    u.protocol !== "https:" ||
+    !["https:", "http:"].includes(u.protocol) ||
     u.username ||
     u.password ||
     u.search ||
-    u.hash ||
-    u.pathname !== "/"
+    u.hash
   )
-    throw Error("Use an HTTPS origin without credentials or path");
-  return u.origin;
+    throw Error("Invalid Jenkins endpoint");
+  return value.replace(/\/$/, "");
 }
-async function json(url, token, signal, fetcher = fetch) {
+function safePath(value) {
+  if (
+    typeof value !== "string" ||
+    value.length > 500 ||
+    value
+      .split("/")
+      .some((s) => !s || s === "." || s === ".." || /[?#\\%\x00-\x1f]/.test(s))
+  )
+    throw Error("Invalid path");
+  return value.split("/").map(encodeURIComponent).join("/");
+}
+async function json(url, authorization, signal, fetcher = fetch) {
   const r = await fetcher(url, {
-    headers: {
-      Authorization: `token ${token}`,
-      Accept: "application/vnd.api+json",
-    },
+    headers: { Authorization: authorization },
     redirect: "error",
     signal,
   });
   if (!r.ok) {
     await r.body?.cancel();
-    throw new SnykError(
-      [401, 403].includes(r.status)
-        ? "access_denied"
-        : r.status === 429
-        ? "rate_limited"
-        : r.status === 404
-        ? "not_found"
-        : "unavailable"
-    );
+    throw Error("Evidence unavailable");
   }
-  const reader = r.body?.getReader();
-  if (!reader) throw new SnykError("invalid_response");
-  const chunks = [];
-  let size = 0;
+  const reader = r.body.getReader();
+  let size = 0,
+    chunks = [];
   try {
     while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      size += value.length;
-      if (size > 1000000) throw new SnykError("invalid_response");
-      chunks.push(Buffer.from(value));
+      const x = await reader.read();
+      if (x.done) break;
+      size += x.value.length;
+      if (size > 900000) throw Error("Oversized report");
+      chunks.push(Buffer.from(x.value));
     }
   } finally {
     await reader.cancel();
   }
-  try {
-    return JSON.parse(Buffer.concat(chunks).toString("utf8"));
-  } catch {
-    throw new SnykError("invalid_response");
-  }
+  return JSON.parse(Buffer.concat(chunks).toString("utf8"));
 }
-function parseProject(body, binding, webBase) {
-  const p = body?.data,
-    a = p?.attributes,
-    r = p?.relationships;
+function text(v, max = 600) {
+  return typeof v === "string" ? v.slice(0, max) : "";
+}
+function validateReport(v, b) {
   if (
-    p?.id !== binding.projectId ||
-    p.type !== "project" ||
-    r?.organization?.data?.id !== binding.orgId ||
-    !UUID.test(r?.target?.data?.id) ||
-    !["active", "inactive"].includes(a?.status) ||
-    (binding.targetId && binding.targetId !== r.target.data.id)
+    !v ||
+    v.schemaVersion !== 1 ||
+    v.entityRef !== b.entityRef ||
+    !sha.test(v.commit) ||
+    !/^[1-9][0-9]{0,8}$/.test(String(v.buildNumber)) ||
+    !Number.isFinite(Date.parse(v.observedAt)) ||
+    Date.parse(v.observedAt) > Date.now() + 300000 ||
+    !Array.isArray(v.scans) ||
+    v.scans.length !== 3 ||
+    new Set(v.scans.map((s) => s.kind)).size !== 3
   )
-    throw new SnykError("invalid_response");
-  return {
-    id: p.id,
-    name: text(a.name),
-    type: text(a.type, 100),
-    status: a.status,
-    targetId: r.target.data.id,
-    reference:
-      typeof a.target_reference === "string"
-        ? a.target_reference.slice(0, 256)
-        : null,
-    url: `${webBase}/org/${encodeURIComponent(binding.orgSlug)}/project/${
-      p.id
-    }`,
-  };
-}
-function parseIssues(body, binding) {
-  if (!Array.isArray(body?.data) || body.data.length > 100)
-    throw new SnykError("invalid_response");
-  const seen = new Set();
-  const issues = body.data.map((i) => {
-    const a = i?.attributes,
-      r = i?.relationships;
+    throw Error("Invalid report");
+  const scans = v.scans.map((s) => {
     if (
-      !UUID.test(i?.id) ||
-      seen.has(i.id) ||
-      i.type !== "issue" ||
-      r?.organization?.data?.id !== binding.orgId ||
-      r?.scan_item?.data?.id !== binding.projectId ||
-      r.scan_item.data.type !== "project" ||
-      !SEVERITIES.includes(a?.effective_severity_level) ||
-      !["open", "resolved"].includes(a?.status) ||
-      typeof a.ignored !== "boolean"
+      !kinds.includes(s.kind) ||
+      !statuses.includes(s.status) ||
+      !Array.isArray(s.findings)
     )
-      throw new SnykError("invalid_response");
-    seen.add(i.id);
+      throw Error("Invalid scan");
+    if (
+      s.status !== "NOT_RUN" &&
+      (s.entityRef !== v.entityRef ||
+        s.commit !== v.commit ||
+        s.schemaVersion !== 1)
+    )
+      throw Error("Scan binding mismatch");
+    if (
+      ["PASSED", "BLOCKED"].includes(s.status) &&
+      (![0, 1].includes(s.exitCode) || !severities.includes(s.threshold))
+    )
+      throw Error("Incomplete scan");
+    if (
+      s.kind === "container" &&
+      s.status === "PASSED" &&
+      !/^[0-9a-f]{64}$/.test(s.archiveSha256)
+    )
+      throw Error("Missing image digest");
+    const counts = {};
+    for (const level of severities) {
+      const n = s.counts?.[level] || 0;
+      if (!Number.isSafeInteger(n) || n < 0) throw Error("Invalid counts");
+      counts[level] = n;
+    }
+    const findings = s.findings.slice(0, 200).map((f) => {
+      if (!severities.includes(f.severity)) throw Error("Unknown severity");
+      return {
+        id: text(f.id, 180),
+        severity: f.severity,
+        title: text(f.title),
+        file: text(f.file),
+        line: Number.isSafeInteger(f.line) ? f.line : null,
+        package: text(f.package),
+        version: text(f.version, 100),
+        fixedIn: Array.isArray(f.fixedIn)
+          ? f.fixedIn.slice(0, 30).map((x) => text(x, 100))
+          : [],
+      };
+    });
+    const threshold = severities.indexOf(s.threshold);
+    const blocked =
+      threshold >= 0 &&
+      severities.slice(0, threshold + 1).some((level) => counts[level] > 0);
+    if (
+      (s.status === "PASSED" && blocked) ||
+      (s.status === "BLOCKED" && !blocked)
+    )
+      throw Error("Policy/count mismatch");
+    for (const level of severities)
+      if (findings.filter((f) => f.severity === level).length > counts[level])
+        throw Error("Finding/count mismatch");
     return {
-      id: i.id,
-      title: text(a.title),
-      severity: a.effective_severity_level,
-      status: a.status,
-      ignored: a.ignored,
-      type: text(a.type, 100),
+      kind: s.kind,
+      status: s.status,
+      threshold: text(s.threshold),
+      counts,
+      findings,
+      truncated: !!s.truncated || s.findings.length > 200,
+      archiveSha256:
+        s.kind === "container" ? text(s.archiveSha256, 64) : undefined,
     };
   });
-  const next = body.links?.next;
-  if (
-    next !== undefined &&
-    next !== null &&
-    typeof next !== "string" &&
-    !(typeof next === "object" && typeof next.href === "string")
-  )
-    throw new SnykError("invalid_response");
-  return { issues, partial: !!next };
+  return {
+    schemaVersion: 1,
+    entityRef: v.entityRef,
+    commit: v.commit,
+    buildNumber: String(v.buildNumber),
+    observedAt: v.observedAt,
+    stale: Date.now() - Date.parse(v.observedAt) > 86400000,
+    scans,
+    gate: scans.some((s) => s.status === "ERROR")
+      ? "ERROR"
+      : scans.some((s) => s.status === "BLOCKED")
+      ? "BLOCKED"
+      : scans.some((s) => s.status === "NOT_RUN")
+      ? "INCOMPLETE"
+      : "PASSED",
+  };
 }
-async function loadSecurity(settings, bindings, fetcher = fetch) {
-  const signal = AbortSignal.timeout(20000);
-  const projects = [];
-  for (const b of bindings) {
-    const projectUrl = new URL(
-      `${settings.apiBase}/rest/orgs/${b.orgId}/projects/${b.projectId}`
-    );
-    projectUrl.searchParams.set("version", settings.apiVersion);
-    const project = parseProject(
-      await json(projectUrl, settings.token, signal, fetcher),
-      b,
-      settings.webBase
-    );
-    const issueUrl = new URL(`${settings.apiBase}/rest/orgs/${b.orgId}/issues`);
-    issueUrl.search = new URLSearchParams({
-      version: settings.apiVersion,
-      "scan_item.id": b.projectId,
-      "scan_item.type": "project",
-      limit: "100",
-      status: "open",
-      ignored: "false",
-    }).toString();
-    const result = parseIssues(
-      await json(issueUrl, settings.token, signal, fetcher),
-      b
-    );
-    // Filter defensively even if an upstream filter is not applied.
-    const issues = result.issues.filter(
-      (i) => i.status === "open" && !i.ignored
-    );
-    projects.push({
-      ...project,
-      issues,
-      partial: result.partial,
-      counts: Object.fromEntries(
-        SEVERITIES.map((s) => [
-          s,
-          issues.filter((i) => i.severity === s).length,
-        ])
-      ),
-    });
+async function loadSecurity(settings, b, fetcher = fetch) {
+  if (b.file) {
+    const f = await fs.open(b.file, "r");
+    try {
+      if ((await f.stat()).size > 900000) throw Error("Oversized report");
+      const buf = Buffer.alloc(900001);
+      const { bytesRead } = await f.read(buf, 0, buf.length, 0);
+      if (bytesRead > 900000) throw Error("Oversized report");
+      return validateReport(
+        JSON.parse(buf.subarray(0, bytesRead).toString()),
+        b
+      );
+    } finally {
+      await f.close();
+    }
   }
-  return { projects, observedAt: new Date().toISOString() };
+  const path = b.job
+    .split("/")
+    .map((s) => "job/" + encodeURIComponent(s))
+    .join("/");
+  const signal = AbortSignal.timeout(20000),
+    url = `${settings.base}/${path}`;
+  // Resolve once, then address the immutable build number for metadata and artifact.
+  const meta = await json(
+    `${url}/lastCompletedBuild/api/json?tree=number,result,building,actions[lastBuiltRevision[SHA1]]`,
+    settings.authorization,
+    signal,
+    fetcher
+  );
+  if (
+    !Number.isSafeInteger(meta.number) ||
+    meta.number < 1 ||
+    meta.building !== false
+  )
+    throw Error("Incomplete build");
+  const report = validateReport(
+    await json(
+      `${url}/${meta.number}/artifact/${safePath(b.artifact)}`,
+      settings.authorization,
+      signal,
+      fetcher
+    ),
+    b
+  );
+  const commits = (meta.actions || [])
+    .map((a) => a.lastBuiltRevision?.SHA1)
+    .filter((x) => sha.test(x));
+  if (
+    report.buildNumber !== String(meta.number) ||
+    !commits.includes(report.commit)
+  )
+    throw Error("Build evidence mismatch");
+  return {
+    ...report,
+    buildResult: text(meta.result, 30),
+    jenkinsUrl: `${settings.publicBase}/${path}/${meta.number}/`,
+  };
 }
-module.exports = {
-  UUID,
-  SEVERITIES,
-  SnykError,
-  endpoint,
-  json,
-  parseProject,
-  parseIssues,
-  loadSecurity,
-};
+module.exports = { endpoint, safePath, json, validateReport, loadSecurity };

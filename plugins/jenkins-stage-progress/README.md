@@ -11,7 +11,7 @@ The stock Jenkins RHDH plugin is optional; this panel works independently of it.
 - RHDH with authenticated users and a working catalog. Target baseline: **RHDH
   1.10.4**; standalone installation still needs live qualification on your target.
 - Jenkins Pipeline jobs with named stages and **Pipeline: REST API** installed.
-  Reference service versions: Jenkins **2.568.3**, Pipeline REST API **2.41**.
+  Service baseline: Jenkins **2.568.3**, Pipeline REST API **2.41**.
 - A Jenkins username/API token restricted to Overall/Read and Job/Read for the
   mapped jobs (including access through their folders). No build/admin permission.
 - Backend network access to Jenkins, browser access to its public URL and trusted
@@ -115,7 +115,7 @@ claiming standalone acceptance; building packages alone does not establish it.
 - To uninstall, remove these two entries and configuration, then roll out RHDH.
   No database, CRD or persistent volume is created by this plugin.
 
-## Reference screenshot and validation
+## Screenshot and validation
 
 ![Jenkins CI stage progress in RHDH](../../docs/images/jenkins-stage-progress-rhdh.png)
 

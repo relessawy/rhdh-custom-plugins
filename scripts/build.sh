@@ -7,6 +7,7 @@ P="$ROOT/plugins/$PLUGIN"
 cd "$ROOT"
 npm ci --legacy-peer-deps --ignore-scripts --no-fund --no-audit
 node --test "$P/backend/test/"*.test.cjs
+if [[ "$PLUGIN" == snyk-security ]]; then python3 -m unittest discover -s "$P/pipeline/test"; fi
 node scripts/build-backend.mjs "$PLUGIN"
 cd "$P/frontend"
 npm ci --legacy-peer-deps --ignore-scripts --no-fund --no-audit
