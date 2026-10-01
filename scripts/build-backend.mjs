@@ -3,7 +3,7 @@ import path from "node:path";
 import { build } from "esbuild";
 import { createRequire, isBuiltin } from "node:module";
 const name = process.argv[2];
-if (!["jenkins-stage-progress", "snyk-security"].includes(name))
+if (!["jenkins-stage-progress", "snyk-security", "splunk-logs", "jira-work-items"].includes(name))
   throw Error("Unknown plugin");
 const root = process.cwd(),
   dir = path.join(root, "plugins", name, "backend"),

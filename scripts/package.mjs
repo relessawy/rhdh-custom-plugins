@@ -5,7 +5,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const plugin = process.argv[2];
-if (!["jenkins-stage-progress", "snyk-security"].includes(plugin))
+if (!["jenkins-stage-progress", "snyk-security", "splunk-logs", "jira-work-items"].includes(plugin))
   throw Error("Unknown plugin");
 const p = path.join(root, "plugins", plugin),
   version = JSON.parse(

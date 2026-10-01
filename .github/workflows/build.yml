@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        plugin: [jenkins-stage-progress, snyk-security]
+        plugin: [jenkins-stage-progress, snyk-security, splunk-logs, jira-work-items]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

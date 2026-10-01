@@ -1,5 +1,20 @@
 # Releases
 
+## Splunk Application Logs 0.1.0
+
+- Add scoped request/error summaries and seven-day search windows.
+- Support custom CA trust, optional REST tokens and a reusable HEC collector.
+
+## Jira Work Items 0.1.0
+
+- Add project issues, dynamic workflow transitions and group-restricted status changes.
+- Record durable transition intent/outcomes and the initiating RHDH identity.
+
+## Build tooling
+
+- Add all-plugin builds, prerequisite checks, checkout locking and complete build instructions.
+- Build and package all four integrations independently in CI.
+
 ## Snyk Security 0.2.0
 
 - Display source, dependency and container scan policies with build/commit context.

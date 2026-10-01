@@ -1,0 +1,101 @@
+# Jira Work Items
+
+Show the work behind an application directly in RHDH: project issues, status
+counts, assignees, priorities and issue links. Authorized groups can move work to
+an available Jira workflow status without leaving the tab. Destinations are read
+from Jira, exclude the current status, and can include custom states such as Revoked.
+
+```text
+RHDH Jira tab -> authenticated backend -> catalog access + fixed project binding
+                                     -> Jira Cloud REST v3
+Status action -> group check + fresh workflow/version check -> durable audit intent
+              -> Jira transition -> verification + recorded outcome
+```
+
+![jira-work-items in RHDH](../../docs/images/jira-work-items-rhdh.png)
+
+Live RHDH installation after a verified Jira transition.
+
+## Prerequisites
+
+- RHDH with authenticated users, catalog permissions and the backend database
+  service configured with persistent PostgreSQL. Baseline: RHDH 1.10.4; see
+  [validation](../../docs/VALIDATION.md) for observed results.
+- Jira Cloud site, cloud UUID, a project and an integration user's scoped API token.
+  Use that user's email/token with `https://api.atlassian.com/ex/jira/<cloudId>`.
+  Jira Data Center, OAuth delegation and per-user Jira tokens are not implemented.
+- The Jira account needs Browse Projects plus access to the relevant issues.
+  To allow updates it also needs Transition Issues and applicable workflow rights.
+  Configure read/write token scopes for the used REST endpoints; common classic
+  scopes are `read:jira-work` and `write:jira-work`. For granular tokens use the
+  endpoint documentation below; token scopes do not grant missing Jira permissions.
+- Backend HTTPS access to Atlassian APIs and browser access to issue links.
+- Trusted RHDH group ownership references identifying users allowed to transition.
+  Empty `transitionGroups` makes the plugin read-only; no administrator role is needed.
+
+## Build and install
+
+```sh
+bash scripts/build.sh jira-work-items
+```
+
+Use Node 24, npm and tar. The [build guide](../../docs/BUILDING.md) explains tests,
+packaging, checksum verification and installation. Both archives are in
+`artifacts/jira-work-items/0.1.0/`; install them with their generated plugin YAML.
+
+Merge [app-config.yaml](examples/app-config.yaml). Populate the placeholder
+[Secret](examples/secret.yaml) privately and reference it from the RHDH deployment
+using [deployment fragments](examples/deployment.yaml). Set the site URL and cloud
+UUID for the same tenant. Keep email and API token backend-only.
+
+Add each full component entity reference to `jiraWorkItems.entities` (frontend
+visibility) and `jiraWorkItems.bindings` (backend project mapping). See
+[catalog-info.yaml](examples/catalog-info.yaml). No catalog annotation is required:
+changing catalog metadata cannot choose a different Jira project. The browser's
+entity list controls presentation only; backend mapping and catalog access enforce
+reads and writes. The tab displays a configuration notice for unmapped components.
+
+Set `transitionGroups` to canonical ownership references, such as
+`group:default/developers`. Each eligible user also needs catalog access. Jira
+attributes changes to the shared account; the RHDH audit table records the initiating
+user, entity, issue, transition, previous/resulting status, outcome and timestamp.
+The backend database service manages storage for plugin ID `jira-work-items`; the
+plugin creates `jira_transition_audit`. Permit its normal table initialization.
+
+## Verify
+
+Open the component's Jira tab and compare project issues/statuses with Jira. Counts
+cover the displayed 50 most recently updated issues, including Done items. It
+refreshes every 30 seconds and supports manual refresh.
+
+As a writer, open **Change status**. Confirm current status is absent and other
+workflow destinations appear. Cancel first; then apply a permitted transition on
+a designated test issue and verify the resulting status and audit reference.
+As a reader, verify actions are hidden and backend mutation is denied. Confirm
+anonymous, catalog-denied and unbound users cannot read or update issues. Test a
+stale issue/version and required-field transition: no unintended update should occur.
+
+## Limits and troubleshooting
+
+- Missing data: check site/cloud ID, token expiry/scopes, project mapping and Jira
+  account permissions. No arbitrary browser-supplied JQL is accepted.
+- Missing action: check group ownership references and Jira workflow permissions.
+  Only available transitions without mandatory extra fields are offered. Open Jira
+  for transitions requiring additional input. No hard-coded status list is used.
+- Conflict: refresh and choose again. The backend rereads status/updated time and
+  available transitions immediately before writing. Jira does not provide an atomic
+  conditional transition here, so a remote concurrent update remains possible.
+- Audit intent is persisted before sending a transition. If the response is uncertain,
+  refresh Jira before retrying; the plugin never automatically retries mutations.
+- The in-flight guard is per backend process, not a distributed lock. Use one backend
+  replica for the demonstration or add external serialization for stronger guarantees.
+- Shared credentials mean Jira authorization is the integration account's access;
+  RHDH catalog and group restrictions are additional controls, not user impersonation.
+- Responses are capped at 1 MB, transitions at 100 and issues at 50. Further work
+  items remain available through Jira. This is a project-level view, so components
+  mapped to the same project see the same visible issues.
+- Uninstall by removing frontend/backend entries and configuration and rolling out
+  RHDH. Retain the database audit records according to your retention policy.
+
+APIs: [issues and transitions](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/),
+[issue search](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-search/).

@@ -10,7 +10,7 @@ const express = require("express");
 (async () => {
   const root = process.cwd(),
     name = process.argv[2];
-  assert.ok(["jenkins-stage-progress", "snyk-security"].includes(name));
+  assert.ok(["jenkins-stage-progress", "snyk-security", "splunk-logs", "jira-work-items"].includes(name));
   const version = require(path.join(
     root,
     "plugins",
@@ -50,7 +50,7 @@ const express = require("express");
     const registration = registrations[0];
     assert.equal(
       registration.pluginId,
-      name === "jenkins-stage-progress" ? "ci-progress" : "snyk-security"
+      ({"jenkins-stage-progress":"ci-progress","snyk-security":"snyk-security","splunk-logs":"splunk-logs","jira-work-items":"jira-work-items"})[name]
     );
     const config =
       name === "jenkins-stage-progress"
@@ -69,9 +69,7 @@ const express = require("express");
             },
           }
         : {
-            snykSecurity: {
-              bindings: [],
-            },
+            ...(name === 'snyk-security' ? {snykSecurity:{bindings:[]}} : name === 'splunk-logs' ? {splunkLogs:{baseUrl:'https://splunk.example.com:8089',bindings:[]}} : {jiraWorkItems:{siteUrl:'https://example.atlassian.net',cloudId:'11111111-1111-4111-8111-111111111111',email:'reader@example.com',apiToken:'test-only',bindings:[],entities:[]}}),
           };
     const app = express();
     let routes = 0;
@@ -85,6 +83,8 @@ const express = require("express");
           routes++;
         },
       },
+      database: {getClient: async()=>({schema:{hasTable:async()=>true}})},
+      userInfo: {},
       httpAuth: {},
       auth: {},
       discovery: {},
