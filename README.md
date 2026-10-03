@@ -3,12 +3,15 @@
 Reusable custom dynamic plugins for Red Hat Developer Hub. Each integration has
 independent frontend/backend packages, configuration and installation instructions.
 
-| Plugin | Purpose | Version | Guide |
-|---|---|---|---|
-| Jenkins Stage Progress & Logs | Stages, build history and inline logs | 0.1.1 | [Install Jenkins](plugins/jenkins-stage-progress/README.md) |
-| Snyk Security | Source, dependency and image scan policies | 0.2.0 | [Install Snyk](plugins/snyk-security/README.md) |
-| Splunk Application Logs | Request health, error rate and recent errors | 0.1.0 | [Install Splunk](plugins/splunk-logs/README.md) |
-| Jira Work Items | Issues, workflow transitions and user audit | 0.1.0 | [Install Jira](plugins/jira-work-items/README.md) |
+| Plugin | Function |
+|---|---|
+| [Jenkins Stage Progress & Logs](plugins/jenkins-stage-progress/README.md) | Pipeline stages, build history and inline stage logs |
+| [Snyk Security](plugins/snyk-security/README.md) | Source, dependency and container-image security status |
+| [Splunk Application Logs](plugins/splunk-logs/README.md) | Application request health, error rate and recent errors |
+| [Jira Work Items](plugins/jira-work-items/README.md) | Jira issues and permission-controlled workflow actions |
+
+RHDH requires authenticated users, a working catalog and the backend services
+specified by each integration. Provider credentials stay in backend Secrets.
 
 ## Build the plugins
 
@@ -45,7 +48,7 @@ plugins/
   splunk-logs/             frontend/ backend/ ingestion/ examples/ README.md
   jira-work-items/         frontend/ backend/ examples/ README.md
 scripts/                   shared build, packaging and loader checks
-docs/                      validation and screenshots
+docs/                      build instructions and screenshots
 .github/workflows/         per-plugin build checks
 ```
 
@@ -56,4 +59,4 @@ New plugins must include tests, locked dependencies, configuration examples and 
 installation guide. They must not depend on another optional integration.
 
 These are custom-maintained integrations. Vendor support is not included.
-[Validation and compatibility](docs/VALIDATION.md) · [License](LICENSE)
+[License](LICENSE)

@@ -10,11 +10,11 @@ unit/API tests, frontend state tests, real archive loading, configuration exampl
 troubleshooting and uninstall steps. Validate the provider's current API and account
 requirements; do not assume that CLI access includes API access.
 
-Documentation should describe installation and behavior directly. Include real
-screenshots with neutral captions, exact tested versions, and separate build,
-package-loading and live-installation results. Live acceptance requires installation of the packaged plugin and real provider data. Keep example URLs and
-identifiers generic, and scan source, archives and Git history for credentials
-before publication. Preserve required third-party licenses in packaged assets.
+Documentation describes current capabilities, requirements, configuration and usage.
+Keep one functional screenshot per plugin, without captions or remarks. Keep examples
+generic and credentials out of source, archives and Git history. Preserve required
+third-party licenses. Do not add execution results, development narratives or history
+files to product documentation. Keep automated checks in the build and CI workflow.
 
 Inspect the intended user experience and its actual data path before implementation.
 Preserve legitimate external-system prerequisites while keeping plugins independently
