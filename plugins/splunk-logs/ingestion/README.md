@@ -3,7 +3,7 @@
 Configure a Splunk index (for example `applications`) and an HEC input restricted
 to that index. Configure the sourcetype to extract JSON fields. Keep the HEC endpoint
 private or authenticated and store its token in a Secret separate from RHDH's
-optional management API token. Set index retention to cover the desired demo period.
+optional management API token. Set index retention to cover the required query period.
 
 Each completed HTTP request emits one NDJSON line, with a unique request ID:
 
