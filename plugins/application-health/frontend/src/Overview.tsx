@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-export type CardId = "vault" | "jenkins" | "snyk" | "splunk" | "argocd" | "sonarqube";
+export type CardId = "mesh" | "vault" | "jenkins" | "snyk" | "splunk" | "argocd" | "sonarqube" | "pagerduty";
 export const titles: Record<CardId, string> = {
+  mesh: "Service Mesh · Kiali",
+  pagerduty: "Incidents · PagerDuty",
   sonarqube: "Quality · SonarQube",
   argocd: "Deployment · Argo CD",
   vault: "Secrets · Vault",
@@ -10,6 +12,8 @@ export const titles: Record<CardId, string> = {
 };
 export function configuredCards(annotations: Record<string, string>, enabled: string[]): CardId[] {
   const bindings: Record<CardId, string[]> = {
+    mesh: ["kiali.io/namespace"],
+    pagerduty: ["pagerduty.com/service-id"],
     sonarqube: ["sonarqube.org/project-key"],
     argocd: ["argocd/app-name"],
     vault: ["vault-health.io/vault-binding"],

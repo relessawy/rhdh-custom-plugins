@@ -49,4 +49,4 @@ returns Unavailable. Refreshing the report does not establish that an applicatio
 login or secret rotation occurred; record those checks only when observed.
 
 
-![Vault integration](../../docs/images/vault-health.png)
+![Vault integration](../../docs/images/vault-health.jpg)

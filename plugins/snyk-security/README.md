@@ -101,7 +101,7 @@ or incomplete reports are displayed separately from successful scan outcomes.
 
 ## Screenshot
 
-![Snyk Security](../../docs/images/snyk-security.png)
+![Snyk Security](../../docs/images/snyk-security.jpg)
 
 ## Troubleshooting
 

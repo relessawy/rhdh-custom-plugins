@@ -68,7 +68,7 @@ refreshes every five seconds; the full console link opens Jenkins.
 
 ## Screenshot
 
-![Jenkins Stage Progress & Logs](../../docs/images/jenkins-stage-progress.png)
+![Jenkins Stage Progress & Logs](../../docs/images/jenkins-stage-progress.jpg)
 
 ## Troubleshooting
 

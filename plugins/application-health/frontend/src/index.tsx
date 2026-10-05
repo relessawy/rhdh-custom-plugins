@@ -1,3 +1,5 @@
+import { meshCard } from "./mesh";
+import { pagerDutyCard } from "./pagerduty";
 import { sonarCard } from "./sonarqube";
 import { argoCard } from "./argocd";
 import React, { useCallback, useEffect, useState } from "react";
@@ -47,6 +49,42 @@ export function ApplicationHealthOverview() {
   )}/component/${encodeURIComponent(entity.metadata.name)}`;
   const load = useCallback(
     async (id: CardId, window = "7d"): Promise<CardData> => {
+      if (id === "mesh") {
+        const annotations = entity.metadata.annotations || {};
+        const namespace = annotations["kiali.io/namespace"];
+        if (!namespace) throw Error("Mesh namespace annotation is required");
+        const endpoint = await discovery.getBaseUrl("kiali");
+        const get = async (path: string) => {
+          const response = await fetcher.fetch(`${endpoint}/proxy`, {method: "POST",
+            headers: {"Content-Type": "application/json"}, body: JSON.stringify({provider: annotations["kiali.io/provider"] || "default", endpoint: path})});
+          if (!response.ok) throw Error("Kiali unavailable");
+          const data = await response.json();
+          if (data?.verify === false || data?.error) throw Error("Kiali unavailable");
+          return data;
+        };
+        const [workloads, tls] = await Promise.all([
+          get(`api/clusters/workloads?namespaces=${encodeURIComponent(namespace)}`),
+          get(`api/namespaces/${encodeURIComponent(namespace)}/tls`)]);
+        return meshCard(namespace, workloads, tls,
+          (config.getOptionalStringArray("applicationHealth.detailTabs") || []).includes("mesh") ? base + "/mesh" : undefined);
+      }
+      if (id === "pagerduty") {
+        const serviceId = entity.metadata.annotations?.["pagerduty.com/service-id"];
+        if (!serviceId) throw Error("PagerDuty service annotation is required");
+        const endpoint = await discovery.getBaseUrl("pagerduty");
+        const account = entity.metadata.annotations?.["pagerduty.com/account"] || "";
+        const get = async (path: string) => {
+          const r = await fetcher.fetch(`${endpoint}${path}${path.includes("?") ? "&" : "?"}account=${encodeURIComponent(account)}`);
+          if (!r.ok) throw Error("PagerDuty unavailable");
+          return r.json();
+        };
+        const [s, i] = await Promise.all([get(`/services/${encodeURIComponent(serviceId)}`), get(`/services/${encodeURIComponent(serviceId)}/incidents`)]);
+        if (!s.service?.id || !Array.isArray(i.incidents)) throw Error("Invalid PagerDuty response");
+        const policy = s.service.escalation_policy?.id;
+        const oncall = policy ? await get(`/oncall-users?escalation_policy_ids=${encodeURIComponent(policy)}`) : {users: []};
+        return pagerDutyCard(s.service, i.incidents, oncall.users,
+          (config.getOptionalStringArray("applicationHealth.detailTabs") || []).includes("pagerduty") ? base + "/pagerduty" : undefined);
+      }
       if (id === "sonarqube") {
         const annotation = entity.metadata.annotations?.["sonarqube.org/project-key"];
         if (!annotation) throw Error("SonarQube project annotation is required");
