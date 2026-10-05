@@ -58,3 +58,5 @@ Customize tabs also provides show/hide checkboxes. Hidden tabs remain in the edi
 so they can be restored, and Reset to default restores both visibility and order.
 Overview cannot be hidden. Hiding the current tab returns to Overview; bookmarks
 and permissions are unchanged. Topology uses the OpenShift logo.
+
+![Tab visibility controls](../../docs/images/portal-tab-visibility.jpg)
