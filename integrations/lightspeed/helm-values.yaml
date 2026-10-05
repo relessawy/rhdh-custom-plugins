@@ -1,0 +1,106 @@
+global:
+  lightspeed:
+    enabled: true
+    secret:
+      create: false
+      name: rhdh-lightspeed-provider
+      optional: false
+    configMaps:
+    - name: stack
+      create: false
+      nameOverride: rhdh-lightspeed-stack
+      mountPath: /app-root/lightspeed-stack.yaml
+      subPath: lightspeed-stack.yaml
+      sourceFile: lightspeed-stack.yaml
+      optional: false
+    - name: config
+      create: true
+      mountPath: /app-root/config.yaml
+      subPath: config.yaml
+      sourceFile: config.yaml
+      optional: false
+    - name: rhdh-profile
+      create: true
+      mountPath: /app-root/rhdh-profile.py
+      subPath: rhdh-profile.py
+      sourceFile: rhdh-profile.py
+      optional: false
+    plugins:
+    - package: oci://registry.access.redhat.com/rhdh/red-hat-developer-hub-backstage-plugin-lightspeed@sha256:abd10cdcc70ca710d0c18baa0913792100eeb8d8554c1359ed1a29d2ba3f8c77
+      disabled: false
+      pluginConfig:
+        dynamicPlugins:
+          frontend:
+            red-hat-developer-hub.backstage-plugin-lightspeed:
+              dynamicRoutes:
+              - path: /lightspeed
+                importName: LightspeedPage
+              mountPoints:
+              - mountPoint: application/listener
+                importName: LightspeedFAB
+              - mountPoint: application/provider
+                importName: LightspeedDrawerProvider
+              - mountPoint: application/internal/drawer-state
+                importName: LightspeedDrawerStateExposer
+                config:
+                  id: lightspeed
+              - mountPoint: application/internal/drawer-content
+                importName: LightspeedChatContainer
+                config:
+                  id: lightspeed
+                  priority: 100
+    - package: oci://registry.access.redhat.com/rhdh/red-hat-developer-hub-backstage-plugin-lightspeed-backend@sha256:8de2810bb50af658ce3dd3b5a83bcc11bea738da6b1aeb637501e26b6522ca25
+      disabled: false
+    sidecar:
+      env:
+      - name: VLLM_URL
+        value: http://127.0.0.1:18080/v1
+      - name: OMP_NUM_THREADS
+        value: '1'
+      - name: MKL_NUM_THREADS
+        value: '1'
+upstream:
+  backstage:
+    appConfig:
+      lightspeed:
+        servicePort: 8080
+        prompts:
+        - title: Get started with the portal
+          message: How do software templates, the catalog and TechDocs help me onboard
+            an application?
+        - title: Understand a delivery workflow
+          message: Explain how CI security checks and GitOps deployment fit together.
+            Distinguish general guidance from the current state of my application.
+        - title: Work with application documentation
+          message: How can I provide application documentation as context for my questions?
+    extraContainers:
+    - name: lightspeed-groq-compat
+      image: registry.redhat.io/lightspeed-core/lightspeed-stack-rhel9@sha256:babc23ef7baba4e985c421307b0524b8cd009813d268c99d48881ddf2f1ada67
+      command:
+      - python3
+      - /compat/groq-compat.py
+      env:
+      - name: GROQ_MODEL
+        value: openai/gpt-oss-120b
+      volumeMounts:
+      - name: lightspeed-groq-compat
+        mountPath: /compat
+        readOnly: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          cpu: 100m
+          memory: 128Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        runAsNonRoot: true
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+          - ALL
+    extraVolumes:
+    - name: lightspeed-groq-compat
+      configMap:
+        name: rhdh-lightspeed-groq-compat

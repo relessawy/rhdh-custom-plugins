@@ -1,0 +1,4 @@
+{
+  "api_key": "<GROQ_API_KEY>",
+  "model": "<MODEL_AVAILABLE_IN_YOUR_GROQ_ACCOUNT>"
+}

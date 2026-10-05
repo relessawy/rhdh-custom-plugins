@@ -33,6 +33,7 @@ verification and screenshots. These detailed tabs are separate from compact card
 | [PagerDuty](integrations/pagerduty/README.md) | Service, Dynatrace incident workflow and native tab |
 | [Service Mesh / Kiali](integrations/service-mesh/README.md) | Shared mesh, template enrollment and traffic graph |
 | [Scorecard](integrations/scorecard/README.md) | Jira/File Check providers, thresholds and readiness tab |
+| [Developer Lightspeed](integrations/lightspeed/README.md) | Portal-wide AI assistance with a configured model provider |
 
 Start with [native installation conventions](integrations/INSTALL.md). These packages
 are installed from their configured native/community exports; they are not extra build

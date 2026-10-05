@@ -1,0 +1,2 @@
+p, role:default/developer, lightspeed.chat.read, read, allow
+p, role:default/developer, lightspeed.chat.create, create, allow

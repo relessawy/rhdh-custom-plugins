@@ -13,5 +13,6 @@ custom Application Overview cards. No second repository is required. Start with
 | [PagerDuty](pagerduty/README.md) | Service incidents, on-call and monitoring-to-incident workflow |
 | [Service Mesh / Kiali](service-mesh/README.md) | Mesh enrollment and observed traffic graph |
 | [Scorecard](scorecard/README.md) | Scheduled Jira and repository-file readiness metrics |
+| [Developer Lightspeed](lightspeed/README.md) | Portal-wide AI assistance with a configured model provider |
 
 Package configuration and provider prerequisites are listed in each guide.
