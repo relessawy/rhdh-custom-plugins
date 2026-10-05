@@ -11,7 +11,7 @@ Jenkins, Snyk, Vault or the overview cards.
    ```sh
    bash scripts/build.sh portal-appearance
    ```
-2. Serve the generated archive from `artifacts/portal-appearance/0.3.0/` over HTTPS.
+2. Serve the generated archive from `artifacts/portal-appearance/0.3.1/` over HTTPS.
 3. Copy the generated `dynamic-plugins.yaml` package entry into your RHDH dynamic
    plugin configuration, replace its example URL with your archive URL, and retain
    its generated integrity value. The entry includes the `application/header`
@@ -50,3 +50,6 @@ ServiceNow while keeping its `/infrastructure` route and saved ordering intact.
 See [brand asset attribution](BRAND-ASSETS.md).
 
 ![Branded application tabs](../../docs/images/portal-branded-tabs.jpg)
+
+All tab icons use a uniform 20 × 20 px box. Brand SVGs retain their aspect ratio
+and transparent background, without a surrounding tile or padding.

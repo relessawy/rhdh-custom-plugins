@@ -42,9 +42,10 @@ function Icon({ id }: { id: string }) {
   if (hasBrandIcon(id)) return <BrandIcon id={id}/>;
   return (
     <svg
+      style={{flexShrink:0}}
       aria-hidden="true"
-      width="17"
-      height="17"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
