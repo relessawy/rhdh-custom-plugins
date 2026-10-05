@@ -1,7 +1,18 @@
 # RHDH Custom Plugins
 
-Reusable custom dynamic plugins for Red Hat Developer Hub. Each integration has
-independently installable packages, configuration and installation instructions.
+Custom dynamic plugins and native/community integration guides for Red Hat Developer Hub.
+
+## Find an integration
+
+**Additional integrations:** [Argo CD](integrations/argocd/README.md) ·
+[Topology](integrations/topology/README.md) · [SonarQube](integrations/sonarqube/README.md) ·
+[Dynatrace](integrations/dynatrace/README.md) · [PagerDuty](integrations/pagerduty/README.md) ·
+[Service Mesh / Kiali](integrations/service-mesh/README.md) · [Scorecard](integrations/scorecard/README.md)
+
+Their provider configuration, package entries, installation instructions and screenshots
+are under **[integrations/](integrations/README.md)**. Custom plugin source and build
+instructions are under **[plugins/](plugins/README.md)**. Application Overview provides
+compact cards; each integration's detailed tab has its own setup guide.
 
 ## Custom plugins
 
