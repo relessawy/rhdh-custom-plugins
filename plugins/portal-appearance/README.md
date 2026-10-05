@@ -11,7 +11,7 @@ Jenkins, Snyk, Vault or the overview cards.
    ```sh
    bash scripts/build.sh portal-appearance
    ```
-2. Serve the generated archive from `artifacts/portal-appearance/0.4.0/` over HTTPS.
+2. Serve the generated archive from `artifacts/portal-appearance/0.4.4/` over HTTPS.
 3. Copy the generated `dynamic-plugins.yaml` package entry into your RHDH dynamic
    plugin configuration, replace its example URL with your archive URL, and retain
    its generated integrity value. The entry includes the `application/header`
@@ -45,7 +45,8 @@ then roll out RHDH. This integration targets the legacy RHDH entity header's
 
 ![Tab ordering](../../docs/images/portal-tab-visibility.jpg)
 
-CD, Splunk, Jira and ServiceNow use bundled brand logos. Infrastructure is labelled
+Argo CD, Splunk, Jira, ServiceNow, SonarQube, Dynatrace, PagerDuty and Kiali use
+bundled product icons. Generic tabs use distinct symbols. Infrastructure is labelled
 ServiceNow while keeping its `/infrastructure` route and saved ordering intact.
 See [brand asset attribution](BRAND-ASSETS.md).
 

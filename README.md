@@ -5,17 +5,39 @@ independently installable packages, configuration and installation instructions.
 
 | Plugin | Function |
 |---|---|
-| [Jenkins Stage Progress & Logs](plugins/jenkins-stage-progress/README.md) | Pipeline stages, build history and inline stage logs |
+| [Jenkins Stage Progress & Logs](plugins/jenkins-stage-progress/README.md) | Extends the community Jenkins experience with pipeline stages, build history and task logs directly in RHDH |
 | [Snyk Security](plugins/snyk-security/README.md) | Source, dependency and container-image security status |
 | [Splunk Application Logs](plugins/splunk-logs/README.md) | Application request health, error rate and recent errors |
-| [Application Overview](plugins/application-health/README.md) | Personalized, collapsible summaries of Argo CD, Vault, Jenkins, Snyk and Splunk |
+| [Application Overview](plugins/application-health/README.md) | Compact cards for Argo CD, Vault, Jenkins, Snyk, Splunk, SonarQube, PagerDuty and Service Mesh; users can hide, restore, collapse and reorder cards |
 | [Vault Health](plugins/vault-health/README.md) | Independent Vault integration-health frontend and backend |
 | [ServiceNow Infrastructure](plugins/servicenow-infrastructure/README.md) | Approval-gated environment requests and fulfillment status |
 | [Jira Work Items](plugins/jira-work-items/README.md) | Jira issues and permission-controlled workflow actions |
-| [Portal Appearance](plugins/portal-appearance/README.md) | Styled entity tabs with icons, drag ordering and personal preferences |
+| [Portal Appearance](plugins/portal-appearance/README.md) | Styled entity tabs with product icons, drag ordering and per-user show/hide preferences |
 
 RHDH requires authenticated users, a working catalog and the backend services
 specified by each integration. Provider credentials stay in backend Secrets.
+
+## Included integration views
+
+The eight custom plugins above are independently installable. Application Overview
+adds summary cards to the component dashboard; Vault retains its own independent tab
+and backend. A missing integration affects only its corresponding overview card.
+
+Argo CD, SonarQube, PagerDuty and Kiali detail tabs use separately installed native
+or community plugins. This repository supplies their overview cards and navigation
+icons. Dynatrace has a product icon here; its detailed view is supplied separately.
+See [Application Overview setup](plugins/application-health/README.md) for each
+card's backend, entity annotations and configuration.
+
+- **PagerDuty:** open incidents, triggered/acknowledged counts and the on-call responder.
+- **Service Mesh / Kiali:** meshed workload counts, automatic mTLS and reported TLS policy;
+  the native Kiali tab supplies the traffic graph.
+- **SonarQube:** quality gate, coverage, duplication and issue counts.
+
+Screenshots are included in each plugin's README, including the updated
+[Vault health view](plugins/vault-health/README.md),
+[overview cards](plugins/application-health/README.md) and
+[branded tabs](plugins/portal-appearance/README.md).
 
 ## Build the plugins
 
