@@ -1,7 +1,7 @@
 # Application Overview
 
 Optional, frontend-only summary cards for independently installed Vault, Jenkins,
-Snyk, Splunk, Argo CD, SonarQube and PagerDuty integrations. It has no backend and owns no Vault configuration.
+Snyk, Splunk, Argo CD, SonarQube, PagerDuty and Service Mesh / Kiali integrations. It has no backend and owns no Vault configuration.
 Each card loads independently: a missing or failing backend makes only that card
 Unavailable. Hidden and disabled cards do not poll. No provider is a package dependency.
 
@@ -12,7 +12,7 @@ bash scripts/build.sh application-health
 ```
 
 Use Node 24. The command produces one frontend
-archive in `artifacts/application-health/0.6.0/`. Publish it and use the generated
+archive in `artifacts/application-health/0.7.0/`. Publish it and use the generated
 integrity-pinned `dynamic-plugins.yaml`. See [build instructions](../../docs/BUILDING.md).
 Apply [frontend configuration](examples/app-config.yaml) and the generated mount
 point wiring. `applicationHealth.enabledCards` defaults to an empty list: list only
