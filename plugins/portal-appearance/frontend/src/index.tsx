@@ -1,9 +1,9 @@
 import { BrandIcon, hasBrandIcon, tabLabel } from "./brands";
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { identityApiRef, useApi } from "@backstage/core-plugin-api";
-import { Tab, move, orderedTabs, parseOrder } from "./order";
+import { Tab, move, orderedTabs, parseOrder, visibleTabs } from "./order";
 
 const css = `
 [data-acme-native-tabs] { display: none !important; }
@@ -15,6 +15,7 @@ const css = `
 .acme-tab-strip a { display:flex; gap:8px; align-items:center; flex-shrink:0; box-sizing:border-box; min-height:44px; padding:12px 16px; border:1px solid #DED8D4; border-bottom:0; border-radius:10px 10px 0 0; background:linear-gradient(#FFF,#F0ECE9); color:#443C38 !important; font-weight:600; text-decoration:none !important; box-shadow:0 -1px 3px #37191412; }
 .acme-tab-strip a:hover { background:#FCE9E7; }
 .acme-tab-strip a[aria-selected=true] { background:linear-gradient(#E5231C,#C9140E); color:white !important; border-color:#C9140E; min-height:48px; box-shadow:0 -2px 7px #96140C2E; }
+.acme-tab-strip a[aria-selected=true] > img { filter:brightness(0) invert(1); }
 .acme-tab-strip a[data-drop=true] { outline:3px dashed #9A170F; outline-offset:-4px; }
 .acme-tabs-shell :focus-visible { outline:3px solid #74221D; outline-offset:-3px; }
 .acme-tab-strip a[aria-selected=true]:focus-visible { outline-color:white; }
@@ -42,9 +43,10 @@ function Icon({ id }: { id: string }) {
   if (hasBrandIcon(id)) return <BrandIcon id={id}/>;
   return (
     <svg
+      style={{flexShrink:0}}
       aria-hidden="true"
-      width="17"
-      height="17"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -61,6 +63,8 @@ function Icon({ id }: { id: string }) {
 
 export function CatalogTabAppearance() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const [hidden, setHidden] = useState<string[]>([]);
   const identity = useApi(identityApiRef);
   const base = pathname.match(/^\/catalog\/[^/]+\/[^/]+\/[^/]+/)?.[0];
   const [host, setHost] = useState<HTMLElement | null>(null),
@@ -89,6 +93,7 @@ export function CatalogTabAppearance() {
           setKey(k);
           try {
             setOrder(parseOrder(localStorage.getItem(k)));
+            setHidden(parseOrder(localStorage.getItem(k + ":hidden")));
           } catch {
             setMessage("Preferences cannot be saved in this browser.");
           }
@@ -151,6 +156,8 @@ export function CatalogTabAppearance() {
     };
   }, [base]);
   const arranged = orderedTabs(tabs, order);
+  const visible = visibleTabs(arranged, hidden);
+  const isSelected = (t: Tab) => pathname === t.href || (t.id !== "overview" && pathname.startsWith(t.href + "/"));
   useEffect(() => {
     strip.current
       ?.querySelector('[aria-selected="true"]')
@@ -167,6 +174,17 @@ export function CatalogTabAppearance() {
           "Order changed for this session; browser storage is unavailable."
         );
       }
+  }
+  function saveHidden(next: string[]) {
+    const safe = next.filter(id => id !== "overview");
+    setHidden(safe);
+    setMessage("Tab visibility saved in this browser.");
+    if (key) try { localStorage.setItem(key + ":hidden", JSON.stringify(safe)); }
+    catch { setMessage("Visibility changed for this session; browser storage is unavailable."); }
+  }
+  function toggleTab(t: Tab, show: boolean) {
+    saveHidden(show ? hidden.filter(id => id !== t.id) : [...hidden, t.id]);
+    if (!show && isSelected(t) && base) navigate(base);
   }
   function reorder(from: string, to: string) {
     const current = arranged.map((t) => t.id);
@@ -195,15 +213,15 @@ export function CatalogTabAppearance() {
           <p>
             Drag a tab to reorder it, or use the move buttons below. On a
             focused tab, Ctrl+Shift+Left/Right also moves it. Your order is
-            saved for your account in this browser.
+            saved for your account in this browser. Use the checkboxes to show or hide tabs. Overview always remains available; visibility does not change access.
           </p>
-          <button onClick={() => save([], "Default tab order restored.")}>
+          <button onClick={() => { saveHidden([]); save([], "Default tab order and visibility restored."); }}>
             Reset to default
           </button>
           <ol>
             {arranged.map((t, i) => (
               <li key={t.id}>
-                <span>{t.label}</span>
+                <label style={{display:"flex",alignItems:"center",gap:6}}><input type="checkbox" aria-label={`Show ${t.label} tab`} checked={t.id === "overview" || !hidden.includes(t.id)} disabled={t.id === "overview"} onChange={e => toggleTab(t, e.target.checked)}/><span>{t.label}</span></label>
                 <button
                   disabled={i === 0}
                   aria-label={`Move ${t.label} left`}
@@ -230,7 +248,7 @@ export function CatalogTabAppearance() {
         aria-label="Application tabs"
         ref={strip}
       >
-        {arranged.map((t, i) => {
+        {visible.map((t, i) => {
           const selected =
             pathname === t.href ||
             (t.id !== "overview" && pathname.startsWith(t.href + "/"));
@@ -240,7 +258,7 @@ export function CatalogTabAppearance() {
               to={t.href}
               role="tab"
               aria-selected={selected}
-              tabIndex={selected ? 0 : -1}
+              tabIndex={selected || (i === 0 && !visible.some(isSelected)) ? 0 : -1}
               draggable={false}
               data-acme-tab-id={t.id}
               data-drop={drop === t.id}
@@ -306,21 +324,21 @@ export function CatalogTabAppearance() {
                 if (direction) {
                   e.preventDefault();
                   const target =
-                    arranged[
-                      (i + direction + arranged.length) % arranged.length
+                    visible[
+                      (i + direction + visible.length) % visible.length
                     ];
                   if (e.ctrlKey && e.shiftKey) reorder(t.id, target.id);
                   else
                     (
                       strip.current?.children[
-                        (i + direction + arranged.length) % arranged.length
+                        (i + direction + visible.length) % visible.length
                       ] as HTMLElement
                     )?.focus();
                 } else if (e.key === "Home" || e.key === "End") {
                   e.preventDefault();
                   (
                     strip.current?.children[
-                      e.key === "Home" ? 0 : arranged.length - 1
+                      e.key === "Home" ? 0 : visible.length - 1
                     ] as HTMLElement
                   )?.focus();
                 }

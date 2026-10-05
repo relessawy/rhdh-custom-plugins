@@ -36,3 +36,11 @@ test("invalid preferences and duplicates are safe", () => {
 
 import {tabLabel,hasBrandIcon} from "../src/brands";
 test("brand labels preserve route identities",()=>{assert.equal(tabLabel("infrastructure","Infrastructure"),"ServiceNow");assert.equal(tabLabel("ci","CI"),"CI");for(const id of ["cd","jira","splunk","infrastructure"])assert.ok(hasBrandIcon(id));assert.ok(!hasBrandIcon("docs"));});
+
+import {visibleTabs} from "../src/order";
+test("visibility retains Overview and restores hidden or newly installed tabs",()=>{
+ assert.deepEqual(visibleTabs(tabs,["overview","ci","vault"]).map(t=>t.id),["overview","docs"]);
+ assert.deepEqual(visibleTabs(tabs,[]),tabs);
+ assert.deepEqual(visibleTabs(tabs,["missing"]).map(t=>t.id),tabs.map(t=>t.id));
+ assert.ok(hasBrandIcon("topology"));
+});
