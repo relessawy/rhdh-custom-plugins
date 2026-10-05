@@ -1,0 +1,51 @@
+{
+  "plugins": [
+    {
+      "package": "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/dynatrace-backstage-plugin-dql-backend@sha256:0c871860095515fc0b35e4088b665906ba9ed6cb9cf81f5fb53c61a97bb5c9ce",
+      "disabled": false
+    },
+    {
+      "package": "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/dynatrace-backstage-plugin-dql@sha256:51b09bbbcb4e1b7c729c33dc7b938b41e1522e3ad34fafd0d19faee05e7aaaf0",
+      "disabled": false,
+      "pluginConfig": {
+        "dynamicPlugins": {
+          "frontend": {
+            "dynatrace.backstage-plugin-dql": {
+              "entityTabs": [
+                {
+                  "path": "/dynatrace",
+                  "title": "Dynatrace",
+                  "mountPoint": "entity.page.dynatrace"
+                }
+              ],
+              "mountPoints": [
+                {
+                  "mountPoint": "entity.page.dynatrace/cards",
+                  "importName": "EntityKubernetesDeploymentsCard",
+                  "config": {
+                    "layout": {
+                      "gridColumn": "1 / -1"
+                    },
+                    "props": {
+                      "title": "Dynatrace workloads"
+                    },
+                    "if": {
+                      "anyOf": [
+                        {
+                          "hasAnnotation": "backstage.io/kubernetes-label-selector"
+                        },
+                        {
+                          "hasAnnotation": "backstage.io/kubernetes-id"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "plugins": [
+    {
+      "package": "./dynamic-plugins/dist/backstage-plugin-kubernetes",
+      "disabled": false,
+      "pluginConfig": {
+        "dynamicPlugins": {
+          "frontend": {
+            "backstage.plugin-kubernetes": {
+              "mountPoints": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "package": "./dynamic-plugins/dist/backstage-plugin-kubernetes-backend-dynamic",
+      "disabled": false
+    },
+    {
+      "package": "./dynamic-plugins/dist/backstage-community-plugin-topology",
+      "disabled": false,
+      "pluginConfig": {
+        "dynamicPlugins": {
+          "frontend": {
+            "backstage-community.plugin-topology": {
+              "entityTabs": [
+                {
+                  "path": "/topology",
+                  "title": "Topology",
+                  "mountPoint": "entity.page.topology"
+                }
+              ],
+              "mountPoints": [
+                {
+                  "mountPoint": "entity.page.topology/cards",
+                  "importName": "TopologyPage",
+                  "config": {
+                    "layout": {
+                      "gridColumn": "1 / -1",
+                      "height": "75vh"
+                    },
+                    "if": {
+                      "anyOf": [
+                        {
+                          "hasAnnotation": "backstage.io/kubernetes-id"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

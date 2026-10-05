@@ -1,0 +1,13 @@
+# Inside the skeleton's complete Deployment manifest:
+spec:
+  template:
+    metadata:
+      labels:
+        app: example-app
+        version: v1
+{% if values.meshEnabled %}
+        istio.io/rev: mesh
+      annotations:
+        proxy.istio.io/config: '{"holdApplicationUntilProxyStarts":true}'
+{% endif %}
+# Retain the existing spec.template.spec and containers beneath this metadata.

@@ -1,0 +1,43 @@
+{
+  "plugins": [
+    {
+      "package": "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/backstage-community-plugin-argocd-backend@sha256:46fd3973c4584d25c36d1df9fea8b0ad4482f4b70683864f5644fdf47f90cac6",
+      "disabled": false
+    },
+    {
+      "package": "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/backstage-community-plugin-argocd@sha256:fb31371b81e8d3631c21458f0a0ac0cacc220d2a9195a2571f23b1accdf923f1",
+      "disabled": false,
+      "pluginConfig": {
+        "dynamicPlugins": {
+          "frontend": {
+            "backstage-community.plugin-argocd": {
+              "entityTabs": [
+                {
+                  "path": "/cd",
+                  "title": "CD",
+                  "mountPoint": "entity.page.cd"
+                }
+              ],
+              "mountPoints": [
+                {
+                  "mountPoint": "entity.page.cd/cards",
+                  "importName": "ArgocdDeploymentLifecycle",
+                  "config": {
+                    "layout": {
+                      "gridColumn": "1 / -1"
+                    },
+                    "if": {
+                      "allOf": [
+                        "isArgocdConfigured"
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

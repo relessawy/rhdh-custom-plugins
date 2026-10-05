@@ -1,0 +1,39 @@
+jira:
+  baseUrl: https://api.atlassian.com/ex/jira/YOUR_CLOUD_ID
+  token: ${JIRA_SCORECARD_TOKEN}
+  product: cloud
+scorecard:
+  dataRetentionDays: 30
+  plugins:
+    jira:
+      open_issues:
+        options:
+          mandatoryFilter: statusCategory != Done AND priority in (Highest, High)
+        thresholds:
+          rules:
+          - key: success
+            expression: <1
+          - key: warning
+            expression: 1-2
+          - key: error
+            expression: '>2'
+        schedule:
+          frequency:
+            minutes: 5
+          timeout:
+            minutes: 2
+          initialDelay:
+            seconds: 10
+    filecheck:
+      files:
+        pipeline: Jenkinsfile
+        workspace: devfile.yaml
+        techdocs: mkdocs.yml
+        secrets_guide: docs/secrets.md
+      schedule:
+        frequency:
+          minutes: 5
+        timeout:
+          minutes: 3
+        initialDelay:
+          seconds: 15

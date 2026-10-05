@@ -1,0 +1,12 @@
+// Insert after build/tests and before image publication. Configure these server/credential IDs first.
+stage('SonarQube analysis') {
+  withSonarQubeEnv('Application SonarQube') {
+    sh 'mvn -B -ntp org.sonarsource.scanner.maven:sonar-maven-plugin:5.8.0.7211:sonar -Dsonar.projectKey=example-app'
+  }
+}
+stage('SonarQube quality gate') {
+  timeout(time: 10, unit: 'MINUTES') {
+    def gate = waitForQualityGate(webhookSecretId: 'sonarqube-webhook')
+    if (gate.status != 'OK') error('SonarQube quality gate failed: ' + gate.status)
+  }
+}

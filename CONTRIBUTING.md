@@ -1,6 +1,6 @@
 # Contributing
 
-Add integrations under `plugins/<integration>/{frontend,backend,examples}` with
+Add custom plugins under `plugins/<integration>/{frontend,backend,examples}` with
 installation instructions and a functional screenshot. Use package names
 `@rhdh-custom-plugins/plugin-<integration>[-backend]` and register the integration
 in the build dispatcher and CI matrix.
@@ -19,3 +19,7 @@ python -m unittest discover -s plugins/vault-health/collector/test
 
 ServiceNow tests use the dependencies in `services/requirements.txt` and
 `services/runtime/requirements.txt` under that plugin.
+
+Native/community integrations belong under `integrations/<name>/` with their own
+provider setup, RHDH configuration, catalog annotations, usage and screenshots.
+Keep Application Overview instructions focused on compact cards.

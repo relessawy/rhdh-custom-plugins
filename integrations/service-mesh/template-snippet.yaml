@@ -1,0 +1,17 @@
+# Merge these fields into an existing scaffolder.backstage.io/v1beta3 Template.
+# This is a fragment, not a complete Template resource.
+parameters:
+  - title: Mesh enrollment
+    properties:
+      meshEnabled:
+        title: Deploy as a mesh-enabled service
+        type: boolean
+        default: false
+steps:
+  - id: fetch
+    name: Render application skeleton
+    action: fetch:template
+    input:
+      url: ./skeleton
+      values:
+        meshEnabled: ${{ parameters.meshEnabled }}

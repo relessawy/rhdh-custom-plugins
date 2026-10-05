@@ -1,0 +1,45 @@
+{
+  "plugins": [
+    {
+      "package": "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/backstage-community-plugin-sonarqube-backend@sha256:a675e2df6bda1da0d8789e32a49f33d67cb3455baf586cb7a31608cea20a1faa",
+      "disabled": false
+    },
+    {
+      "package": "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/backstage-community-plugin-sonarqube@sha256:36cb47920422c64a472e23f0484f76c68f04c4f20e913f55fbf45e555bdebfd3",
+      "disabled": false,
+      "pluginConfig": {
+        "dynamicPlugins": {
+          "frontend": {
+            "backstage-community.plugin-sonarqube": {
+              "entityTabs": [
+                {
+                  "path": "/sonarqube",
+                  "title": "SonarQube",
+                  "mountPoint": "entity.page.sonarqube"
+                }
+              ],
+              "mountPoints": [
+                {
+                  "mountPoint": "entity.page.sonarqube/cards",
+                  "importName": "EntitySonarQubeCard",
+                  "config": {
+                    "layout": {
+                      "gridColumn": "1 / -1"
+                    },
+                    "if": {
+                      "anyOf": [
+                        {
+                          "hasAnnotation": "sonarqube.org/project-key"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

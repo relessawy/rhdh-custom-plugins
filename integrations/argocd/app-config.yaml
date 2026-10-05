@@ -1,0 +1,7 @@
+argocd:
+  appLocatorMethods:
+    - type: config
+      instances:
+        - name: openshift-gitops
+          url: https://ARGOCD_HOST
+          token: ${ARGOCD_TOKEN}
