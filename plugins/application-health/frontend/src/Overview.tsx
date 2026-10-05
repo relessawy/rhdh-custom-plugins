@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-export type CardId = "vault" | "jenkins" | "snyk" | "splunk" | "argocd";
+export type CardId = "vault" | "jenkins" | "snyk" | "splunk" | "argocd" | "sonarqube";
 export const titles: Record<CardId, string> = {
+  sonarqube: "Quality · SonarQube",
   argocd: "Deployment · Argo CD",
   vault: "Secrets · Vault",
   jenkins: "Delivery · Jenkins",
@@ -9,6 +10,7 @@ export const titles: Record<CardId, string> = {
 };
 export function configuredCards(annotations: Record<string, string>, enabled: string[]): CardId[] {
   const bindings: Record<CardId, string[]> = {
+    sonarqube: ["sonarqube.org/project-key"],
     argocd: ["argocd/app-name"],
     vault: ["vault-health.io/vault-binding"],
     jenkins: ["jenkins.io/job-full-name"],

@@ -1,3 +1,4 @@
+import { sonarCard } from "./sonarqube";
 import { argoCard } from "./argocd";
 import React, { useCallback, useEffect, useState } from "react";
 import { useEntity } from "@backstage/plugin-catalog-react";
@@ -46,6 +47,17 @@ export function ApplicationHealthOverview() {
   )}/component/${encodeURIComponent(entity.metadata.name)}`;
   const load = useCallback(
     async (id: CardId, window = "7d"): Promise<CardData> => {
+      if (id === "sonarqube") {
+        const annotation = entity.metadata.annotations?.["sonarqube.org/project-key"];
+        if (!annotation) throw Error("SonarQube project annotation is required");
+        const endpoint = await discovery.getBaseUrl("sonarqube");
+        const parts = annotation.split("/"), project = parts.length > 1 ? parts.slice(1).join("/") : annotation;
+        const query = new URLSearchParams({componentKey: project});
+        if (parts.length > 1) query.set("instanceKey", parts[0]);
+        const response = await fetcher.fetch(`${endpoint}/findings?${query}`);
+        if (!response.ok) throw Error("SonarQube unavailable");
+        return sonarCard(await response.json(), (config.getOptionalStringArray("applicationHealth.detailTabs") || []).includes("sonarqube") ? base + "/sonarqube" : undefined);
+      }
       if (id === "argocd") {
         const annotations = entity.metadata.annotations || {};
         const app = annotations["argocd/app-name"], instance = annotations["argocd/instance-name"];
