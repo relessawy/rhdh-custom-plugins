@@ -1,7 +1,7 @@
 # Application Overview
 
 Optional, frontend-only summary cards for independently installed Vault, Jenkins,
-Snyk and Splunk integrations. It has no backend and owns no Vault configuration.
+Snyk, Splunk and Argo CD integrations. It has no backend and owns no Vault configuration.
 Each card loads independently: a missing or failing backend makes only that card
 Unavailable. Hidden and disabled cards do not poll. No provider is a package dependency.
 
@@ -12,7 +12,7 @@ bash scripts/build.sh application-health
 ```
 
 Use Node 24. The command produces one frontend
-archive in `artifacts/application-health/0.3.0/`. Publish it and use the generated
+archive in `artifacts/application-health/0.4.0/`. Publish it and use the generated
 integrity-pinned `dynamic-plugins.yaml`. See [build instructions](../../docs/BUILDING.md).
 Apply [frontend configuration](examples/app-config.yaml) and the generated mount
 point wiring. `applicationHealth.enabledCards` defaults to an empty list: list only
@@ -21,11 +21,25 @@ installed integrations. A card also requires its matching entity annotation.
 when its backend is installed but its detailed frontend tab is not.
 These settings declare available integrations; they do not auto-detect installed packages.
 
-Manage cards hides or restores configured cards for the signed-in user and entity
-in this browser. It does not change permissions. A missing backend is shown as
+Manage cards hides/restores cards and moves them up or down. Each card can be collapsed
+or expanded. Visibility, order and collapsed state are saved for the signed-in user
+and entity in this browser; Restore defaults resets all three. Existing hidden-card
+preferences are preserved. Collapsed cards continue refreshing their status. It does not change permissions. A missing backend is shown as
 Unavailable without preventing the remaining cards from loading.
 Splunk defaults to seven days and supports a time-window selector.
 
-![Application Overview](../../docs/images/application-overview.png)
+![Application Overview](../../docs/images/application-overview.jpg)
 
-![Application signals](../../docs/images/application-overview-signals.png)
+![Card preferences](../../docs/images/application-card-preferences.jpg)
+
+## Argo CD
+
+Enable `argocd` in `applicationHealth.enabledCards` after installing the native
+Argo CD backend. Set the entity annotations `argocd/app-name` and
+`argocd/instance-name` to match the application and configured backend instance.
+Optionally set `argocd/app-namespace` for namespaced applications. The card shows
+individual sync and health status, revision and resource count; it never triggers a sync.
+Enable `argocd` in `detailTabs` when the CD page is installed. The backend discovery
+ID defaults to `argocd`; set `applicationHealth.argoBackendId` if yours differs.
+The existing Argo backend authentication and read permissions apply. No token is
+passed to the browser by this plugin. A missing backend affects only this card.

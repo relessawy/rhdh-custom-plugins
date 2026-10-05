@@ -8,7 +8,7 @@ independently installable packages, configuration and installation instructions.
 | [Jenkins Stage Progress & Logs](plugins/jenkins-stage-progress/README.md) | Pipeline stages, build history and inline stage logs |
 | [Snyk Security](plugins/snyk-security/README.md) | Source, dependency and container-image security status |
 | [Splunk Application Logs](plugins/splunk-logs/README.md) | Application request health, error rate and recent errors |
-| [Application Overview](plugins/application-health/README.md) | Optional frontend-only summaries of independently installed integrations |
+| [Application Overview](plugins/application-health/README.md) | Personalized, collapsible summaries of Argo CD, Vault, Jenkins, Snyk and Splunk |
 | [Vault Health](plugins/vault-health/README.md) | Independent Vault integration-health frontend and backend |
 | [ServiceNow Infrastructure](plugins/servicenow-infrastructure/README.md) | Approval-gated environment requests and fulfillment status |
 | [Jira Work Items](plugins/jira-work-items/README.md) | Jira issues and permission-controlled workflow actions |

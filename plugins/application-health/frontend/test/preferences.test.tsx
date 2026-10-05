@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import React from "react";
 import { create, act } from "react-test-renderer";
-import { Overview, preferenceKey, parseHidden, CardId, configuredCards } from "../src/Overview";
+import { Overview, preferenceKey, parseHidden, CardId, configuredCards, Preferences, parsePreferences, orderedCards } from "../src/Overview";
 test("preferences are scoped to identity and entity; corrupt values recover", () => {
   assert.notEqual(
     preferenceKey("user:default/alice", "component:default/a"),
@@ -16,14 +16,14 @@ test("preferences are scoped to identity and entity; corrupt values recover", ()
   assert.deepEqual(parseHidden('["snyk","made-up"]'), ["snyk"]);
 });
 test("hide prevents polling, manage restores a hidden card, restore defaults recovers all", async () => {
-  let saved: CardId[] = [];
+  let saved: Preferences = parsePreferences(null);
   const calls: string[] = [];
   let view: any;
   await act(async () => {
     view = create(
       <Overview
         ids={["vault", "snyk"]}
-        read={() => ["snyk"]}
+        read={() => parsePreferences('["snyk"]')}
         save={(v) => {
           saved = v;
           return true;
@@ -41,7 +41,7 @@ test("hide prevents polling, manage restores a hidden card, restore defaults rec
       .findByProps({ "aria-label": "Hide Secrets · Vault" })
       .props.onClick()
   );
-  assert.deepEqual(saved, ["snyk", "vault"]);
+  assert.deepEqual(saved.hidden, ["snyk", "vault"]);
   await act(async () =>
     view.root
       .findAllByType("button")
@@ -54,13 +54,13 @@ test("hide prevents polling, manage restores a hidden card, restore defaults rec
       .find((b: any) => b.children.includes("Restore defaults"))
       .props.onClick()
   );
-  assert.deepEqual(saved, []);
+  assert.deepEqual(saved, parsePreferences(null));
   assert.ok(calls.includes("snyk"));
   view.unmount();
 });
 test("Splunk starts at one week and reloads the chosen window", async () => {
   const windows: string[] = []; let view: any;
-  await act(async () => {view=create(<Overview ids={["splunk"]} read={()=>[]} save={()=>true} load={async (_id,window)=>{windows.push(window||'');return {status:'3 requests',detail:'result'};}}/>);});
+  await act(async () => {view=create(<Overview ids={["splunk"]} read={()=>parsePreferences(null)} save={()=>true} load={async (_id,window)=>{windows.push(window||'');return {status:'3 requests',detail:'result'};}}/>);});
   assert.equal(windows[0], '7d');
   await act(async()=>view.root.findByProps({'aria-label':'Splunk time window'}).props.onChange({target:{value:'1h'}}));
   assert.equal(windows.at(-1), '1h');
@@ -68,7 +68,7 @@ test("Splunk starts at one week and reloads the chosen window", async () => {
 });
 test("one missing provider does not prevent other cards loading", async () => {
   let view: any;
-  await act(async () => { view = create(<Overview ids={["snyk", "jenkins"]} read={()=>[]} save={()=>true} load={async id=>{if(id === "snyk") throw Error("404 missing backend"); return {status:"Build #13 · SUCCESS",detail:"11 stages"};}}/>); });
+  await act(async () => { view = create(<Overview ids={["snyk", "jenkins"]} read={()=>parsePreferences(null)} save={()=>true} load={async id=>{if(id === "snyk") throw Error("404 missing backend"); return {status:"Build #13 · SUCCESS",detail:"11 stages"};}}/>); });
   const text=JSON.stringify(view.toJSON());
   assert.ok(text.includes("Unavailable"));
   assert.ok(text.includes("Build #13 · SUCCESS"));
@@ -80,4 +80,27 @@ test("cards require explicit enablement and a binding; unknown integrations are 
  assert.deepEqual(configuredCards(annotations, []), []);
  assert.deepEqual(configuredCards(annotations, ["vault", "jenkins", "unknown"]), ["vault"]);
  assert.deepEqual(configuredCards({}, ["vault", "snyk"]), []);
+});
+
+test("migrates old preferences and handles missing/new integrations", () => {
+ assert.deepEqual(parsePreferences('["snyk"]'), {hidden:["snyk"],collapsed:[],order:[]});
+ assert.deepEqual(parsePreferences('{"hidden":["bad"],"collapsed":["vault","vault"],"order":["snyk"]}'),{hidden:[],collapsed:["vault"],order:["snyk"]});
+ assert.deepEqual(orderedCards(["argocd","vault"],["snyk","vault"]),["vault","argocd"]);
+});
+test("collapse and reordering persist and restore without hiding status", async () => {
+ let saved = parsePreferences(null); let view:any;
+ await act(async()=>{view=create(<Overview ids={["vault","argocd"]} read={()=>saved} save={v=>{saved=v;return true;}} load={async()=>({status:"Healthy",detail:"Details"})}/>);});
+ await act(async()=>view.root.findByProps({"aria-label":"Collapse Secrets · Vault"}).props.onClick());
+ assert.deepEqual(saved.collapsed,["vault"]);
+ const card=view.root.findByType("section").findAllByType("article")[0];
+ assert.ok(JSON.stringify(card.toJSON?.() || card.findAllByType("p").map((p:any)=>p.children)).includes("Healthy"));
+ assert.equal(card.findAllByType("footer").length,0);
+ await act(async()=>view.root.findAllByType("button").find((b:any)=>b.children.includes("Manage cards")).props.onClick());
+ await act(async()=>view.root.findByProps({"aria-label":"Move Deployment · Argo CD up"}).props.onClick());
+ assert.deepEqual(saved.order,["argocd","vault"]);
+ await act(async()=>view.unmount());
+ await act(async()=>{view=create(<Overview ids={["vault","argocd"]} read={()=>saved} save={()=>true} load={async()=>({status:"Healthy",detail:"Details"})}/>);});
+ assert.equal(view.root.findAllByType("article")[0].props["aria-label"],"Deployment · Argo CD");
+ assert.equal(view.root.findByProps({"aria-label":"Expand Secrets · Vault"}).props["aria-expanded"],false);
+ await act(async()=>view.unmount());
 });

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-export type CardId = "vault" | "jenkins" | "snyk" | "splunk";
+export type CardId = "vault" | "jenkins" | "snyk" | "splunk" | "argocd";
 export const titles: Record<CardId, string> = {
+  argocd: "Deployment · Argo CD",
   vault: "Secrets · Vault",
   jenkins: "Delivery · Jenkins",
   snyk: "Security · Snyk",
@@ -8,6 +9,7 @@ export const titles: Record<CardId, string> = {
 };
 export function configuredCards(annotations: Record<string, string>, enabled: string[]): CardId[] {
   const bindings: Record<CardId, string[]> = {
+    argocd: ["argocd/app-name"],
     vault: ["vault-health.io/vault-binding"],
     jenkins: ["jenkins.io/job-full-name"],
     snyk: ["demo-library.io/security-binding", "snyk-security.io/binding"],
@@ -38,6 +40,18 @@ export function parseHidden(raw: string | null): CardId[] {
     return [];
   }
 }
+export type Preferences = { hidden: CardId[]; collapsed: CardId[]; order: CardId[] };
+export function parsePreferences(raw: string | null): Preferences {
+  try {
+    const value = JSON.parse(raw || "null");
+    const valid = (v: unknown): CardId[] => Array.isArray(v)
+      ? [...new Set(v.filter(x => typeof x === "string" && Object.prototype.hasOwnProperty.call(titles, x)))] : [];
+    return { hidden: valid(Array.isArray(value) ? value : value?.hidden), collapsed: valid(value?.collapsed), order: valid(value?.order) };
+  } catch { return {hidden: [], collapsed: [], order: []}; }
+}
+export function orderedCards(ids: CardId[], order: CardId[]): CardId[] {
+  return [...new Set([...order.filter(id => ids.includes(id)), ...ids])];
+}
 export function Overview({
   ids,
   load,
@@ -46,14 +60,17 @@ export function Overview({
 }: {
   ids: CardId[];
   load: (id: CardId, window?: string) => Promise<CardData>;
-  read: () => CardId[];
-  save: (hidden: CardId[]) => boolean;
+  read: () => Preferences;
+  save: (preferences: Preferences) => boolean;
 }) {
-  const [hidden, setHidden] = useState<CardId[]>(read),
+  const [preferences, setPreferences] = useState<Preferences>(read),
     [editing, setEditing] = useState(false),
     [notice, setNotice] = useState("");
-  const update = (next: CardId[]) => {
-    setHidden(next);
+  const { hidden, collapsed, order } = preferences;
+  const arranged = orderedCards(ids, order);
+  const update = (patch: Partial<Preferences>) => {
+    const next = {...preferences, ...patch};
+    setPreferences(next);
     setNotice(
       save(next)
         ? "Saved for you in this browser."
@@ -106,28 +123,31 @@ export function Overview({
         >
           <legend>Choose what you see</legend>
           <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
-            {ids.map((id) => (
-              <label key={id}>
+            {arranged.map((id, i) => (
+              <div key={id}><label>
                 <input
                   type="checkbox"
                   checked={!hidden.includes(id)}
                   onChange={(e) =>
-                    update(
+                    update({hidden:
                       e.target.checked
                         ? hidden.filter((x) => x !== id)
                         : [...hidden, id]
-                    )
+                    })
                   }
                 />
                 {titles[id]}
               </label>
+              <button disabled={i === 0} aria-label={`Move ${titles[id]} up`} onClick={() => {const next = [...arranged]; [next[i-1],next[i]]=[next[i],next[i-1]]; update({order: next});}}>↑</button>
+              <button disabled={i === arranged.length-1} aria-label={`Move ${titles[id]} down`} onClick={() => {const next = [...arranged]; [next[i+1],next[i]]=[next[i],next[i+1]]; update({order: next});}}>↓</button>
+              </div>
             ))}
           </div>
           <p>
             Choices apply to you and this application in this browser. They do
             not change access or integrations.
           </p>
-          <button onClick={() => update([])}>Restore defaults</button>
+          <button onClick={() => update({hidden: [], collapsed: [], order: []})}>Restore defaults</button>
         </fieldset>
       )}
       <div
@@ -144,14 +164,16 @@ export function Overview({
           gap: 16,
         }}
       >
-        {ids
+        {arranged
           .filter((id) => !hidden.includes(id))
           .map((id) => (
             <SignalCard
               key={id}
               id={id}
               load={load}
-              hide={() => update([...hidden, id])}
+              hide={() => update({hidden: [...hidden, id]})}
+              collapsed={collapsed.includes(id)}
+              toggle={() => update({collapsed: collapsed.includes(id) ? collapsed.filter(x => x !== id) : [...collapsed, id]})}
             />
           ))}
       </div>
@@ -171,10 +193,14 @@ function SignalCard({
   id,
   load,
   hide,
+  collapsed,
+  toggle,
 }: {
   id: CardId;
   load: (id: CardId, window?: string) => Promise<CardData>;
   hide: () => void;
+  collapsed: boolean;
+  toggle: () => void;
 }) {
   const [data, setData] = useState<CardData | null>(null),
     [refresh, setRefresh] = useState(0), [window, setWindow] = useState("7d");
@@ -215,14 +241,16 @@ function SignalCard({
         style={{ display: "flex", justifyContent: "space-between", gap: 8 }}
       >
         <h3 style={{ margin: 0, fontSize: 17 }}>{titles[id]}</h3>
+        <div style={{display:"flex",gap:6}}><button aria-label={(collapsed ? "Expand " : "Collapse ") + titles[id]} aria-expanded={!collapsed} onClick={toggle}>{collapsed ? "Expand" : "Collapse"}</button>
         <button aria-label={"Hide " + titles[id]} onClick={hide}>
           Hide
-        </button>
+        </button></div>
       </header>
-      {id === "splunk" && <label style={{display:"block",marginTop:14,fontSize:13}}>Time window <select aria-label="Splunk time window" value={window} onChange={e=>{setData(null);setWindow(e.target.value)}} style={{font:"inherit",padding:6,borderRadius:6,border:"1px solid #d4d1d0",background:"#fff",color:"#292524"}}>{[["5m","Last 5 minutes"],["15m","Last 15 minutes"],["1h","Last hour"],["6h","Last 6 hours"],["24h","Last 24 hours"],["7d","Last week"]].map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>}
+      {!collapsed && id === "splunk" && <label style={{display:"block",marginTop:14,fontSize:13}}>Time window <select aria-label="Splunk time window" value={window} onChange={e=>{setData(null);setWindow(e.target.value)}} style={{font:"inherit",padding:6,borderRadius:6,border:"1px solid #d4d1d0",background:"#fff",color:"#292524"}}>{[["5m","Last 5 minutes"],["15m","Last 15 minutes"],["1h","Last hour"],["6h","Last 6 hours"],["24h","Last 24 hours"],["7d","Last week"]].map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>}
       {(!data || data.status) && <p style={{ fontSize: 18, fontWeight: 650, marginBottom: 8 }}>
         {data ? data.status : "Loading…"}
       </p>}
+      {!collapsed && <>
       {data?.bullets ? <ul style={{paddingLeft:20,fontSize:14,lineHeight:1.8}}>{data.bullets.map(line=><li key={line}>{line}</li>)}</ul> : <p style={{ fontSize: 14, lineHeight: 1.6, whiteSpace: "pre-line" }}>{data?.detail}</p>}
       {data?.observedAt && (
         <p style={{ fontSize: 12, color: "#516478" }}>
@@ -234,7 +262,7 @@ function SignalCard({
         {data?.href && /^\/(?!\/)/.test(data.href) && (
           <a href={data.href}>View details →</a>
         )}
-      </footer>
+      </footer></>}
     </article>
   );
 }

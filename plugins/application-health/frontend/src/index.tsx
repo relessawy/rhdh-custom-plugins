@@ -1,3 +1,4 @@
+import { argoCard } from "./argocd";
 import React, { useCallback, useEffect, useState } from "react";
 import { useEntity } from "@backstage/plugin-catalog-react";
 import { stringifyEntityRef } from "@backstage/catalog-model";
@@ -12,7 +13,7 @@ import {
   Overview,
   CardId,
   CardData,
-  parseHidden,
+  parsePreferences,
   preferenceKey,
   configuredCards,
 } from "./Overview";
@@ -45,6 +46,17 @@ export function ApplicationHealthOverview() {
   )}/component/${encodeURIComponent(entity.metadata.name)}`;
   const load = useCallback(
     async (id: CardId, window = "7d"): Promise<CardData> => {
+      if (id === "argocd") {
+        const annotations = entity.metadata.annotations || {};
+        const app = annotations["argocd/app-name"], instance = annotations["argocd/instance-name"];
+        if (!app || !instance) throw Error("Argo CD application and instance annotations are required");
+        const endpoint = await discovery.getBaseUrl(config.getOptionalString("applicationHealth.argoBackendId") || "argocd");
+        const query = new URLSearchParams();
+        if (annotations["argocd/app-namespace"]) query.set("appNamespace", annotations["argocd/app-namespace"]);
+        const response = await fetcher.fetch(`${endpoint}/argoInstance/${encodeURIComponent(instance)}/applications/${encodeURIComponent(app)}?${query}`);
+        if (!response.ok) throw Error("Argo CD unavailable");
+        return argoCard(await response.json(), (config.getOptionalStringArray("applicationHealth.detailTabs") || []).includes("argocd") ? base + "/cd" : undefined);
+      }
       const plugins = {
           vault: "vault-health",
           jenkins: "ci-progress",
@@ -115,7 +127,7 @@ export function ApplicationHealthOverview() {
         href: (config.getOptionalStringArray("applicationHealth.detailTabs") || []).includes("splunk") ? base + "/splunk" : undefined,
       };
     },
-    [ref, base, discovery, fetcher, config]
+    [ref, base, discovery, fetcher, config, entity]
   );
   if (!user) return <p>Loading your application overview…</p>;
   const key = preferenceKey(user, ref);
@@ -126,9 +138,9 @@ export function ApplicationHealthOverview() {
       load={load}
       read={() => {
         try {
-          return parseHidden(localStorage.getItem(key));
+          return parsePreferences(localStorage.getItem(key));
         } catch {
-          return [];
+          return parsePreferences(null);
         }
       }}
       save={(v) => {
