@@ -27,6 +27,7 @@ const css = `
 .acme-tab-status { font-size:12px; margin-right:10px; align-self:center; }
 `;
 const icons: Record<string, string> = {
+  scorecard: "M5 3h14v18H5zM8 8l1 1 2-2m2 1h3M8 13l1 1 2-2m2 1h3M8 18h8",
   overview: "M3 10 12 3l9 7M5 9v12h5v-7h4v7h5V9",
   ci: "M3 12h5m8 0h5M8 8h8v8H8zM3 9v6m18-6v6",
   api: "m8 5-6 7 6 7m8-14 6 7-6 7m-3-15-2 16",
