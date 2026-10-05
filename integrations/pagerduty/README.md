@@ -1,8 +1,10 @@
 # PagerDuty
 
+Source: vendor-maintained PagerDuty Backstage plugins.
+
 The native PagerDuty tab shows service incidents and on-call details. It is read-only
 in this setup. Dynatrace supplies problem events; PagerDuty handles escalation.
-Qualified exports: frontend 0.19.0/backend 0.12.0 for Backstage 1.49.4, RHDH 1.10.4.
+Configured exports: frontend 0.19.0/backend 0.12.0 for Backstage 1.49.4, RHDH 1.10.4.
 
 ## Service and monitoring workflow
 
@@ -16,7 +18,7 @@ Qualified exports: frontend 0.19.0/backend 0.12.0 for Backstage 1.49.4, RHDH 1.1
    host `events.pagerduty.com` under General → External requests.
 4. In Workflows create from **Send problem as event to PagerDuty**. Choose the
    connection, active or closed problems, all categories, severity Minor (3) or more
-   severe, minimum duration None for the short demo, and root-cause analysis. Set
+   severe, minimum duration appropriate to your alerting policy, and root-cause analysis. Set
    the application filter, replacing the namespace:
    ```dql
    matchesValue(k8s.namespace.name, "example-app")
@@ -25,8 +27,7 @@ Qualified exports: frontend 0.19.0/backend 0.12.0 for Backstage 1.49.4, RHDH 1.1
    ACTIVE → trigger, CLOSED → resolve. Deploy the workflow.
 5. In Workflows → Authorization settings, authorize the actor for
    `app-engine:apps:run`, `app-engine:functions:run`, `app-settings:objects:read`.
-   The actor must already hold these permissions. These were the permissions used
-   for the demonstrated connection; account policies may impose additional access.
+   The actor must already hold these permissions. Account policies may require additional permissions.
 
 ## RHDH tab
 
@@ -36,21 +37,18 @@ Add `pagerduty.com/service-id: YOUR_SERVICE_ID` to the Component, refresh the en
 and open **PagerDuty**. The package wiring sets `readOnly: true` and
 `disableChangeEvents: true`; the Events routing key is never placed in RHDH.
 
-Verify the service and responder. Trigger a clearly labelled simulated problem
-through the Dynatrace workflow, confirm a PagerDuty incident and RHDH visibility,
-then send the matching recovery and confirm the same incident resolves. This may
-send real notifications to the service's responder. A direct Events API call only
-checks PagerDuty routing. The existing demonstration validated simulated workflow
-trigger/recovery, not automatic detection of a real workload outage.
+The tab displays incidents and the on-call responder for the annotated service.
+Dynatrace ACTIVE events trigger incidents; matching CLOSED events resolve the same
+incident through the workflow's deduplication key. PagerDuty sends notifications
+according to the service's escalation policy. Acknowledgement and manual resolution
+are performed in PagerDuty.
 
 Check entitlements after either trial expires. Rotate the backend API key and roll
 RHDH when needed. Configure the optional card separately via
 [Application Overview](../../plugins/application-health/README.md).
 
-The native tab and notification below show the validated simulated incident.
+![PagerDuty native tab](../../docs/images/pagerduty.png)
 
-![PagerDuty native tab](screenshot.png)
-
-![PagerDuty notification](alert.png)
+![PagerDuty notification](../../docs/images/pagerduty-notification.png)
 
 [Native plugin source](https://github.com/PagerDuty/backstage-plugins)

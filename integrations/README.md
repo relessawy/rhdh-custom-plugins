@@ -14,7 +14,4 @@ custom Application Overview cards. No second repository is required. Start with
 | [Service Mesh / Kiali](service-mesh/README.md) | Mesh enrollment and observed traffic graph |
 | [Scorecard](scorecard/README.md) | Scheduled Jira and repository-file readiness metrics |
 
-The configuration was used with RHDH 1.10.4 and its legacy entity shell. Package
-pins record that baseline, not compatibility with every RHDH version. New-environment
-steps are documented here; a complete fresh-cluster reproduction has not yet been
-performed. Screenshots show the existing validated environment, not a newly rebuilt one.
+Package configuration and provider prerequisites are listed in each guide.

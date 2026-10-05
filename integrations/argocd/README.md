@@ -1,5 +1,7 @@
 # Argo CD
 
+Source: Backstage community plugin.
+
 The native community frontend/backend display sync, health and the deployed Git
 revision. Install [shared configuration](../INSTALL.md) using this directory's
 `dynamic-plugins.json` and `app-config.yaml`.
@@ -40,7 +42,7 @@ revision. Install [shared configuration](../INSTALL.md) using this directory's
    by your Argo installation. Register `argocd` in RBAC `pluginsWithPermission` and
    grant `p, role:default/developer, argocd.view.read, read, allow` to the intended role.
 
-## Delivery pipeline and acceptance
+## Delivery pipeline
 
 After tests/security gates, Jenkins publishes an immutable image digest and commits
 that digest to the GitOps manifest. Argo performs deployment; Jenkins can wait for
@@ -54,4 +56,4 @@ build alone does not prove that Argo deployed the revision.
 Optional compact card: enable `argocd` in [Application Overview](../../plugins/application-health/README.md).
 The detailed CD tab does not require the custom card.
 
-![Argo CD](screenshot.jpg)
+![Argo CD](../../docs/images/argocd.jpg)

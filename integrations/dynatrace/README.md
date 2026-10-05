@@ -1,59 +1,44 @@
 # Dynatrace
 
-The native DQL frontend/backend (qualified version 2.7.0, Backstage 1.49.4 export)
-display instrumented Kubernetes deployments. This is its own tab; Application
-Overview does not currently contain a Dynatrace card.
+Source: vendor-maintained Dynatrace DQL Backstage plugins.
+
+The configured frontend/backend version is 2.7.0, exported for Backstage 1.49.4.
+The native tab displays instrumented Kubernetes deployments. There is no custom
+Dynatrace compact card in Application Overview.
 
 ## Tenant and instrumentation
 
-1. Obtain a Dynatrace tenant with Kubernetes/application observability and DQL
-   access. Trial access is time limited. In Account Management create a
-   client-credentials OAuth client with `storage:buckets:read`,
-   `storage:entities:read`, `storage:events:read`, `storage:metrics:read` and
-   `storage:security.events:read`; its subject also needs access to the environment.
-   Save the client ID, secret and account URN privately for the RHDH backend.
-2. In Kubernetes → Add cluster select OpenShift, Kubernetes platform monitoring and
-   Application observability, Small. Restrict application observability to the
-   application namespace. Leave log ingestion, sensitive-data collection and
-   cluster-local ingest disabled for the demonstrated setup.
-3. Generate the wizard's Operator token and retain its generated API URL. This
-   token is separate from portal OAuth. Use the wizard-required seven Operator
-   scopes for connection information, image discovery/download, ActiveGate tokens
-   and settings read/write. No optional ingest token was needed for this mode.
-4. Install the official Operator chart (qualified 1.11.0):
-   ```sh
-   helm install dynatrace-operator oci://public.ecr.aws/dynatrace/dynatrace-operator \
-     --version 1.11.0 --namespace dynatrace --create-namespace \
-     --set platform=openshift --atomic --timeout 6m
-   ```
-   Use your explicitly selected kubeconfig. The chart installs CSI/host-access
-   components; application namespace selection limits injection, not Kubernetes
-   monitoring permissions.
-5. Create Secret `application-monitoring` in `dynatrace` from a private env file containing
-   `apiToken=...`. Edit [dynakube.yaml](dynakube.yaml): replace `ENVIRONMENT_ID` and
-   the namespace `example-app`; retain consistent resource/token names or rename
-   them together. The example has separate monitoring and application DynaKubes.
-   Its ActiveGate digest was needed when tenant image discovery returned no match;
-   requalify it against your tenant rather than assuming it applies indefinitely.
-6. Apply the manifest. Budget 8 GiB requested memory for both ActiveGates plus
-   Operator/CSI/application overhead. Wait for both DynaKubes Running and all pods
-   ready. Roll out only the selected application deployments, one at a time, to
-   inject instrumentation. Generate traffic and confirm services in Dynatrace.
+1. Use a Dynatrace tenant with Kubernetes/application observability and DQL access.
+   In Account Management create a client-credentials OAuth client with
+   `storage:buckets:read`, `storage:entities:read`, `storage:events:read`,
+   `storage:metrics:read` and `storage:security.events:read`. Its subject also needs
+   access to the environment. Retain the client ID, secret and account URN privately.
+2. If workloads are not instrumented, use Kubernetes → Add cluster to configure
+   OpenShift Kubernetes monitoring and Application observability. Restrict injection
+   to the application namespaces. Follow the tenant-generated Operator/DynaKube
+   instructions for images, capacity and token permissions; the Operator token is
+   separate from portal OAuth credentials.
+3. Roll out the selected workloads to inject instrumentation and confirm they appear
+   in Dynatrace. Namespace selection limits application injection, not the Operator's
+   Kubernetes monitoring permissions. Log ingestion is configured independently.
 
-## RHDH
+## RHDH configuration
 
-Follow [shared installation](../INSTALL.md), using `dynamic-plugins.json`,
+Follow [shared installation](../INSTALL.md) with `dynamic-plugins.json`,
 `app-config.yaml` and the three `DYNATRACE_*` backend variables. Use the `.apps`
-URL for DQL, not the `.live` Operator API URL. Add catalog annotations
-`backstage.io/kubernetes-id` and `backstage.io/kubernetes-namespace` matching the
-workload labels/namespace (or the native plugin's Kubernetes label selector).
-Refresh the entity and open **Dynatrace**; verify its deployments match the tenant.
+environment URL for DQL, not the `.live` Operator API URL. Add Component annotations
+matching the workload labels and namespace:
 
-The demonstrated setup does not ingest logs, even though native links may offer
-Show logs. Zero problems does not prove incident detection. OAuth failures usually
-require checking subject access as well as client scopes. Renew credentials and
-trial entitlements before they expire.
+```yaml
+backstage.io/kubernetes-id: example-app
+backstage.io/kubernetes-namespace: example-app
+```
 
-[Application observability](https://docs.dynatrace.com/docs/ingest-from/setup-on-k8s/deployment/application-observability)
+Refresh the entity and open **Dynatrace**. OAuth failures can indicate missing
+subject access or client scopes. Show logs links require log ingestion; installing
+the portal plugin does not enable collection. Renew credentials and time-limited
+entitlements before expiry.
 
-![Dynatrace](screenshot.jpg)
+[Dynatrace application observability](https://docs.dynatrace.com/docs/ingest-from/setup-on-k8s/deployment/application-observability)
+
+![Dynatrace](../../docs/images/dynatrace.jpg)

@@ -1,8 +1,7 @@
 # OpenShift Topology
 
-Uses the Kubernetes frontend/backend and community Topology packages bundled with
-RHDH. The qualified baseline was Kubernetes backend 0.21.2 and Topology 2.12.3 on
-RHDH 1.10.4. Bundled versions follow the host image; recheck after upgrading it.
+Source: Backstage Kubernetes plugins and community Topology plugin, distributed
+as RHDH dynamic packages. Bundled package versions follow the RHDH image.
 
 1. Follow [shared installation](../INSTALL.md) with `dynamic-plugins.json` and
    `app-config.yaml`. This example assumes RHDH runs in the observed cluster.
@@ -41,4 +40,4 @@ RHDH 1.10.4. Bundled versions follow the host image; recheck after upgrading it.
 CPU/memory metrics lookup is disabled in this example. It shows resources and pod
 state. No custom Topology package or compact card is required.
 
-![Topology](screenshot.jpg)
+![Topology](../../docs/images/topology.jpg)

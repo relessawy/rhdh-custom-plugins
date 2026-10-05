@@ -4,7 +4,7 @@
    kubeconfig, and network access from the backend to the provider. Install the
    provider described in the selected guide before expecting data in its tab.
 2. Review that guide's `dynamic-plugins.json`. It contains a `plugins` array with
-   digest-pinned packages and frontend tab wiring; JSON is valid YAML. Merge its
+   digest-pinned packages and frontend tab wiring. Merge its
    entries into your existing dynamic-plugin configuration, replacing duplicate
    entries rather than discarding other integrations. Do not run `oc apply` on this file:
    it is RHDH configuration, not a Kubernetes resource.
@@ -32,9 +32,8 @@
 6. Add the guide's annotations to your existing Component and refresh the catalog.
    When RHDH RBAC is enabled, add the listed plugin permission registration and
    policy lines to your existing role policy, using your actual role names.
-7. Apply the configuration and wait for the managed RHDH deployment rollout. Verify
-   the native tab with a normal authenticated user, including provider data, rather
-   than treating pod readiness as UI acceptance. Inspect startup errors without
+7. Apply the configuration and wait for the managed RHDH deployment rollout. Open
+   the native tab as an authenticated user and confirm that provider data appears. Inspect startup errors without
    publishing tokens, cookies or complete configuration dumps.
 
 Native packages are already built: `scripts/build.sh` builds only the eight custom

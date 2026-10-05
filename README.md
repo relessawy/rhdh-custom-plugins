@@ -35,11 +35,10 @@ verification and screenshots. These detailed tabs are separate from compact card
 | [Scorecard](integrations/scorecard/README.md) | Jira/File Check providers, thresholds and readiness tab |
 
 Start with [native installation conventions](integrations/INSTALL.md). These packages
-are installed from their recorded native/community exports; they are not extra build
+are installed from their configured native/community exports; they are not extra build
 commands in `scripts/build.sh`. [Application Overview](plugins/application-health/README.md)
 covers compact cards only. Dynatrace, Topology and Scorecard have no custom compact
-card in this repository. The guides record the RHDH 1.10.4 configuration baseline;
-full fresh-environment reproduction remains to be tested.
+card in this repository.
 
 ## Build the plugins
 

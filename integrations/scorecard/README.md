@@ -1,7 +1,8 @@
 # RHDH Scorecard
 
-Native Red Hat Scorecard frontend/backend and Jira/File Check modules, qualified
-version 2.7.9. This gives an application readiness view without a DX tenant.
+Source: Red Hat Developer Hub Scorecard plugins.
+
+The configured frontend/backend and Jira/File Check modules are version 2.7.9. This gives an application readiness view without a DX tenant.
 
 1. Prepare Jira Cloud with a project and readable issues, and configure RHDH's
    Bitbucket URL reader for the actual application repository. File Check uses
@@ -19,9 +20,7 @@ version 2.7.9. This gives an application readiness view without a DX tenant.
    backstage.io/source-location: url:https://bitbucket.org/WORKSPACE/APP/src/main/
    ```
    The `scorecard.io/enabled` marker controls this example's tab visibility only;
-   it does not restrict backend collection or authorization. The tested deployment
-   used a different presentation marker; this guide uses the matching generic marker
-   in its supplied package wiring.
+   it does not restrict backend collection or authorization.
 4. Register `scorecard` under RBAC `pluginsWithPermission` and grant the intended role
    `p, role:default/developer, scorecard.metric.read, read, allow`.
 5. Edit File Check paths and Jira filter in `app-config.yaml` to match your project.
@@ -38,4 +37,4 @@ rotation. This is an application scorecard, not a portal-wide aggregate.
 
 [Red Hat Scorecards](https://docs.redhat.com/en/documentation/red_hat_developer_hub/1.9/html-single/evaluate_project_health_using_scorecards/index)
 
-![Scorecard](screenshot.png)
+![Scorecard](../../docs/images/scorecard.png)

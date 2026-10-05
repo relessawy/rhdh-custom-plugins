@@ -1,102 +1,90 @@
 # Service Mesh / Kiali
 
-The native Kiali tab displays workloads and an interactive observed-traffic graph.
-The independent compact card summarizes namespace enrollment/TLS. The native tab
-is Tech Preview; narrow embedded browser panes constrain its two-column layout.
+Source: Backstage community Kiali plugin.
 
-## Shared foundation
+The native tab displays workloads and an interactive traffic graph. It is Tech
+Preview; its two-column layout requires sufficient browser width. The optional
+compact card summarizes namespace enrollment and TLS configuration.
 
-1. On OpenShift install **Red Hat OpenShift Service Mesh 3** and **Kiali Operator**
-   from OperatorHub. Qualified versions: Service Mesh Operator 3.4.2, Kiali 2.27.4,
-   Istio/CNI 1.30.4. Use manual install-plan approval and review the resolved versions.
-   Wait for the operators and `sailoperator.io`/`kiali.io` CRDs before applying CRs.
-2. Review [foundation.yaml](foundation.yaml). It contains namespaces, Istio/CNI,
-   namespace-scoped metrics, view-only Kiali and a small compatibility proxy. Replace
-   `example-app` with an existing application namespace and `rhdh` with your portal
-   namespace throughout. `mesh-system`, revision `mesh` and `istio-cni` can be retained
-   or renamed consistently. Never overwrite an existing unrelated control plane.
-3. The metrics Deployment pins the Prometheus image used on the qualified cluster.
-   On a different OpenShift release, use the appropriate supported Prometheus image
-   and revalidate it. Metrics retain six hours/512 MB in temporary storage; choose
-   persistent storage separately if history must survive pod replacement.
-4. Apply the reviewed resources (`oc apply -f foundation.yaml`). Wait for Istio and
-   IstioCNI Ready, then metrics, Kiali and adapter Deployments Available. The
-   application namespace must exist before its Role/RoleBinding can be created.
-   Kiali discovery and metrics reads are limited to the two named namespaces.
-5. The included additive NetworkPolicy permits metrics scraping only. Because an
-   ingress policy isolates its selected pods, retain explicit application ingress
-   policies before applying it; otherwise normal service traffic can be blocked.
-   Ensure application NetworkPolicies allow mesh control-plane communication and
-   Prometheus scraping of proxy port 15090. Permit the metrics pod from `mesh-system`
-   to injected pods; retain application ingress rules. The adapter policy admits
-   only the RHDH namespace. It has no external route or Kubernetes token.
+## Prerequisites
 
-## Enroll application services and software templates
+Use a running Service Mesh/Istio control plane, Kiali and a compatible Prometheus
+metrics source. Configure Kiali discovery and reader permissions for the intended
+application namespaces. Provider installation and metrics storage are managed
+separately; follow [Red Hat Service Mesh documentation](https://docs.redhat.com/en/documentation/red_hat_openshift_service_mesh/3.4).
+Allow proxy metrics scraping and service traffic through application NetworkPolicies.
 
-1. Merge [enrollment.yaml](enrollment.yaml) fragments into Git-managed manifests:
-   label the namespace for discovery, set the selected pod templates' Istio revision,
-   hold application startup for the proxy, and name HTTP Service ports. Do not inject
-   databases, build jobs or unrelated utilities merely because they share a namespace.
-2. Let Argo CD reconcile (or apply using the existing workload manager). Confirm
-   ready `istio-proxy` containers; with native sidecars these may appear under
-   `initContainerStatuses`. Test actual service-to-service requests.
-3. In an RHDH software template add an opt-in boolean, e.g. `meshEnabled`, default
-   false. When true, render those namespace/pod/Service fields plus the catalog
-   annotations below. Preserve the existing non-mesh output when false. The shared
-   mesh is installed once by the platform administrator, not by each template run.
-   [Template input fragment](template-snippet.yaml) and
-   [conditional pod fragment](pod-template.yaml.njk) show the rendering contract.
-   Merge them into the existing complete template/skeleton, keep unrelated fields,
-   and conditionally emit the two Kiali catalog annotations with the same boolean.
-4. Keep Jenkins tests/security gates before publishing. Write the approved immutable
-   image digest to the rendered GitOps deployment; have an Argo Application or
-   ApplicationSet select that path. The tested template generated an adviser service
-   sharing the existing namespace/history backend, not an entire second banking app.
-5. Test a fresh template run through repository creation, Jenkins success, Argo
-   Synced/Healthy, ready proxy and an actual request. An injection label alone is
-   insufficient acceptance.
+## RHDH configuration
 
-## Portal configuration and named-revision adapter
-
-Follow [shared installation](../INSTALL.md) with `dynamic-plugins.json` and
-`app-config.yaml`. Qualified Kiali exports: frontend 1.50.2/backend 1.29.1 for
-Backstage 1.49.4. Add to the Component:
+Follow [shared installation](../INSTALL.md) using `dynamic-plugins.json` and
+`app-config.yaml`. The configured exports are Kiali frontend 1.50.2/backend 1.29.1
+for Backstage 1.49.4. Add to the Component:
 
 ```yaml
 kiali.io/provider: default
 kiali.io/namespace: example-app
 ```
 
-The deployed native backend requests `/api/mesh/tls` without an Istio revision.
-For a named revision, that failed during qualification. `kiali_compat.py` and its
-embedded ConfigMap in `foundation.yaml` add `revision=mesh` only for that endpoint;
-other responses are forwarded unchanged. The adapter verifies Kiali's OpenShift
-service certificate using the injected CA and does not log requests or credentials.
-Set `ISTIO_REVISION` to the actual revision. If modifying the Python source, also
-update the ConfigMap's `server.py` and restart its Deployment. Remove this adapter
-only after testing an upstream plugin that handles your revision directly.
+Configure Kiali token authentication and obtain a reader token for its scoped
+service account, for example:
 
-Generate a bounded Kiali reader credential from the operator-created account:
-`oc -n mesh-system create token kiali-service-account --duration=168h`.
-Store it privately as backend variable `KIALI_SERVICE_ACCOUNT_TOKEN` using the shared
-guide. The requested lifetime is seven days; honor the actual issuer expiry and
-renew/restart RHDH before it expires. Do not expose it in catalog YAML or the UI.
+```sh
+oc -n mesh-system create token kiali-service-account --duration=168h
+```
 
-## Verify and troubleshoot
+Save it privately as backend variable `KIALI_SERVICE_ACCOUNT_TOKEN`. Honor the
+issuer's actual expiry; renew the token and roll out RHDH before it expires.
+Use your Kiali service-account name and namespace if different.
 
-Generate bounded application requests, wait a metrics scrape interval, then open
-**Service Mesh**. Check the namespace, ready workloads and traffic graph; zoom/fit
-controls are interactive. An idle dependency may not appear in the recent window.
-Use Prometheus `istio_requests_total` labels to verify `connection_security_policy`
-for observed calls. Automatic mTLS enabled and an UNSET/unenforced TLS policy are
-compatible: this setup does not enforce STRICT mTLS. No distributed tracing,
-gateway migration or canary rollout is installed by this guide.
+## Named-revision compatibility adapter
 
-401: renew the reader credential. Missing namespace: check Kiali discovery/RBAC.
-Empty graph: check traffic, scrape targets and 15090 NetworkPolicy. Revision error:
-check adapter revision/upstream/CA. Stale metrics after a pod restart are expected
-with the temporary six-hour metrics store.
+The configured native backend requests `/api/mesh/tls` without an Istio revision.
+When Kiali requires a named revision for that request, the included adapter adds
+`revision=mesh`; it preserves other API responses. It is unnecessary when the
+backend supplies the required revision or Kiali handles the request directly.
 
-Optional summary: [Application Overview mesh card](../../plugins/application-health/README.md#service-mesh--kiali).
+For the adapter path:
 
-![Native mesh graph](screenshot.jpg)
+1. Edit [adapter.yaml](adapter.yaml): set `KIALI_UPSTREAM`, `ISTIO_REVISION`, and
+   the NetworkPolicy's allowed RHDH namespace. Set the existing mesh namespace in
+   [kustomization.yaml](kustomization.yaml) and the resource metadata consistently.
+2. Run `oc apply -k integrations/service-mesh`. Kustomize generates the source
+   ConfigMap from `kiali_compat.py`; source changes update the Deployment reference.
+3. Set the provider URL in `app-config.yaml` to the adapter's internal Service.
+   The adapter verifies the upstream OpenShift service certificate using an injected
+   CA bundle, stores no credentials, and does not log requests. For a different
+   certificate authority, supply its CA at `/etc/kiali-ca/service-ca.crt`.
+
+For direct access, set the provider URL to Kiali and configure backend certificate
+trust. The adapter has no external route or Kubernetes service-account token.
+
+## Application and template enrollment
+
+Merge [enrollment fragments](enrollment.yaml) into your Git-managed workloads.
+Match namespace discovery labels and pod injection revision to the existing mesh;
+name HTTP Service ports and retain all application ingress policies. Select only
+application services, not every workload in the namespace. A ready `istio-proxy`
+can appear in `initContainerStatuses` when native sidecars are enabled.
+
+The [template input](template-snippet.yaml) and [conditional pod fragment](pod-template.yaml.njk)
+add an opt-in `meshEnabled` boolean to an existing software template. Render the
+injection fields and Kiali annotations only when enabled. Install the shared mesh
+once; each onboarding run creates application resources. Keep security gates before
+publishing the image and let Argo CD reconcile the approved digest.
+
+## Using the tab
+
+Open **Service Mesh** after application traffic reaches Prometheus. Use zoom/fit
+controls to inspect service connections. Idle services may not appear in the
+selected traffic window. Automatic mTLS and STRICT enforcement are different:
+an enabled automatic-mTLS setting can coexist with an UNSET policy. Use observed
+`istio_requests_total` security labels to inspect encryption on actual calls.
+Tracing requires a separately configured tracing backend.
+
+For 401 responses, renew the reader token. Missing namespaces indicate discovery
+or RBAC configuration. An empty graph can indicate missing traffic, scrape targets
+or network access. Named-revision errors require checking adapter configuration.
+
+[Optional compact card](../../plugins/application-health/README.md#service-mesh--kiali)
+
+![Service Mesh](../../docs/images/service-mesh.jpg)
