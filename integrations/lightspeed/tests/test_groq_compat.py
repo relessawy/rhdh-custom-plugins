@@ -6,6 +6,11 @@ spec=importlib.util.spec_from_file_location('compat',Path(__file__).resolve().pa
 compat=importlib.util.module_from_spec(spec);spec.loader.exec_module(compat)
 
 class CompatibilityTests(unittest.TestCase):
+    def test_completion_budget(self):
+        self.assertEqual(compat.prepare_request({'stream':True})['max_completion_tokens'],1024)
+        self.assertEqual(compat.prepare_request({'max_tokens':128})['max_completion_tokens'],128)
+        self.assertEqual(compat.prepare_request({'max_completion_tokens':16000})['max_completion_tokens'],1024)
+
     def test_preserves_answer_and_usage(self):
         answer={'service_tier':'on_demand','choices':[{'message':{'content':'answer'}}],'usage':{'total_tokens':42}}
         result=compat.normalize(answer)

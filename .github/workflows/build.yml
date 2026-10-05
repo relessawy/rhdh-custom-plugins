@@ -28,3 +28,5 @@ jobs:
       - run: pip install -r plugins/servicenow-infrastructure/services/requirements.txt -r plugins/servicenow-infrastructure/services/runtime/requirements.txt
       - run: python -m unittest discover -s plugins/servicenow-infrastructure/services/test
       - run: python -m unittest discover -s plugins/vault-health/collector/test
+      - run: pip install -r integrations/lightspeed/requirements.txt
+      - run: python -m unittest discover -s integrations/lightspeed/tests

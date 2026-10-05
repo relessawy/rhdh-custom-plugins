@@ -7,12 +7,23 @@ import urllib.error
 import urllib.request
 
 MODEL=os.environ.get('GROQ_MODEL','openai/gpt-oss-120b')
+MAX_TOKENS=int(os.environ.get('GROQ_MAX_COMPLETION_TOKENS','1024'))
 
 
 def normalize(value):
     if isinstance(value,dict) and value.get('service_tier')=='on_demand':
         value['service_tier']='default'
     return value
+
+
+def prepare_request(body):
+    # Streaming requests from Llama Stack may omit a completion limit. Groq's
+    # model default can exceed a free-plan request allowance even for short input.
+    requested=body.pop('max_tokens',None)
+    requested=body.get('max_completion_tokens') or requested or MAX_TOKENS
+    body['max_completion_tokens']=min(int(requested),MAX_TOKENS)
+    if body.get('service_tier')=='default':body['service_tier']='on_demand'
+    return body
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -45,8 +56,7 @@ class Handler(BaseHTTPRequestHandler):
                 if not 0<length<=2_000_000: self.send_error(413);return
                 body=json.loads(self.rfile.read(length))
                 if body.get('model')!=MODEL: self.send_error(400,'Model is not configured');return
-                if body.get('service_tier')=='default':body['service_tier']='on_demand'
-                raw=json.dumps(body).encode()
+                raw=json.dumps(prepare_request(body)).encode()
             except (ValueError,TypeError): self.send_error(400);return
         request=urllib.request.Request('https://api.groq.com/openai'+self.path,data=raw,
             headers={'Authorization':authorization,'Content-Type':'application/json',

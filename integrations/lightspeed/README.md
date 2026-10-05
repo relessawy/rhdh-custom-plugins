@@ -26,6 +26,9 @@ The supplied loopback-only adapter normalizes Groq’s `on_demand` service-tier
 metadata to `default` for the bundled Llama Stack. It preserves answer content and
 usage, handles JSON and streaming responses, and exposes only the model selected
 by `GROQ_MODEL` in the overlay. Update that setting to match your credential file.
+It also caps completions at 1,024 tokens by default, including streaming requests;
+set `GROQ_MAX_COMPLETION_TOKENS` on the adapter to change that budget. Provider
+rate limits still apply to input, retrieved context and follow-up messages.
 It has no external Service or Route and forwards requests only to Groq over HTTPS.
 
 The hosted endpoint removes the need to run a model/GPU on the OpenShift cluster.
