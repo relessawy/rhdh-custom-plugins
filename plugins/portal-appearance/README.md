@@ -41,9 +41,9 @@ To remove the styling, remove the package and its frontend mount configuration,
 then roll out RHDH. This integration targets the legacy RHDH entity header's
 `header-tab-*` test IDs and Material UI tab wrapper; recheck after RHDH upgrades.
 
-![Catalog tabs](../../docs/images/portal-appearance.png)
+![Catalog tabs](../../docs/images/portal-branded-tabs.jpg)
 
-![Tab ordering](../../docs/images/portal-tab-ordering.png)
+![Tab ordering](../../docs/images/portal-tab-visibility.jpg)
 
 CD, Splunk, Jira and ServiceNow use bundled brand logos. Infrastructure is labelled
 ServiceNow while keeping its `/infrastructure` route and saved ordering intact.

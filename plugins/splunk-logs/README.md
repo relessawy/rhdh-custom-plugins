@@ -59,7 +59,7 @@ problem.
 
 ## Screenshot
 
-![Splunk Application Logs](../../docs/images/splunk-application-logs.png)
+![Splunk Application Logs](../../docs/images/splunk-application-logs.jpg)
 
 ## Troubleshooting
 

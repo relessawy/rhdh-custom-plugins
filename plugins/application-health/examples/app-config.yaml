@@ -2,6 +2,6 @@ applicationHealth:
   # Native community backend; use argocd for older backend installations.
   argoBackendId: backstage-community-argocd
   # Only enable integrations whose backend is installed.
-  enabledCards: [argocd, vault, jenkins, snyk, splunk, sonarqube]
+  enabledCards: [argocd, vault, jenkins, snyk, splunk, sonarqube, pagerduty]
   # Only enable links for installed detail tabs.
-  detailTabs: [argocd, vault, jenkins, snyk, splunk, sonarqube]
+  detailTabs: [argocd, vault, jenkins, snyk, splunk, sonarqube, pagerduty]
