@@ -33,3 +33,6 @@ test("invalid preferences and duplicates are safe", () => {
   assert.deepEqual(parseOrder('["docs",12,"docs"]'), ["docs"]);
   assert.deepEqual(move(["ci"], "missing", "ci"), ["ci"]);
 });
+
+import {tabLabel,hasBrandIcon} from "../src/brands";
+test("brand labels preserve route identities",()=>{assert.equal(tabLabel("infrastructure","Infrastructure"),"ServiceNow");assert.equal(tabLabel("ci","CI"),"CI");for(const id of ["cd","jira","splunk","infrastructure"])assert.ok(hasBrandIcon(id));assert.ok(!hasBrandIcon("docs"));});

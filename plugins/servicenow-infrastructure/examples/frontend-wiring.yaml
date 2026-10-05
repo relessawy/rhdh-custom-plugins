@@ -3,7 +3,7 @@ dynamicPlugins:
     rhdh-custom-plugins.plugin-servicenow-infrastructure:
       entityTabs:
         - path: /infrastructure
-          title: Infrastructure
+          title: ServiceNow
           mountPoint: entity.page.infrastructure
       mountPoints:
         - mountPoint: entity.page.infrastructure/cards

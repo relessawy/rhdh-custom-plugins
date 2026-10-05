@@ -1,3 +1,4 @@
+import { BrandIcon, hasBrandIcon, tabLabel } from "./brands";
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
@@ -38,6 +39,7 @@ const icons: Record<string, string> = {
   workflows: "M3 3h6v6H3zM15 15h6v6h-6zM6 9v9h9M9 6h9v9",
 };
 function Icon({ id }: { id: string }) {
+  if (hasBrandIcon(id)) return <BrandIcon id={id}/>;
   return (
     <svg
       aria-hidden="true"
@@ -118,7 +120,7 @@ export function CatalogTabAppearance() {
         .filter((a) => a.pathname === base || a.pathname.startsWith(base + "/"))
         .map((a) => ({
           id: a.pathname.slice(base.length).replace(/^\//, "") || "overview",
-          label: a.textContent?.trim() || "",
+          label: tabLabel(a.pathname.slice(base.length).replace(/^\//, "") || "overview", a.textContent?.trim() || ""),
           href: a.pathname + a.search + a.hash,
         }));
       if (!items.length) return;
