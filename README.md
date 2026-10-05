@@ -3,6 +3,8 @@
 Reusable custom dynamic plugins for Red Hat Developer Hub. Each integration has
 independently installable packages, configuration and installation instructions.
 
+## Custom plugins
+
 | Plugin | Function |
 |---|---|
 | [Jenkins Stage Progress & Logs](plugins/jenkins-stage-progress/README.md) | Extends the community Jenkins experience with pipeline stages, build history and task logs directly in RHDH |
@@ -17,27 +19,27 @@ independently installable packages, configuration and installation instructions.
 RHDH requires authenticated users, a working catalog and the backend services
 specified by each integration. Provider credentials stay in backend Secrets.
 
-## Included integration views
+## Native and community integrations
 
-The eight custom plugins above are independently installable. Application Overview
-adds summary cards to the component dashboard; Vault retains its own independent tab
-and backend. A missing integration affects only its corresponding overview card.
+Each integration has its own setup guide, package configuration, provider steps,
+verification and screenshots. These detailed tabs are separate from compact cards.
 
-Argo CD, SonarQube, PagerDuty and Kiali detail tabs use separately installed native
-or community plugins. This repository supplies their overview cards and navigation
-icons. Dynatrace has a product icon here; its detailed view is supplied separately.
-See [Application Overview setup](plugins/application-health/README.md) for each
-card's backend, entity annotations and configuration.
+| Integration | Setup guide and purpose |
+|---|---|
+| [Argo CD](integrations/argocd/README.md) | GitOps provider, read access and CD tab |
+| [Topology](integrations/topology/README.md) | Kubernetes access, workload mapping and pod logs |
+| [SonarQube](integrations/sonarqube/README.md) | Server, Jenkins quality gate and analysis tab |
+| [Dynatrace](integrations/dynatrace/README.md) | Tenant OAuth, OpenShift instrumentation and DQL tab |
+| [PagerDuty](integrations/pagerduty/README.md) | Service, Dynatrace incident workflow and native tab |
+| [Service Mesh / Kiali](integrations/service-mesh/README.md) | Shared mesh, template enrollment and traffic graph |
+| [Scorecard](integrations/scorecard/README.md) | Jira/File Check providers, thresholds and readiness tab |
 
-- **PagerDuty:** open incidents, triggered/acknowledged counts and the on-call responder.
-- **Service Mesh / Kiali:** meshed workload counts, automatic mTLS and reported TLS policy;
-  the native Kiali tab supplies the traffic graph.
-- **SonarQube:** quality gate, coverage, duplication and issue counts.
-
-Screenshots are included in each plugin's README, including the updated
-[Vault health view](plugins/vault-health/README.md),
-[overview cards](plugins/application-health/README.md) and
-[branded tabs](plugins/portal-appearance/README.md).
+Start with [native installation conventions](integrations/INSTALL.md). These packages
+are installed from their recorded native/community exports; they are not extra build
+commands in `scripts/build.sh`. [Application Overview](plugins/application-health/README.md)
+covers compact cards only. Dynatrace, Topology and Scorecard have no custom compact
+card in this repository. The guides record the RHDH 1.10.4 configuration baseline;
+full fresh-environment reproduction remains to be tested.
 
 ## Build the plugins
 
@@ -76,6 +78,7 @@ plugins/
   servicenow-infrastructure/ frontend/ backend/ examples/ README.md
   vault-health/           frontend/ backend/ examples/ README.md
 scripts/                   shared build and packaging scripts
+integrations/              native/community provider and tab setup guides
 docs/                      build instructions and screenshots
 .github/workflows/         per-plugin build checks
 ```

@@ -1,0 +1,8 @@
+dynatrace:
+  environments:
+    - name: Application monitoring
+      url: https://ENVIRONMENT_ID.apps.dynatrace.com
+      tokenUrl: https://sso.dynatrace.com/sso/oauth2/token
+      accountUrn: ${DYNATRACE_ACCOUNT_URN}
+      clientId: ${DYNATRACE_CLIENT_ID}
+      clientSecret: ${DYNATRACE_CLIENT_SECRET}

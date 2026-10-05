@@ -19,3 +19,9 @@ python -m unittest discover -s plugins/vault-health/collector/test
 
 ServiceNow tests use the dependencies in `services/requirements.txt` and
 `services/runtime/requirements.txt` under that plugin.
+
+Native/community integrations belong under `integrations/<name>/` with their own
+provider setup, RHDH configuration, catalog annotations, validation and screenshots.
+Keep Application Overview instructions focused on compact cards. Public repository
+updates require a review PR: leave it open until the user explicitly approves merge.
+Do not treat approval to merge development work as approval to merge a public PR.

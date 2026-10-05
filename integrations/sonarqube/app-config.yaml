@@ -1,0 +1,5 @@
+sonarqube:
+  baseUrl: http://sonarqube-sonarqube.sonarqube.svc:9000
+  externalBaseUrl: https://SONARQUBE_HOST
+  apiKey: ${SONARQUBE_TOKEN}
+  authType: Bearer

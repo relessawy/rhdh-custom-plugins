@@ -1,0 +1,5 @@
+kiali:
+  providers:
+    - name: default
+      url: http://kiali-compat.mesh-system.svc:8080
+      serviceAccountToken: ${KIALI_SERVICE_ACCOUNT_TOKEN}

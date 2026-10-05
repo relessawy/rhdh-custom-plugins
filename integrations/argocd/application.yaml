@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: example-app
+  namespace: openshift-gitops
+spec:
+  sourceRepos: [https://GIT_HOST/TEAM/GITOPS_REPOSITORY.git]
+  destinations:
+    - namespace: example-app
+      server: https://kubernetes.default.svc
+  namespaceResourceWhitelist:
+    - {group: apps, kind: Deployment}
+    - {group: '', kind: Service}
+    - {group: networking.k8s.io, kind: NetworkPolicy}
+    - {group: route.openshift.io, kind: Route}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: example-app
+  namespace: openshift-gitops
+spec:
+  project: example-app
+  source:
+    repoURL: https://GIT_HOST/TEAM/GITOPS_REPOSITORY.git
+    targetRevision: main
+    path: applications/example-app
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: example-app
+  syncPolicy:
+    automated: {prune: false, selfHeal: true}

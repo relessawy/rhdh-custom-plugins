@@ -1,0 +1,23 @@
+# Merge these fragments into your existing Git-managed resources; do not replace a Deployment with this fragment.
+# Namespace label:
+metadata:
+  labels:
+    istio-discovery: mesh
+---
+# Deployment fragment:
+spec:
+  template:
+    metadata:
+      labels:
+        istio.io/rev: mesh
+        version: v1
+      annotations:
+        proxy.istio.io/config: '{"holdApplicationUntilProxyStarts":true}'
+---
+# Service port fragment: set on your HTTP application port.
+spec:
+  ports:
+    - name: http
+      appProtocol: http
+      port: 8080
+      targetPort: 8080

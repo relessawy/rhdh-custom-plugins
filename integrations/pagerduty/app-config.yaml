@@ -1,0 +1,2 @@
+pagerDuty:
+  apiToken: ${PAGERDUTY_TOKEN}

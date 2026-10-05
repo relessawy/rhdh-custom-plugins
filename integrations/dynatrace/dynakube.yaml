@@ -1,0 +1,56 @@
+apiVersion: dynatrace.com/v1beta6
+kind: DynaKube
+metadata:
+  labels:
+    app.kubernetes.io/part-of: application-monitoring
+    dynatrace.com/created-by: dynatrace.kubernetes
+  name: application-monitoring
+  namespace: dynatrace
+spec:
+  activeGate:
+    capabilities:
+    - kubernetes-monitoring
+    image: public.ecr.aws/dynatrace/dynatrace-activegate:1.345.70.20260918-003121@sha256:431460bfce5656f9e64571f5881593e0f604bd6a57bc35f5796cd0e101f08de3
+    replicas: 1
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 6Gi
+      requests:
+        cpu: 200m
+        memory: 6Gi
+  apiUrl: https://ENVIRONMENT_ID.live.dynatrace.com/api
+  tokens: application-monitoring
+---
+apiVersion: dynatrace.com/v1beta6
+kind: DynaKube
+metadata:
+  labels:
+    app.kubernetes.io/part-of: application-monitoring
+    dynatrace.com/created-by: dynatrace.kubernetes
+  name: application-monitoring-agents
+  namespace: dynatrace
+spec:
+  activeGate:
+    capabilities:
+    - routing
+    - debugging
+    image: public.ecr.aws/dynatrace/dynatrace-activegate:1.345.70.20260918-003121@sha256:431460bfce5656f9e64571f5881593e0f604bd6a57bc35f5796cd0e101f08de3
+    replicas: 1
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 250m
+        memory: 2Gi
+  apiUrl: https://ENVIRONMENT_ID.live.dynatrace.com/api
+  oneAgent:
+    applicationMonitoring:
+      namespaceSelector:
+        matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: In
+          values:
+          - example-app
+  tokens: application-monitoring

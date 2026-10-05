@@ -1,0 +1,20 @@
+apiVersion: tuned.openshift.io/v1
+kind: Tuned
+metadata:
+  name: sonarqube-map-count
+  namespace: openshift-cluster-node-tuning-operator
+spec:
+  profile:
+    - name: sonarqube-map-count
+      data: |
+        [main]
+        summary=SonarQube mmap requirement
+        include=openshift-node
+        [sysctl]
+        vm.max_map_count=524288
+  recommend:
+    - priority: 20
+      profile: sonarqube-map-count
+      match:
+        - label: sonarqube-node
+          value: 'true'

@@ -1,0 +1,56 @@
+{
+  "plugins": [
+    {
+      "package": "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/red-hat-developer-hub-backstage-plugin-scorecard@sha256:2a232387a99ed965f2c07e07c4c0f8825cdd698cb7c5a26d1dabdf8022e0047c!red-hat-developer-hub-backstage-plugin-scorecard",
+      "disabled": false,
+      "pluginConfig": {
+        "dynamicPlugins": {
+          "frontend": {
+            "red-hat-developer-hub.backstage-plugin-scorecard": {
+              "entityTabs": [
+                {
+                  "path": "/scorecard",
+                  "title": "Scorecard",
+                  "mountPoint": "entity.page.scorecard"
+                }
+              ],
+              "mountPoints": [
+                {
+                  "mountPoint": "entity.page.scorecard/cards",
+                  "importName": "EntityScorecardContent",
+                  "config": {
+                    "layout": {
+                      "gridColumn": "1 / -1"
+                    },
+                    "if": {
+                      "allOf": [
+                        {
+                          "isKind": "component"
+                        },
+                        {
+                          "hasAnnotation": "scorecard.io/enabled"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "package": "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/red-hat-developer-hub-backstage-plugin-scorecard-backend@sha256:36cd738458d0793a0723c5ac912ae4badc8cfd80109a272fd532bbb3e5259ac7!red-hat-developer-hub-backstage-plugin-scorecard-backend",
+      "disabled": false
+    },
+    {
+      "package": "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/red-hat-developer-hub-backstage-plugin-scorecard-backend-module-jira@sha256:0362b52fe81a658c6c2a2d3afa72488b56532d655f943a5e87f925a8d8cc5ce9!red-hat-developer-hub-backstage-plugin-scorecard-backend-module-jira",
+      "disabled": false
+    },
+    {
+      "package": "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/red-hat-developer-hub-backstage-plugin-scorecard-backend-module-filecheck@sha256:77d09187208f07d18727d6285e9c090e7d9e1c5896a94402ba65479108134fd2!red-hat-developer-hub-backstage-plugin-scorecard-backend-module-filecheck",
+      "disabled": false
+    }
+  ]
+}

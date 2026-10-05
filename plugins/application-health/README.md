@@ -34,6 +34,8 @@ Splunk defaults to seven days and supports a time-window selector.
 
 ## Argo CD
 
+Provider and native tab setup: [Argo CD guide](../../integrations/argocd/README.md).
+
 Enable `argocd` in `applicationHealth.enabledCards` after installing the native
 Argo CD backend. Set the entity annotations `argocd/app-name` and
 `argocd/instance-name` to match the application and configured backend instance.
@@ -46,11 +48,12 @@ passed to the browser by this plugin. A missing backend affects only this card.
 
 ## SonarQube
 
-Install the community SonarQube backend (`sonarqube`) and optionally its frontend
-in RHDH. Configure the backend's SonarQube URL and API token server-side; add
-`sonarqube.org/project-key` to the component. Enable `sonarqube` in
-`applicationHealth.enabledCards`, and in `detailTabs` when a `/sonarqube` tab is
-installed. Named instances use `instanceName/projectKey` in the annotation.
+Server, Jenkins gate and native tab setup: [SonarQube guide](../../integrations/sonarqube/README.md).
+
+After completing the linked integration setup, enable `sonarqube` in
+`applicationHealth.enabledCards` and in `detailTabs` when `/sonarqube` is installed.
+The card uses the Component's `sonarqube.org/project-key` annotation; named
+instances use `instanceName/projectKey`.
 
 The card uses the native backend's findings API to show the quality gate,
 coverage, duplication and issue counts, with the analysis timestamp. Missing
@@ -65,11 +68,11 @@ before publishing; this read-only card does not enforce pipeline policy.
 
 ## PagerDuty
 
-Install the native PagerDuty backend (discovery ID `pagerduty`) and configure its
-API token server-side. Add `pagerduty.com/service-id` to the component, and enable
-`pagerduty` in `applicationHealth.enabledCards`. For named accounts also set
-`pagerduty.com/account`. Add `pagerduty` to `detailTabs` if the native frontend is
-mounted at `/pagerduty`.
+Service, monitoring workflow and native tab setup: [PagerDuty guide](../../integrations/pagerduty/README.md).
+
+After completing the linked integration setup, enable `pagerduty` in
+`applicationHealth.enabledCards` and in `detailTabs` when `/pagerduty` is installed.
+The card uses `pagerduty.com/service-id` and optional `pagerduty.com/account`.
 
 The card shows open incident counts from the native backend’s recent incident page
 (last 30 days), triggered/acknowledged counts and the current
@@ -80,26 +83,9 @@ event delivery separately in Dynatrace or your monitoring provider.
 
 ![PagerDuty overview](../../docs/images/application-pagerduty.png)
 
-### Incident lifecycle validation
-
-On 5 October 2026, a labelled simulated ACTIVE problem event executed through the
-Dynatrace workflow created a real PagerDuty incident and the overview showed one
-triggered incident. The matching CLOSED event resolved the same incident, and the
-RHDH overview returned to zero open incidents. Both workflow executions succeeded.
-The alert notification was also received by the assigned responder.
-
-This verifies workflow delivery, incident correlation, recovery and RHDH visibility.
-Automatic detection of an actual application failure has not yet been tested.
-The detailed PagerDuty tab is supplied by the native plugin; this repository adds
-the compact overview card and product icon.
-
-![PagerDuty triggered overview](../../docs/images/application-pagerduty-triggered.png)
-
-![PagerDuty alert notification](../../docs/images/pagerduty-alert.png)
-
 ## Service Mesh / Kiali
 
-Install the native community Kiali frontend and backend and configure a Kiali provider.
+Configure the native provider using the [Service Mesh guide](../../integrations/service-mesh/README.md).
 Set `kiali.io/provider` and `kiali.io/namespace` on the component. Enable `mesh` in
 `applicationHealth.enabledCards`; include it in `detailTabs` when the detailed view
 is mounted at `/mesh`. The card reads the native `kiali` backend. It does not require
@@ -112,5 +98,3 @@ different settings. A missing Kiali backend affects only this card. Existing hid
 collapse and ordering preferences apply.
 
 ![Service Mesh overview](../../docs/images/application-mesh.jpg)
-
-![Native Kiali traffic graph](../../docs/images/service-mesh-graph.jpg)

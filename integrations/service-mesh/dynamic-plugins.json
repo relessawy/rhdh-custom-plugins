@@ -1,0 +1,45 @@
+{
+  "plugins": [
+    {
+      "package": "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/backstage-community-plugin-kiali-backend@sha256:d95a9db0c5e6c2951957e71156e4438189c5dd7c2a0925bb207ccccda20f93db",
+      "disabled": false
+    },
+    {
+      "package": "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/backstage-community-plugin-kiali@sha256:df8cf44edae622f7e54c10f3884a1eff2d105c8118054865be90477d9e6d185f",
+      "disabled": false,
+      "pluginConfig": {
+        "dynamicPlugins": {
+          "frontend": {
+            "backstage-community.plugin-kiali": {
+              "entityTabs": [
+                {
+                  "path": "/mesh",
+                  "title": "Service Mesh",
+                  "mountPoint": "entity.page.mesh"
+                }
+              ],
+              "mountPoints": [
+                {
+                  "mountPoint": "entity.page.mesh/cards",
+                  "importName": "EntityKialiContent",
+                  "config": {
+                    "layout": {
+                      "gridColumn": "1 / -1"
+                    },
+                    "if": {
+                      "allOf": [
+                        {
+                          "hasAnnotation": "kiali.io/namespace"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

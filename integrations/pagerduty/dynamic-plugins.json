@@ -1,0 +1,47 @@
+{
+  "plugins": [
+    {
+      "package": "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/pagerduty-backstage-plugin@sha256:e51a490f55d08b1ef6fb5d6655757241014f12aaca1fa2dcf643a842ce307c6d!pagerduty-backstage-plugin",
+      "disabled": false,
+      "pluginConfig": {
+        "dynamicPlugins": {
+          "frontend": {
+            "pagerduty.backstage-plugin": {
+              "entityTabs": [
+                {
+                  "path": "/pagerduty",
+                  "title": "PagerDuty",
+                  "mountPoint": "entity.page.pagerduty"
+                }
+              ],
+              "mountPoints": [
+                {
+                  "mountPoint": "entity.page.pagerduty/cards",
+                  "importName": "EntityPagerDutyCard",
+                  "config": {
+                    "props": {
+                      "readOnly": true,
+                      "disableChangeEvents": true
+                    },
+                    "layout": {
+                      "gridColumn": "1 / -1"
+                    },
+                    "if": {
+                      "allOf": [
+                        "isPluginApplicableToEntity"
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "package": "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/pagerduty-backstage-plugin-backend@sha256:c2d665dd21a464d6490f2c4249fcadf6f2f76fc555a71447f12c7527d4881609!pagerduty-backstage-plugin-backend",
+      "disabled": false
+    }
+  ]
+}
