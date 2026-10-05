@@ -26,3 +26,7 @@ export function move(order: string[], from: string, to: string): string[] {
   next.splice(order.indexOf(to), 0, from);
   return next;
 }
+
+export function visibleTabs(tabs: Tab[], hidden: string[]): Tab[] {
+  return tabs.filter(tab => tab.id === "overview" || !hidden.includes(tab.id));
+}
