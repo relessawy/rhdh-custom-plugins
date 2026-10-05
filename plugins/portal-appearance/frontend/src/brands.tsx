@@ -9,6 +9,6 @@ const logos: Record<string,string> = {
 };
 export const tabLabel = (id: string, label: string) => id === "infrastructure" ? "ServiceNow" : label;
 export function BrandIcon({id}: {id:string}) {
- return logos[id] ? <img aria-hidden="true" alt="" src={logos[id]} width={20} height={20} style={{objectFit:"contain",background:"transparent",padding:0,flexShrink:0}}/> : null;
+ return logos[id] ? <img aria-hidden="true" alt="" src={logos[id]} width={20} height={20} style={{width:20,height:20,objectFit:"contain",background:"transparent",padding:0,flexShrink:0}}/> : null;
 }
 export const hasBrandIcon = (id:string) => Object.prototype.hasOwnProperty.call(logos,id);
