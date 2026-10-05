@@ -1,0 +1,13 @@
+dynamicPlugins:
+  frontend:
+    rhdh-custom-plugins.plugin-vault-health:
+      entityTabs:
+        - path: /vault
+          title: Vault
+          mountPoint: entity.page.vault
+      mountPoints:
+        - mountPoint: entity.page.vault/cards
+          importName: VaultHealth
+          config:
+            layout: {gridColumn: '1 / -1'}
+            if: {allOf: [isVaultHealthAvailable]}

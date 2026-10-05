@@ -1,0 +1,10 @@
+dynamicPlugins:
+  frontend:
+    rhdh-custom-plugins.plugin-application-health:
+      mountPoints:
+        - mountPoint: entity.page.overview/cards
+          importName: ApplicationHealthOverview
+          config:
+            priority: 100
+            layout: {gridColumn: {xs: '1 / -1', lg: '7 / -1'}, gridRow: {lg: '1 / span 2'}}
+            if: {allOf: [isApplicationHealthAvailable]}

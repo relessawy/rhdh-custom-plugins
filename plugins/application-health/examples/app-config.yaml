@@ -1,0 +1,5 @@
+applicationHealth:
+  # Only enable integrations whose backend is installed.
+  enabledCards: [vault, jenkins, snyk, splunk]
+  # Only enable links for installed detail tabs.
+  detailTabs: [vault, jenkins, snyk, splunk]

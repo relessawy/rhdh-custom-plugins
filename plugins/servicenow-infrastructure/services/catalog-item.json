@@ -1,0 +1,56 @@
+{
+  "name": "RHDH OpenShift Infrastructure Request",
+  "active": false,
+  "short_description": "Request an approved, time-limited OpenShift environment for an RHDH application.",
+  "variables": [
+    {
+      "name": "entity_ref",
+      "question": "Application entity reference",
+      "type": "Single Line Text",
+      "mandatory": true,
+      "order": 100
+    },
+    {
+      "name": "purpose",
+      "question": "Business purpose",
+      "type": "Multi Line Text",
+      "mandatory": true,
+      "order": 200
+    },
+    {
+      "name": "target_kind",
+      "question": "Environment type",
+      "type": "Select Box",
+      "choices": [
+        "project",
+        "virtual_machine"
+      ],
+      "mandatory": true,
+      "order": 300
+    },
+    {
+      "name": "size",
+      "question": "Approved size profile",
+      "type": "Select Box",
+      "choices": [
+        "small"
+      ],
+      "mandatory": true,
+      "order": 400
+    },
+    {
+      "name": "expires_at",
+      "question": "Expiry (UTC)",
+      "type": "Date/Time",
+      "mandatory": true,
+      "order": 500
+    },
+    {
+      "name": "correlation_id",
+      "question": "Orchestration correlation ID",
+      "type": "Single Line Text",
+      "mandatory": true,
+      "order": 600
+    }
+  ]
+}

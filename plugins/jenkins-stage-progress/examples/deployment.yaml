@@ -1,0 +1,15 @@
+# Fragments only: merge the appropriate one into your existing deployment.
+# Pre-create jenkins-stage-progress with JENKINS_URL, JENKINS_PUBLIC_URL,
+# JENKINS_USERNAME and JENKINS_TOKEN keys. Do not commit real Secret values.
+# Helm values (Red Hat Developer Hub chart):
+upstream:
+  backstage:
+    extraEnvVarsSecrets:
+      - jenkins-stage-progress
+---
+# Operator Backstage CR fragment:
+spec:
+  application:
+    extraEnvs:
+      secrets:
+        - name: jenkins-stage-progress

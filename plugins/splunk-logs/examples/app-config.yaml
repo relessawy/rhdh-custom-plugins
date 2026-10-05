@@ -1,0 +1,12 @@
+splunkLogs:
+  baseUrl: https://splunk.example.com:8089
+  caFile: /splunk-trust/ca.crt
+  serverName: splunk.example.com
+  # Optional Splunk REST bearer token for authenticated deployments.
+  # apiToken: ${SPLUNK_API_TOKEN}
+  bindings:
+    - entityRef: component:default/payments-api
+      binding: payments-logs
+      index: applications
+      service: payments-api
+      environment: production

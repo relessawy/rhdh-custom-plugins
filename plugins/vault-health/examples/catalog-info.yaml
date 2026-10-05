@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: payments-api
+  annotations:
+    vault-health.io/vault-binding: payments-demo
+spec:
+  type: service
+  lifecycle: experimental
+  owner: platform-team

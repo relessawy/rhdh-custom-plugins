@@ -1,0 +1,18 @@
+{
+  "name": "rhdh-custom-plugins-build",
+  "version": "0.2.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@backstage/backend-dynamic-feature-service": "0.8.0",
+    "@backstage/backend-plugin-api": "1.8.0",
+    "@backstage/config": "1.3.6",
+    "esbuild": "0.25.12",
+    "express": "4.22.1"
+  },
+  "overrides": {
+    "express": {
+      "qs": "6.16.0"
+    }
+  }
+}

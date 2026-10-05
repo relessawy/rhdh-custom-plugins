@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rhdh-splunk-trust
+data:
+  ca.crt: |
+    REPLACE_WITH_TRUSTED_CA_PEM
+---
+# Optional, for authenticated Splunk REST access. Not the HEC ingestion token.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rhdh-splunk-api
+stringData:
+  SPLUNK_API_TOKEN: REPLACE_WITH_SEARCH_TOKEN

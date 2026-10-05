@@ -1,0 +1,40 @@
+{
+  "name": "@rhdh-custom-plugins/plugin-jenkins-stage-progress",
+  "version": "0.1.2",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "license": "Apache-2.0",
+  "backstage": {
+    "role": "frontend-plugin",
+    "pluginId": "ci-progress"
+  },
+  "scripts": {
+    "export": "rhdh-cli plugin export"
+  },
+  "dependencies": {
+    "@backstage/catalog-model": "1.7.7",
+    "@backstage/core-plugin-api": "1.11.0",
+    "@backstage/plugin-catalog-react": "1.21.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router-dom": "6.30.6"
+  },
+  "devDependencies": {
+    "@red-hat-developer-hub/cli": "2.0.0",
+    "@types/react": "18.3.18",
+    "typescript": "5.8.3"
+  },
+  "scalprum": {
+    "name": "rhdh-custom-plugins.plugin-jenkins-stage-progress",
+    "exposedModules": {
+      "PluginRoot": "./src/index.ts"
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "dist-scalprum",
+    "config.d.ts"
+  ]
+}

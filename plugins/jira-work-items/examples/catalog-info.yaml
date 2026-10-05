@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: payments-api
+spec:
+  type: service
+  lifecycle: production
+  owner: group:default/developers
+# Add this full entity reference to jiraWorkItems.entities and bindings.
+# The backend project mapping is administrator-owned, not browser-supplied.

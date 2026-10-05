@@ -1,0 +1,62 @@
+{
+  "type": "object",
+  "properties": {
+    "jiraWorkItems": {
+      "type": "object",
+      "visibility": "backend",
+      "required": [
+        "siteUrl",
+        "cloudId",
+        "email",
+        "apiToken",
+        "bindings"
+      ],
+      "properties": {
+        "siteUrl": {
+          "type": "string"
+        },
+        "cloudId": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "apiToken": {
+          "type": "string",
+          "visibility": "secret"
+        },
+        "transitionGroups": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "entities": {
+          "type": "array",
+          "visibility": "frontend",
+          "items": {
+            "type": "string"
+          }
+        },
+        "bindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "entity",
+              "project"
+            ],
+            "properties": {
+              "entity": {
+                "type": "string"
+              },
+              "project": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+# Placeholder example. Create the real Secret privately, outside Git.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rhdh-security-jenkins
+stringData:
+  JENKINS_URL: https://jenkins.example.com
+  JENKINS_PUBLIC_URL: https://jenkins.example.com
+  JENKINS_USERNAME: REPLACE_WITH_READER
+  JENKINS_TOKEN: REPLACE_WITH_TOKEN
+---
+# Helm values fragment; merge with existing Secret references.
+upstream:
+  backstage:
+    extraEnvVarsSecrets:
+      - rhdh-security-jenkins
+---
+# Operator fragment; merge into the existing Backstage resource.
+spec:
+  application:
+    extraEnvs:
+      secrets:
+        - name: rhdh-security-jenkins

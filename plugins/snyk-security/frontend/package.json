@@ -1,0 +1,45 @@
+{
+  "name": "@rhdh-custom-plugins/plugin-snyk-security",
+  "version": "0.2.1",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "license": "Apache-2.0",
+  "backstage": {
+    "role": "frontend-plugin",
+    "pluginId": "snyk-security"
+  },
+  "scripts": {
+    "export": "rhdh-cli plugin export",
+    "test": "tsx --test test/*.test.tsx"
+  },
+  "dependencies": {
+    "@backstage/catalog-model": "1.7.7",
+    "@backstage/core-plugin-api": "1.11.0",
+    "@backstage/plugin-catalog-react": "1.21.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router-dom": "6.30.6"
+  },
+  "devDependencies": {
+    "@red-hat-developer-hub/cli": "2.0.0",
+    "@types/react": "18.3.18",
+    "typescript": "5.8.3",
+    "tsx": "4.20.6",
+    "react-test-renderer": "18.3.1",
+    "@types/react-test-renderer": "18.3.1",
+    "@types/node": "22.10.2"
+  },
+  "scalprum": {
+    "name": "rhdh-custom-plugins.plugin-snyk-security",
+    "exposedModules": {
+      "PluginRoot": "./src/index.ts"
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "dist-scalprum",
+    "config.d.ts"
+  ]
+}

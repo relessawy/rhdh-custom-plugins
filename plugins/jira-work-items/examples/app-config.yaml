@@ -1,0 +1,11 @@
+jiraWorkItems:
+  siteUrl: https://example.atlassian.net
+  cloudId: ${JIRA_CLOUD_ID}
+  email: ${JIRA_EMAIL}
+  apiToken: ${JIRA_API_TOKEN}
+  entities: [component:default/payments-api]
+  bindings:
+    - entity: component:default/payments-api
+      project: PAY
+  # Omit or use [] for read-only access. Use canonical RHDH ownership references.
+  transitionGroups: [group:default/developers]

@@ -1,0 +1,5 @@
+vaultHealth:
+  bindings:
+    - entityRef: component:default/payments-api
+      bindingKey: payments-demo
+      reportFile: /vault-health/payments.json

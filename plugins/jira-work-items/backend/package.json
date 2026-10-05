@@ -1,0 +1,21 @@
+{
+  "name": "@rhdh-custom-plugins/plugin-jira-work-items-backend",
+  "version": "0.1.0",
+  "main": "index.cjs",
+  "backstage": {
+    "role": "backend-plugin",
+    "pluginId": "jira-work-items"
+  },
+  "license": "Apache-2.0",
+  "configSchema": "config-schema.json",
+  "dependencies": {
+    "express": "4.22.1"
+  },
+  "peerDependencies": {
+    "@backstage/backend-plugin-api": "1.8.0"
+  },
+  "files": [
+    "index.cjs",
+    "config-schema.json"
+  ]
+}

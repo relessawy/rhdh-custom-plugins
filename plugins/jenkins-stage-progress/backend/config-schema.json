@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "properties": {
+    "ciProgress": {
+      "type": "object", "visibility": "backend",
+      "required": ["baseUrl", "publicUrl", "username", "apiKey", "bindings"],
+      "properties": {
+        "baseUrl": {"type": "string"},
+        "publicUrl": {"type": "string"},
+        "username": {"type": "string"},
+        "apiKey": {"type": "string", "visibility": "secret"},
+        "bindings": {
+          "type": "array",
+          "items": {
+            "type": "object", "required": ["entityRef", "jobFullName"],
+            "properties": {
+              "entityRef": {"type": "string"},
+              "jobFullName": {"type": "string"},
+              "branch": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

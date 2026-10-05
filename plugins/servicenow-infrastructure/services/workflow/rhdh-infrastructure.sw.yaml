@@ -1,0 +1,63 @@
+id: rhdh-infrastructure
+version: '1.0'
+specVersion: '0.8'
+name: RHDH Infrastructure Request
+description: Request an environment, wait for ServiceNow approval, and provision it
+  with Ansible.
+start: SubmitRequest
+functions:
+- name: submit
+  operation: specs/bridge.json#submit
+- name: check
+  operation: specs/bridge.json#check
+- name: provision
+  operation: specs/bridge.json#provision
+- name: finish
+  operation: specs/bridge.json#finish
+states:
+- name: SubmitRequest
+  type: callback
+  action:
+    functionRef:
+      refName: submit
+      arguments:
+        correlation: '${ .correlation }'
+        instanceId: '${ $WORKFLOW.instanceId }'
+  eventRef: approval
+  eventDataFilter:
+    toStateData: ${ .request }
+  transition: ApprovalDecision
+- name: ApprovalDecision
+  type: switch
+  dataConditions:
+  - condition: ${ .request.decision == "approved" }
+    transition: ProvisionEnvironment
+  - condition: ${ .request.decision == "rejected" or .request.decision == "expired"
+      }
+    transition: Finished
+  defaultCondition:
+    transition: Finished
+- name: ProvisionEnvironment
+  type: operation
+  actions:
+  - functionRef:
+      refName: provision
+      arguments:
+        correlation: '${ .correlation }'
+    actionDataFilter:
+      toStateData: ${ .request }
+  transition: Finished
+- name: Finished
+  type: operation
+  actions:
+  - functionRef:
+      refName: finish
+      arguments:
+        correlation: '${ .correlation }'
+    actionDataFilter:
+      toStateData: ${ .request }
+  end: true
+events:
+- name: approval
+  source: ''
+  type: rhdh.approval

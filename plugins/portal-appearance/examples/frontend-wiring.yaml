@@ -1,0 +1,8 @@
+dynamicPlugins:
+  frontend:
+    rhdh-custom-plugins.plugin-portal-appearance:
+      mountPoints:
+        - mountPoint: application/header
+          importName: CatalogTabAppearance
+          config:
+            position: above-main-content

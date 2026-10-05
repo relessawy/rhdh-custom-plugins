@@ -1,0 +1,68 @@
+{
+  "type": "object",
+  "properties": {
+    "snykSecurity": {
+      "type": "object",
+      "visibility": "backend",
+      "required": [
+        "bindings"
+      ],
+      "properties": {
+        "bindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "entityRef",
+              "bindingKey"
+            ],
+            "properties": {
+              "entityRef": {
+                "type": "string"
+              },
+              "bindingKey": {
+                "type": "string"
+              },
+              "reportFile": {
+                "type": "string"
+              },
+              "jobFullName": {
+                "type": "string"
+              },
+              "artifactPath": {
+                "type": "string"
+              },
+              "annotationKey": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "jenkins": {
+          "type": "object",
+          "required": [
+            "baseUrl",
+            "publicUrl",
+            "username",
+            "apiKey"
+          ],
+          "properties": {
+            "baseUrl": {
+              "type": "string"
+            },
+            "publicUrl": {
+              "type": "string"
+            },
+            "username": {
+              "type": "string"
+            },
+            "apiKey": {
+              "type": "string",
+              "visibility": "secret"
+            }
+          }
+        }
+      }
+    }
+  }
+}

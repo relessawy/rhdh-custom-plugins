@@ -1,0 +1,13 @@
+{
+  "entityRef": "component:default/payments-api",
+  "applicationNamespace": "payments",
+  "portalNamespace": "rhdh-portal",
+  "vaultUrl": "https://vault.vault.svc:8200",
+  "vaultCAConfigMap": "vault-ca",
+  "vaultStaticSecret": "payments-credentials",
+  "deployment": "payments-api",
+  "acceptanceConfigMap": "payments-vault-observations",
+  "reportConfigMap": "payments-vault-health",
+  "name": "payments-vault-collector",
+  "image": "docker.io/library/python:3.12-slim"
+}

@@ -1,0 +1,17 @@
+---
+- name: Provision an approved temporary environment
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    request_data: "{{ lookup('env', 'REQUEST_JSON') | from_json }}"
+  tasks:
+    - name: Validate the approved provisioning contract
+      ansible.builtin.assert:
+        that:
+          - request_data.approval == 'Approved'
+          - request_data.id is match('^[a-f0-9]{32}$')
+          - request_data.targetKind in ['project', 'virtual_machine']
+    - name: Apply the shared environment resources and wait for readiness
+      ansible.builtin.command: python /opt/app-root/src/provision.py
+      changed_when: true

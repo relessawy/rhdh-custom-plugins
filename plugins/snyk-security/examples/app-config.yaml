@@ -1,0 +1,15 @@
+snykSecurity:
+  jenkins:
+    baseUrl: ${JENKINS_URL}
+    publicUrl: ${JENKINS_PUBLIC_URL}
+    username: ${JENKINS_USERNAME}
+    apiKey: ${JENKINS_TOKEN}
+  bindings:
+    - entityRef: component:default/payments-api
+      bindingKey: payments-security
+      jobFullName: applications/payments-api/main
+      artifactPath: evidence/security/report.json
+    # Alternative: a read-only mounted report, with no Jenkins connection.
+    # - entityRef: component:default/another-api
+    #   bindingKey: another-security
+    #   reportFile: /security-reports/another-api.json
