@@ -6,6 +6,10 @@ spec=importlib.util.spec_from_file_location('compat',Path(__file__).resolve().pa
 compat=importlib.util.module_from_spec(spec);spec.loader.exec_module(compat)
 
 class CompatibilityTests(unittest.TestCase):
+    def test_reasoning_deltas_do_not_replace_answer_text(self):
+        event={'choices':[{'delta':{'reasoning':'private analysis','content':'Answer'}}]}
+        self.assertEqual(compat.normalize(event)['choices'][0]['delta'],{'content':'Answer'})
+
     def test_completion_budget(self):
         self.assertEqual(compat.prepare_request({'stream':True})['max_completion_tokens'],1024)
         self.assertEqual(compat.prepare_request({'max_tokens':128})['max_completion_tokens'],128)

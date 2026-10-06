@@ -13,6 +13,13 @@ MAX_TOKENS=int(os.environ.get('GROQ_MAX_COMPLETION_TOKENS','1024'))
 def normalize(value):
     if isinstance(value,dict) and value.get('service_tier')=='on_demand':
         value['service_tier']='default'
+    if isinstance(value,dict):
+        for choice in value.get('choices',[]):
+            for field in ('delta','message'):
+                part=choice.get(field)
+                if isinstance(part,dict):
+                    part.pop('reasoning',None)
+                    part.pop('reasoning_content',None)
     return value
 
 

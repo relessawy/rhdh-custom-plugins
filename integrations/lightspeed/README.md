@@ -12,6 +12,9 @@ architectures require corresponding package manifests.
 
 - An existing Helm-managed RHDH instance and its current values/configuration.
 - `helm`, `oc`, Python 3 and access to the target namespace.
+- Sufficient installer memory: retain the chart’s 2.5 GiB initialization limit.
+  For a customized installer, use at least 2 GiB; a 1 GiB limit can fail while
+  unpacking the native packages.
 - Registry access for the chart's Lightspeed Core and documentation images.
 - A Groq account, API key and available chat model for the supplied example.
   See [Groq API keys](https://console.groq.com/keys),
@@ -23,8 +26,9 @@ Groq is connected using the chart's OpenAI-compatible vLLM adapter. Other provid
 require their corresponding chart variables; see the
 [Red Hat provider and installation guide](https://docs.redhat.com/en/documentation/red_hat_developer_hub/1.10/html-single/interacting_with_red_hat_developer_lightspeed_for_red_hat_developer_hub/index).
 The supplied loopback-only adapter normalizes Groq’s `on_demand` service-tier
-metadata to `default` for the bundled Llama Stack. It preserves answer content and
-usage, handles JSON and streaming responses, and exposes only the model selected
+metadata to `default` for the bundled Llama Stack. It omits the separate reasoning
+field because the bundled chat runtime cannot combine that stream with answer text.
+It preserves answer content and usage, handles JSON and streaming responses, and exposes only the model selected
 by `GROQ_MODEL` in the overlay. Update that setting to match your credential file.
 It also caps completions at 1,024 tokens by default, including streaming requests;
 set `GROQ_MAX_COMPLETION_TOKENS` on the adapter to change that budget. Provider
