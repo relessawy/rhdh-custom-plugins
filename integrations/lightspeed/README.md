@@ -8,6 +8,8 @@ custom package built by this repository. The configuration here uses the RHDH
 OCI manifests so the installer can read their package annotations. Other cluster
 architectures require corresponding package manifests.
 
+![Developer Lightspeed](../../docs/images/lightspeed.jpg)
+
 ## Prerequisites
 
 - An existing Helm-managed RHDH instance and its current values/configuration.
@@ -118,6 +120,18 @@ the installer creates the stack and adapter ConfigMaps itself; skip step 3 above
 existing Lightspeed ConfigMaps owned by another installer. UID/resource-version
 checks reject concurrent changes. Retain the overlay in your managed values for
 future Helm upgrades, alongside the other live integration configuration.
+
+For OpenShift routes, allow time for retrieval and provider throttling before the
+first response token. The Helm overlay sets a 180-second timeout. With the additive
+path, set it on the existing route as well:
+
+```sh
+oc -n "$RHDH_NAMESPACE" annotate route "$RHDH_RELEASE" \
+  haproxy.router.openshift.io/timeout=180s --overwrite
+```
+
+Adapt the route name if it differs from the release name. For other ingress
+controllers, configure the equivalent upstream response timeout.
 
 Wait for the deployment rollout and inspect Lightspeed before marking the
 integration ready. To undo an additive installation, restore the pre-change

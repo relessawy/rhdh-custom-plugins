@@ -104,3 +104,7 @@ upstream:
     - name: lightspeed-groq-compat
       configMap:
         name: rhdh-lightspeed-groq-compat
+
+route:
+  annotations:
+    haproxy.router.openshift.io/timeout: 180s
