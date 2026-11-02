@@ -3,7 +3,7 @@ entries:
   acme-jenkins:
   - apiVersion: v2
     appVersion: 2.580.2
-    created: "2026-11-02T16:29:18.067126+11:00"
+    created: "2026-11-02T16:32:30.73986+11:00"
     dependencies:
     - condition: jenkins.enabled
       name: jenkins
@@ -11,7 +11,7 @@ entries:
       version: 5.10.9
     description: Jenkins server and RHDH pipeline stages integration for an existing
       OpenShift demo
-    digest: 4a6b951f023955fd5f4355c09e9d6ff2e24d50214180bac279701eaa2e1c3104
+    digest: 0bb69455a28ac68a545a438f45d5cf21e2efef42029a1ae66d1df70d97033e15
     kubeVersion: '>=1.27.0-0'
     name: acme-jenkins
     type: application
@@ -21,7 +21,7 @@ entries:
   acme-portal-experience:
   - apiVersion: v2
     appVersion: "1.10"
-    created: "2026-11-02T16:29:18.069993+11:00"
+    created: "2026-11-02T16:32:30.74091+11:00"
     description: ACME branding, polished tabs and optional overview cards for an existing
       RHDH instance
     digest: d6d13d783605c2e55b1165db24bfeab78a414576f0a9feab6a9fd8ccbc68b46c
@@ -37,14 +37,14 @@ entries:
   acme-wealthwise:
   - apiVersion: v2
     appVersion: 0.1.0
-    created: "2026-11-02T16:29:18.070608+11:00"
+    created: "2026-11-02T16:32:30.741445+11:00"
     description: WealthWise software template, identity bootstrap and Argo CD application
       for existing RHDH
-    digest: 86ae271b937771e125eb7a432f6a73f1f13a224c8331c238152820f18f650feb
+    digest: 20a70720ae073fa07674a0b9bbcfd4c40bcf5c1a367d126f17b8666f29fdd592
     kubeVersion: '>=1.27.0-0'
     name: acme-wealthwise
     type: application
     urls:
     - acme-wealthwise-0.1.0.tgz
     version: 0.1.0
-generated: "2026-11-02T16:29:18.063403+11:00"
+generated: "2026-11-02T16:32:30.735875+11:00"

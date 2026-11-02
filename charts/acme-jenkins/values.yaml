@@ -41,7 +41,7 @@ jenkins:
     sidecars:
       configAutoReload:
         enabled: false
-    installLatestPlugins: false
+    installLatestPlugins: true
     additionalPlugins:
       - pipeline-rest-api:2.41
       - credentials-binding:728.v902a_273b_8947

@@ -14,7 +14,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def embed_jenkins(chart):
+def verify_jenkins_packages(chart):
     # Immutable public archives are downloaded and verified by the asset pod.
     # Embedding them again in rendered ConfigMaps exceeds Helm's release-Secret limit.
     records = json.loads((chart / 'files/packages.json').read_text())
@@ -31,7 +31,7 @@ def package(output, helm):
             chart = Path(temporary) / slug
             shutil.copytree(ROOT / 'charts' / slug, chart, ignore=shutil.ignore_patterns('__pycache__', '.DS_Store'))
             if slug == 'acme-jenkins':
-                embed_jenkins(chart)
+                verify_jenkins_packages(chart)
             shutil.copyfile(ROOT / 'LICENSE', chart / 'LICENSE')
             subprocess.run([helm, 'package', str(chart), '--destination', str(output)], check=True)
     checksums = [hashlib.sha256(p.read_bytes()).hexdigest() + '  ' + p.name

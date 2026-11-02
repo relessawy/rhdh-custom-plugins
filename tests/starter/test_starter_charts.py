@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import subprocess
 import tempfile
+import tarfile
 import unittest
 
 import yaml
@@ -75,6 +76,16 @@ class Charts(unittest.TestCase):
         self.assertEqual(backstage['extraEnvVars'][0], SOURCE['upstream']['backstage']['extraEnvVars'][0])
         self.assertEqual(backstage['appConfig']['applicationHealth']['enabledCards'], ['argocd', 'jenkins'])
         self.assertNotIn('private-value-must-not-be-copied', json.dumps(objects))
+
+    def test_jenkins_package_stays_small_enough_for_helm_release_storage(self):
+        folder = os.environ.get('STARTER_CHART_DIR')
+        if not folder:
+            self.skipTest('Packaged chart check')
+        chart = Path(folder) / 'acme-jenkins-0.1.0.tgz'
+        self.assertLess(chart.stat().st_size, 150 * 1024)
+        with tarfile.open(chart) as archive:
+            self.assertFalse(any('/files/packages/' in name for name in archive.getnames()))
+        self.assertLess(len(yaml.safe_dump_all(render('acme-jenkins')).encode()), 300 * 1024)
 
     def test_jenkins_openshift_identity_and_persistence(self):
         objects = render('acme-jenkins')

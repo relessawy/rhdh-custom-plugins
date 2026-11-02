@@ -1,7 +1,7 @@
 # Jenkins for the ACME developer journey
 
 Install Jenkins and connect our pipeline stages, build history and task logs to
-RHDH. The chart includes the Jenkins frontend/backend archives and their internal
+RHDH. The chart downloads and verifies the Jenkins frontend/backend packages and provides their internal
 package service; no plugin build is needed on your workstation.
 
 Follow the [Jenkins and WealthWise walkthrough](../../examples/jenkins-wealthwise/README.md).
