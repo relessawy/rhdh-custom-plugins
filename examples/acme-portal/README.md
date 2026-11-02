@@ -2,7 +2,8 @@
 
 Use the **prebuilt `acme-portal-experience` Helm chart**. It contains the ACME logo,
 branding, Portal Appearance 0.4.4, Application Overview 0.7.0, package hosting and
-Helm tests. Installers need only `oc`, Helm 3 and namespace edit access. No Node,
+Helm tests. Installers need `oc`, Helm 3, edit access to the existing RHDH namespace
+and permission to update its Helm values, GitOps repository or Operator CR. No Node,
 Python, plugin compilation, separate artifact host or demo framework is required.
 
 The chart installs an **add-on**, not another RHDH instance. Connecting it through
@@ -39,7 +40,8 @@ shasum -a 256 -c SHA256SUMS
 
 ## 2. Install the add-on
 
-Set the namespace and obtain the configuration snapshot from the instance's owner.
+Use the **same namespace as the existing RHDH instance** and obtain the
+configuration snapshot from its owner.
 Keep snapshots private; an existing Helm values file may contain credentials.
 Helm records supplied values in its namespace release Secret, so use the RHDH
 namespace and its existing access controls. Delete the local snapshot after use.
@@ -168,6 +170,11 @@ render-tested only. Other RHDH versions need qualification before use.
 
 Source: [charts/acme-portal-experience](../../charts/acme-portal-experience).
 Build the two frontend archives using [build.sh](../../docs/BUILDING.md), then run
-`python3 scripts/package-acme-chart.py`. This verifies archive integrity, embeds the
+`python3 scripts/package-acme-chart.py` (requires PyYAML 6.0.2). This verifies archive integrity, embeds the
 packages, lints and packages the chart and writes checksums. Consumers use the
 resulting chart; they do not execute this maintainer procedure.
+
+For publication, bump the chart version, package into `helm/`, regenerate its
+index with `helm repo index helm` (relative URLs), and submit the package, checksums
+and index together for production PR review. Never replace a published version
+with different bytes. CI validates builds but does not merge or publish releases.
