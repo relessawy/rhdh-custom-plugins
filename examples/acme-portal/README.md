@@ -43,11 +43,11 @@ where your instance runs. Follow your existing deployment method throughout.
 Download chart **0.1.0** into a working directory:
 
 ```sh
-helm repo add acme https://raw.githubusercontent.com/relessawy/rhdh-custom-plugins/feat/acme-portal-helm-installer/helm
+helm repo add acme https://raw.githubusercontent.com/relessawy/rhdh-custom-plugins/main/helm
 helm repo update acme
 helm pull acme/acme-portal-experience --version 0.1.0
-curl -fsSLo SHA256SUMS https://raw.githubusercontent.com/relessawy/rhdh-custom-plugins/feat/acme-portal-helm-installer/helm/SHA256SUMS
-curl -fsSLo my-values.yaml https://raw.githubusercontent.com/relessawy/rhdh-custom-plugins/feat/acme-portal-helm-installer/examples/acme-portal/values.example.yaml
+curl -fsSLo SHA256SUMS https://raw.githubusercontent.com/relessawy/rhdh-custom-plugins/main/helm/SHA256SUMS
+curl -fsSLo my-values.yaml https://raw.githubusercontent.com/relessawy/rhdh-custom-plugins/main/examples/acme-portal/values.example.yaml
 ```
 
 Verify the download using the command for your workstation:

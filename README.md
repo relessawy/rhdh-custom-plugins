@@ -48,12 +48,9 @@ packages, provides namespace-local package hosting and includes `helm test`.
 Installers need only `oc` and Helm, not Node, Python or the demo framework.
 
 Follow the [standard installation quickstart](examples/acme-portal/README.md).
-The add-on installation and the connection through the existing RHDH
-Helm/Operator/GitOps owner are distinct required steps. The versioned chart is
-available as a **review preview** under `helm/` on the
-[`feat/acme-portal-helm-installer` branch](https://github.com/relessawy/rhdh-custom-plugins/tree/feat/acme-portal-helm-installer/helm).
-Production `main` is unchanged until review and merge. The quickstart records the
-exact qualification status; this is not a Red Hat supported product distribution.
+Install the add-on, then connect it through your existing RHDH Helm, GitOps or
+Operator configuration. The versioned chart and checksums are available in
+[helm/](helm/).
 
 ## Build the plugins
 
