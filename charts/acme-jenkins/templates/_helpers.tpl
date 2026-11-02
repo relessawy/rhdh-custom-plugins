@@ -38,7 +38,7 @@ def repo = repositoryRoot + name + '.git'
 def job = j.getItem(name)
 if (job && !(job instanceof WorkflowJob)) throw new IllegalStateException('Existing item is not a Pipeline: ' + name)
 if (!job) job = j.createProject(WorkflowJob, name)
-def scm = new GitSCM([new UserRemoteConfig(repo, null, null, 'acme-gitlab')], [new BranchSpec('*/main')], false, [], null, null, [new hudson.plugins.git.extensions.impl.PathRestriction(null, 'deploy/acme-app/values-images[.]yaml')])
+def scm = new GitSCM([new UserRemoteConfig(repo, null, null, 'acme-gitlab')], [new BranchSpec('*/main')], false, [], null, null, [])
 def definition = new CpsScmFlowDefinition(scm, 'Jenkinsfile')
 definition.setLightweight(true)
 job.setDefinition(definition)

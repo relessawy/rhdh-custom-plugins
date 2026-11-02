@@ -46,6 +46,7 @@ spec:
           env:
             - {name: JAVA_OPTS_APPEND, value: '-XX:MaxRAMPercentage=70.0'}
             {{- if eq $module "ww-frontend" }}
+            - {name: WEALTHWISE_REQUEST_EVENTS_FILE, value: /tmp/wealthwise-request-events.jsonl}
             - name: OIDC_ISSUER
               valueFrom: {secretKeyRef: {name: {{ $.Values.name }}-oidc, key: issuer}}
             - name: OIDC_CLIENT_ID

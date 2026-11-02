@@ -105,7 +105,7 @@ class Charts(unittest.TestCase):
                          and 'initacme-bootstrap.groovy' in o.get('data', {}))['data']['initacme-bootstrap.groovy']
         self.assertIn("job.setDefinition(definition)", bootstrap)
         self.assertNotIn("job.addTrigger", bootstrap)
-        self.assertIn('PathRestriction', bootstrap)
+        self.assertNotIn('PathRestriction', bootstrap)
 
     def test_existing_jenkins_does_not_install_another_controller(self):
         objects = render('acme-jenkins', {'jenkins': {'enabled': False},

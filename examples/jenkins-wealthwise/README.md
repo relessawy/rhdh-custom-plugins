@@ -223,7 +223,8 @@ Then open the catalog component in RHDH:
 
 Jenkins builds all four services and pushes their images to Quay. It commits
 image digests to `deploy/acme-app/values-images.yaml`; Argo CD deploys those exact
-images. Deployment-only commits are excluded from Jenkins polling.
+images. Deployment-only commits use `[skip ci]`; Jenkins skips testing and image publication
+for those commits.
 
 Sign in to WealthWise, open Swagger UI from its catalog link, and try the savings
 API. Follow **Docs → Developer journey** to change the savings response, update

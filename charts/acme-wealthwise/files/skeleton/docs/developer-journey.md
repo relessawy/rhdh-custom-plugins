@@ -12,5 +12,5 @@
 7. Open WealthWise and its Swagger UI to validate the changed response. Refresh
    **Docs** to show the documentation update.
 
-Deployment-only commits are excluded from Jenkins polling so publishing image
-digests does not start another application build.
+Deployment-only commits use `[skip ci]`. Jenkins may record a skipped run, but
+it does not test, rebuild or republish images for that commit.
