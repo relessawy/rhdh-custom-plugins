@@ -1,0 +1,7 @@
+site_name: WealthWise
+plugins:
+  - techdocs-core
+nav:
+  - Overview: index.md
+  - Developer journey: developer-journey.md
+  - Savings API: savings-api.md

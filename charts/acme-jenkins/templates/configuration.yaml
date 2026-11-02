@@ -1,0 +1,57 @@
+{{- $source := fromYaml (required "Supply rhdh.existingHelmValues with --set-file" .Values.rhdh.existingHelmValues) -}}
+{{- if hasKey $source "Error" }}{{ fail "rhdh.existingHelmValues must be valid YAML" }}{{ end -}}
+{{- $dynamic := deepCopy (dig "global" "dynamic" (dict "includes" (list "dynamic-plugins.default.yaml")) $source) -}}
+{{- $plugins := list -}}
+{{- range $p := default (list) $dynamic.plugins -}}
+{{- if not (contains "jenkins-stage-progress-" $p.package) }}{{ $plugins = append $plugins $p }}{{ end -}}
+{{- end -}}
+{{- $manifest := .Files.Get "files/packages.json" | fromJsonArray -}}
+{{- if ne (len $manifest) 2 }}{{ fail "Use the packaged release chart with embedded Jenkins plugin archives" }}{{ end -}}
+{{- range $p := $manifest -}}
+{{- $entry := deepCopy $p.entry -}}
+{{- $_ := set $entry "package" (printf "http://%s-assets.%s.svc:8080/%s" $.Release.Name $.Release.Namespace $p.file) -}}
+{{- $plugins = append $plugins $entry -}}
+{{- end -}}
+{{- $_ := set $dynamic "plugins" $plugins -}}
+{{- $env := list -}}
+{{- range $e := dig "upstream" "backstage" "extraEnvVars" (list) $source -}}
+{{- if not (has $e.name (list "ACME_JENKINS_USERNAME" "ACME_JENKINS_TOKEN")) }}{{ $env = append $env $e }}{{ end -}}
+{{- end -}}
+{{- $secret := .Values.existing.credentialsSecret -}}
+{{- $userKey := "username" -}}
+{{- $tokenKey := "token" -}}
+{{- $base := .Values.existing.baseUrl -}}
+{{- if .Values.jenkins.enabled -}}
+{{- $secret = default (include "acme.jenkins.controller" .) .Values.jenkins.controller.admin.existingSecret -}}
+{{- $userKey = .Values.jenkins.controller.admin.userKey -}}
+{{- $tokenKey = .Values.jenkins.controller.admin.passwordKey -}}
+{{- $base = printf "http://%s.%s.svc:8080" (include "acme.jenkins.controller" .) .Release.Namespace -}}
+{{- else -}}
+{{- $_ := required "Set existing.credentialsSecret" $secret -}}
+{{- $_ := required "Set existing.baseUrl" $base -}}
+{{- end -}}
+{{- $env = append $env (dict "name" "ACME_JENKINS_USERNAME" "valueFrom" (dict "secretKeyRef" (dict "name" $secret "key" $userKey))) -}}
+{{- $env = append $env (dict "name" "ACME_JENKINS_TOKEN" "valueFrom" (dict "secretKeyRef" (dict "name" $secret "key" $tokenKey))) -}}
+{{- $names := uniq (concat (list .Values.global.application.name) .Values.global.ci.additionalApplications) -}}
+{{- $refs := list -}}
+{{- range $name := $names }}{{ $refs = append $refs (printf "component:%s/%s" $.Values.global.application.catalogNamespace $name) }}{{ end -}}
+{{- $bindings := list -}}
+{{- range $binding := dig "upstream" "backstage" "appConfig" "ciProgress" "bindings" (list) $source -}}
+{{- if not (has $binding.entityRef $refs) }}{{ $bindings = append $bindings $binding }}{{ end -}}
+{{- end -}}
+{{- range $i, $name := $names -}}
+{{- $bindings = append $bindings (dict "entityRef" (index $refs $i) "jobFullName" $name "branch" "main") -}}
+{{- end -}}
+{{- $ci := dict "baseUrl" $base "publicUrl" (include "acme.jenkins.url" .) "username" "${ACME_JENKINS_USERNAME}" "apiKey" "${ACME_JENKINS_TOKEN}" "bindings" $bindings -}}
+{{- $health := deepCopy (dig "upstream" "backstage" "appConfig" "applicationHealth" (dict) $source) -}}
+{{- $_ := set $health "enabledCards" (uniq (append (default (list) $health.enabledCards) "jenkins")) -}}
+{{- $_ := set $health "detailTabs" (uniq (append (default (list) $health.detailTabs) "jenkins")) -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configuration
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  helm-values.yaml: |
+    {{- toYaml (dict "global" (dict "dynamic" $dynamic) "upstream" (dict "backstage" (dict "extraEnvVars" $env "appConfig" (dict "ciProgress" $ci "applicationHealth" $health)))) | nindent 4 }}

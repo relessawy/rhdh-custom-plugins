@@ -1,0 +1,31 @@
+# Replace these URLs with the current demo environment's access details.
+global:
+  domain: apps.example.com
+  application:
+    name: wealthwise
+    catalogNamespace: default
+    owner: group:default/user1
+  gitlab:
+    baseUrl: https://gitlab.apps.example.com
+    owner: user1
+  ci:
+    credentialsSecret: acme-ci-credentials
+    additionalApplications: []
+application:
+  devSpacesUrl: https://devspaces.apps.example.com
+  quayRepositoryPrefix: quay.apps.example.com/quayadmin
+  imagePullSecret: ''
+identity:
+  baseUrl: https://sso.apps.example.com
+  realm: backstage
+  adminSecret: acme-keycloak-admin
+argocd:
+  enabled: true
+  namespace: openshift-gitops
+  project: default
+  instanceName: ''
+topology:
+  readerServiceAccount: ''
+  readerNamespace: backstage
+jenkins:
+  enabled: true

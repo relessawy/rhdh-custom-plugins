@@ -1,0 +1,34 @@
+global:
+  domain: ''
+  application:
+    name: wealthwise
+    catalogNamespace: default
+    owner: group:default/developers
+  gitlab:
+    baseUrl: ''
+    owner: user1
+application:
+  sourceUrl: https://github.com/relessawy/wealthwise-demo/tree/86ee8250697d4ef9957f339a315a36960aaca1b8
+  # This public folder is read by Backstage's fetch:template action.
+  skeletonUrl: https://github.com/relessawy/rhdh-custom-plugins/tree/feat/jenkins-wealthwise-starter/charts/acme-wealthwise/files/skeleton
+  devSpacesUrl: ''
+  quayRepositoryPrefix: ''
+  imagePullSecret: ''
+identity:
+  baseUrl: ''
+  realm: backstage
+  adminSecret: acme-keycloak-admin
+  bootstrap: true
+argocd:
+  enabled: true
+  namespace: openshift-gitops
+  project: default
+  instanceName: ''
+rhdh:
+  existingHelmValues: ''
+assets:
+  image: registry.access.redhat.com/ubi9/python-312@sha256:5b0c67feb3f2e5637c6301ea22e2839d402dd71d88c3cec8d1fd278ce0f9e69a
+topology:
+  # Optional: the ServiceAccount used by RHDH's Kubernetes backend.
+  readerServiceAccount: ''
+  readerNamespace: backstage

@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-test
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      containers:
+        - name: verify
+          image: {{ .Values.assets.image | quote }}
+          command:
+            - python
+            - -c
+            - |
+              import hashlib,json,urllib.request
+              url='http://{{ .Release.Name }}-template.{{ .Release.Namespace }}.svc:8080/template.yaml'
+              with urllib.request.urlopen(url,timeout=30) as r: data=r.read()
+              assert hashlib.sha256(data).hexdigest()=={{ include "acme.wealthwise.template" . | printf "%s\n" | sha256sum | quote }}
+              print('VERIFIED software template')
+              with urllib.request.urlopen({{ printf "%s/realms/%s/.well-known/openid-configuration" (trimSuffix "/" .Values.identity.baseUrl) .Values.identity.realm | quote }},timeout=30) as r: metadata=json.load(r)
+              assert metadata['issuer']=={{ printf "%s/realms/%s" (trimSuffix "/" .Values.identity.baseUrl) .Values.identity.realm | quote }}
+              print('VERIFIED identity discovery')
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {memory: 128Mi}
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+            seccompProfile: {type: RuntimeDefault}

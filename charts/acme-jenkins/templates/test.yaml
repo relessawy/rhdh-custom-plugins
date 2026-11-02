@@ -1,0 +1,61 @@
+{{- $secret := .Values.existing.credentialsSecret -}}
+{{- $userKey := "username" -}}
+{{- $tokenKey := "token" -}}
+{{- $base := .Values.existing.baseUrl -}}
+{{- if .Values.jenkins.enabled -}}
+{{- $secret = default (include "acme.jenkins.controller" .) .Values.jenkins.controller.admin.existingSecret -}}
+{{- $userKey = .Values.jenkins.controller.admin.userKey -}}
+{{- $tokenKey = .Values.jenkins.controller.admin.passwordKey -}}
+{{- $base = printf "http://%s.%s.svc:8080" (include "acme.jenkins.controller" .) .Release.Namespace -}}
+{{- end }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-test
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      containers:
+        - name: verify
+          image: {{ .Values.assets.image | quote }}
+          command:
+            - python
+            - -c
+            - |
+              import base64,hashlib,json,urllib.request
+              from pathlib import Path
+              packages=json.loads({{ .Files.Get "files/packages.json" | toJson }})
+              for p in packages:
+                  url='http://{{ .Release.Name }}-assets.{{ .Release.Namespace }}.svc:8080/'+p['file']
+                  with urllib.request.urlopen(url,timeout=30) as r: data=r.read()
+                  assert 'sha512-'+base64.b64encode(hashlib.sha512(data).digest()).decode()==p['entry']['integrity']
+                  print('VERIFIED '+p['file'])
+              user=Path('/auth/username').read_text().strip()
+              password=Path('/auth/token').read_text().strip()
+              request=urllib.request.Request({{ printf "%s/job/%s/api/json" (trimSuffix "/" $base) .Values.global.application.name | quote }},headers={'Authorization':'Basic '+base64.b64encode((user+':'+password).encode()).decode()})
+              with urllib.request.urlopen(request,timeout=30) as r: job=json.load(r)
+              assert job['name']=={{ .Values.global.application.name | quote }}
+              print('VERIFIED Jenkins pipeline job')
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {memory: 128Mi}
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+            seccompProfile: {type: RuntimeDefault}
+          volumeMounts: [{name: auth, mountPath: /auth, readOnly: true}]
+      volumes:
+        - name: auth
+          secret:
+            secretName: {{ $secret }}
+            items:
+              - {key: {{ $userKey }}, path: username}
+              - {key: {{ $tokenKey }}, path: token}

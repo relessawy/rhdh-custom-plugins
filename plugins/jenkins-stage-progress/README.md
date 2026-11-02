@@ -52,6 +52,10 @@ catalog annotation alone cannot grant access to a different job.
 
 ## Installation
 
+To install a Jenkins server together with the prebuilt RHDH packages, follow the
+[Jenkins and WealthWise walkthrough](../../examples/jenkins-wealthwise/README.md).
+For a separate plugin build and installation, use the steps below.
+
 ```sh
 bash scripts/build.sh jenkins-stage-progress
 ```

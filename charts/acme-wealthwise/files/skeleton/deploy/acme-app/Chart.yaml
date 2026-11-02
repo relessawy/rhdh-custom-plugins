@@ -1,0 +1,5 @@
+apiVersion: v2
+name: wealthwise-runtime
+description: WealthWise services and PostgreSQL deployed by Argo CD
+version: 0.1.0
+type: application

@@ -1,0 +1,63 @@
+# Install in the RHDH namespace so its backend can reference the same Secrets.
+global:
+  domain: ''
+  application:
+    name: wealthwise
+    catalogNamespace: default
+  gitlab:
+    baseUrl: ''
+    owner: user1
+  ci:
+    # Existing Secret: GITLAB_USERNAME, GITLAB_TOKEN, QUAY_USERNAME, QUAY_TOKEN.
+    credentialsSecret: acme-ci-credentials
+    # Add more jobs without installing another Jenkins server.
+    additionalApplications: []
+rhdh:
+  existingHelmValues: ''
+existing:
+  baseUrl: ''
+  publicUrl: ''
+  # Existing Secret keys: username, token.
+  credentialsSecret: ''
+assets:
+  resources:
+    requests: {cpu: 10m, memory: 32Mi}
+    limits: {memory: 128Mi}
+  image: registry.access.redhat.com/ubi9/python-312@sha256:5b0c67feb3f2e5637c6301ea22e2839d402dd71d88c3cec8d1fd278ce0f9e69a
+jenkins:
+  enabled: true
+  controller:
+    numExecutors: 0
+    testEnabled: false
+    jenkinsUrlProtocol: https
+    ingress:
+      enabled: false
+      hostName: '{{ include "jenkins.fullname" . }}.{{ .Values.global.domain }}'
+    javaOpts: '-Xms256m -Xmx1024m'
+    resources:
+      requests: {cpu: 100m, memory: 768Mi}
+      limits: {memory: 2Gi}
+    sidecars:
+      configAutoReload:
+        enabled: false
+    installLatestPlugins: false
+    additionalPlugins:
+      - pipeline-rest-api:2.41
+      - credentials-binding:728.v902a_273b_8947
+      - junit:1456.vdb_4425ca_0d4d
+    containerEnvFrom:
+      - secretRef:
+          name: '{{ .Values.global.ci.credentialsSecret }}'
+    initScripts:
+      acme-bootstrap: '{{ include "acme.jenkins.bootstrap" . }}'
+  agent:
+    workingDir: /tmp/agent
+    restrictedPssSecurityContext: true
+    resources:
+      requests: {cpu: 100m, memory: 256Mi}
+      limits: {memory: 512Mi}
+  rbac:
+    useOpenShiftNonRootSCC: true
+  persistence:
+    enabled: true
+    size: 8Gi

@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "global": {
+      "type": "object",
+      "required": [
+        "domain",
+        "application",
+        "gitlab"
+      ],
+      "properties": {
+        "domain": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9.-]+$"
+        },
+        "application": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{0,39}$"
+            },
+            "catalogNamespace": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{0,39}$"
+            },
+            "owner": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_:/.-]+$"
+            }
+          }
+        },
+        "gitlab": {
+          "type": "object",
+          "properties": {
+            "baseUrl": {
+              "type": "string",
+              "pattern": "^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/[a-zA-Z0-9._/-]*)?$"
+            },
+            "owner": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_.-]+(?:/[a-zA-Z0-9_.-]+)*$"
+            }
+          }
+        }
+      }
+    },
+    "rhdh": {
+      "type": "object",
+      "required": [
+        "existingHelmValues"
+      ],
+      "properties": {
+        "existingHelmValues": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "application": {
+      "type": "object",
+      "properties": {
+        "sourceUrl": {
+          "type": "string",
+          "pattern": "^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/[a-zA-Z0-9._/-]*)?$"
+        },
+        "skeletonUrl": {
+          "type": "string",
+          "pattern": "^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/[a-zA-Z0-9._/-]*)?$"
+        },
+        "devSpacesUrl": {
+          "type": "string",
+          "pattern": "^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/[a-zA-Z0-9._/-]*)?$"
+        },
+        "quayRepositoryPrefix": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9.-]+(?::[0-9]+)?/[a-z0-9_.-]+$"
+        }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "properties": {
+        "baseUrl": {
+          "type": "string",
+          "pattern": "^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/[a-zA-Z0-9._/-]*)?$"
+        },
+        "realm": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{0,39}$"
+        },
+        "adminSecret": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{0,39}$"
+        }
+      }
+    }
+  }
+}

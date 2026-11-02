@@ -1,0 +1,29 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.name }}
+  namespace: ${{ values.catalogNamespace }}
+  title: WealthWise
+  description: ACME Bank financial services application
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/kubernetes-id: ${{ values.name }}
+    backstage.io/kubernetes-namespace: ${{ values.namespace }}
+    backstage.io/kubernetes-label-selector: app.kubernetes.io/part-of=${{ values.name }}
+    jenkins.io/job-full-name: ${{ values.name }}
+    argocd/app-name: ${{ values.name }}
+{% if values.argocdInstance %}
+    argocd/instance-name: ${{ values.argocdInstance }}
+{% endif %}
+    argocd/app-namespace: ${{ values.argocdNamespace }}
+  links:
+    - title: Open WealthWise
+      url: https://${{ values.routeHost }}
+    - title: Open in Dev Spaces
+      url: ${{ values.devSpacesUrl }}/#${{ values.gitlabUrl }}/${{ values.gitlabOwner }}/${{ values.name }}
+    - title: Swagger UI
+      url: https://${{ values.routeHost }}/q/swagger-ui/
+spec:
+  type: service
+  lifecycle: experimental
+  owner: ${{ values.owner }}

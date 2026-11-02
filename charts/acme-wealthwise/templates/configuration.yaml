@@ -1,0 +1,21 @@
+{{- $source := fromYaml (required "Supply rhdh.existingHelmValues with --set-file" .Values.rhdh.existingHelmValues) -}}
+{{- if hasKey $source "Error" }}{{ fail "rhdh.existingHelmValues must be valid YAML" }}{{ end -}}
+{{- $url := printf "http://%s-template.%s.svc:8080/template.yaml" .Release.Name .Release.Namespace -}}
+{{- $host := printf "%s-template.%s.svc:8080" .Release.Name .Release.Namespace -}}
+{{- $locations := list -}}
+{{- range $l := dig "upstream" "backstage" "appConfig" "catalog" "locations" (list) $source -}}
+{{- if ne (default "" $l.target) $url }}{{ $locations = append $locations $l }}{{ end -}}
+{{- end -}}
+{{- $locations = append $locations (dict "type" "url" "target" $url "rules" (list (dict "allow" (list "Template")) )) -}}
+{{- $allow := list -}}
+{{- range $a := dig "upstream" "backstage" "appConfig" "backend" "reading" "allow" (list) $source -}}
+{{- if ne $a.host $host }}{{ $allow = append $allow $a }}{{ end -}}
+{{- end -}}
+{{- $allow = append $allow (dict "host" $host "paths" (list "/template.yaml")) -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configuration
+data:
+  helm-values.yaml: |
+    {{- toYaml (dict "upstream" (dict "backstage" (dict "appConfig" (dict "catalog" (dict "locations" $locations) "backend" (dict "reading" (dict "allow" $allow)))))) | nindent 4 }}

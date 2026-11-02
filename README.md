@@ -52,6 +52,14 @@ Install the add-on, then connect it through your existing RHDH Helm, GitOps or
 Operator configuration. The versioned chart and checksums are available in
 [helm/](helm/).
 
+## Add Jenkins and onboard WealthWise
+
+Use the [Jenkins and WealthWise walkthrough](examples/jenkins-wealthwise/README.md)
+to install the shared Jenkins server and register the application software template.
+The two prebuilt charts are [acme-jenkins](charts/acme-jenkins/README.md) and
+[acme-wealthwise](charts/acme-wealthwise/README.md). They connect the application's
+GitLab project, Quay images, Dev Spaces, TechDocs, CI, CD and Topology views.
+
 ## Build the plugins
 
 **`scripts/build.sh` is the supported build entry point.** It produces deployable

@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-template
+data:
+  template.yaml: |
+    {{- include "acme.wealthwise.template" . | nindent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-template
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: {{ .Release.Name }}-template}
+  template:
+    metadata:
+      labels: {app: {{ .Release.Name }}-template}
+      annotations:
+        checksum/template: {{ include "acme.wealthwise.template" . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: template
+          image: {{ .Values.assets.image | quote }}
+          command: [python, -m, http.server, '8080', --directory, /catalog]
+          ports: [{name: http, containerPort: 8080}]
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {memory: 128Mi}
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+            seccompProfile: {type: RuntimeDefault}
+          readinessProbe:
+            httpGet: {path: /template.yaml, port: http}
+          volumeMounts: [{name: catalog, mountPath: /catalog, readOnly: true}]
+      volumes:
+        - name: catalog
+          configMap: {name: {{ .Release.Name }}-template}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-template
+spec:
+  selector: {app: {{ .Release.Name }}-template}
+  ports: [{name: http, port: 8080, targetPort: http}]
