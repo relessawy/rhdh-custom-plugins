@@ -40,6 +40,21 @@ commands in `scripts/build.sh`. [Application Overview](plugins/application-healt
 covers compact cards only. Dynatrace, Topology and Scorecard have no custom compact
 card in this repository.
 
+## Install the ACME experience on existing RHDH
+
+Use the **prebuilt `acme-portal-experience` Helm chart** for ACME branding, polished
+entity tabs and configurable compact overview cards. It embeds the frontend
+packages, provides namespace-local package hosting and includes `helm test`.
+Installers need only `oc` and Helm, not Node, Python or the demo framework.
+
+Follow the [standard installation quickstart](examples/acme-portal/README.md).
+The add-on installation and the connection through the existing RHDH
+Helm/Operator/GitOps owner are distinct required steps. The versioned chart is
+available as a **review preview** under `helm/` on the
+[`feat/acme-portal-helm-installer` branch](https://github.com/relessawy/rhdh-custom-plugins/tree/feat/acme-portal-helm-installer/helm).
+Production `main` is unchanged until review and merge. The quickstart records the
+exact qualification status; this is not a Red Hat supported product distribution.
+
 ## Build the plugins
 
 **`scripts/build.sh` is the supported build entry point.** It produces deployable

@@ -28,3 +28,29 @@ jobs:
       - run: pip install -r plugins/servicenow-infrastructure/services/requirements.txt -r plugins/servicenow-infrastructure/services/runtime/requirements.txt
       - run: python -m unittest discover -s plugins/servicenow-infrastructure/services/test
       - run: python -m unittest discover -s plugins/vault-health/collector/test
+  acme-chart:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.16.4
+      - run: pip install PyYAML==6.0.2
+      - uses: actions/download-artifact@v4
+        with:
+          name: portal-appearance-packages
+          path: artifacts/portal-appearance
+      - uses: actions/download-artifact@v4
+        with:
+          name: application-health-packages
+          path: artifacts/application-health
+      - run: python3 scripts/package-acme-chart.py
+      - run: python3 -m unittest discover -s tests -p test_acme_chart.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: acme-portal-experience-chart
+          path: artifacts/acme-portal-experience/

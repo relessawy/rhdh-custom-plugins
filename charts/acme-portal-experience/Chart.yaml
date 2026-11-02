@@ -1,0 +1,10 @@
+apiVersion: v2
+name: acme-portal-experience
+description: ACME branding, polished tabs and optional overview cards for an existing RHDH instance
+type: application
+version: 0.1.0
+appVersion: '1.10'
+kubeVersion: '>=1.27.0-0'
+home: https://github.com/relessawy/rhdh-custom-plugins
+sources:
+  - https://github.com/relessawy/rhdh-custom-plugins

@@ -1,0 +1,31 @@
+# Install into the same namespace as the existing RHDH instance.
+fullnameOverride: ''
+branding:
+  enabled: true
+  title: ACME Bank Developer Hub
+  organization: ACME Bank
+  primary: '#DA1710'
+  header: '#B5120B'
+overview:
+  enabled: true
+  # Enable providers only after their native/custom backend is configured.
+  enabledCards: []
+  detailTabs: []
+  argoBackendId: argocd
+  replaceNativeArgoOverview: true
+tabs:
+  enabled: true
+rhdh:
+  # Supply exactly one snapshot using --set-file. Existing packages are preserved.
+  # No provider secrets or source-control credentials are needed by this chart.
+  existingHelmValues: ''
+  existingDynamicPlugins: ''
+assets:
+  # Packages are embedded in the released chart. No separate hosting setup required.
+  image: registry.access.redhat.com/ubi9/python-312@sha256:5b0c67feb3f2e5637c6301ea22e2839d402dd71d88c3cec8d1fd278ce0f9e69a
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 128Mi

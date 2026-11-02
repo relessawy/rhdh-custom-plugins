@@ -1,0 +1,76 @@
+{{- $root := . -}}
+{{- $name := include "acme.name" . -}}
+{{- range $i, $p := (.Files.Get "files/packages.json" | fromJsonArray) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}-package-{{ $i }}
+  labels:
+    {{- include "acme.labels" $root | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+binaryData:
+  {{ $p.file }}: {{ $root.Files.Get (printf "files/packages/%s" $p.file) | b64enc | quote }}
+---
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}-assets
+  labels:
+    {{- include "acme.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $name }}-assets
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}-assets
+      annotations:
+        checksum/packages: {{ .Files.Get "files/packages.json" | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: assets
+          image: {{ .Values.assets.image | quote }}
+          command: [python, -m, http.server, '8080', --directory, /assets]
+          ports:
+            - name: http
+              containerPort: 8080
+          resources:
+            {{- toYaml .Values.assets.resources | nindent 12 }}
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+            seccompProfile: {type: RuntimeDefault}
+          readinessProbe:
+            httpGet: {path: /, port: http}
+          volumeMounts:
+            - name: packages
+              mountPath: /assets
+              readOnly: true
+      volumes:
+        - name: packages
+          projected:
+            sources:
+              {{- range $i, $p := (.Files.Get "files/packages.json" | fromJsonArray) }}
+              - configMap:
+                  name: {{ $name }}-package-{{ $i }}
+              {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}-assets
+  labels:
+    {{- include "acme.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: {{ $name }}-assets
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
