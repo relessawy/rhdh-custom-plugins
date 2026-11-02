@@ -221,6 +221,15 @@ Then open the catalog component in RHDH:
 - **Docs** builds the documentation from the GitLab project.
 - **Open in Dev Spaces** creates your workspace on the first visit.
 
+On your first Dev Spaces visit, use **rhsso** and your demo developer account.
+The environment may request consent for your existing OpenShift permissions and
+GitLab `api`/`write_repository` access before it creates the workspace.
+
+![Jenkins CI in RHDH](screenshots/jenkins-ci.jpg)
+
+[CD](screenshots/argocd-cd.jpg) · [Topology](screenshots/topology.jpg) ·
+[Savings calculator](screenshots/wealthwise-savings.jpg)
+
 Jenkins builds all four services and pushes their images to Quay. It commits
 image digests to `deploy/acme-app/values-images.yaml`; Argo CD deploys those exact
 images. Deployment-only commits use `[skip ci]`; Jenkins skips testing and image publication
