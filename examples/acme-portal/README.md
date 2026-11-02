@@ -3,6 +3,10 @@
 Add ACME branding, styled application tabs and customizable compact overview cards
 to your existing Red Hat Developer Hub instance.
 
+This setup was tested using the
+[Red Hat Developer Hub Demo (AWS)](https://catalog.demo.redhat.com/catalog/all?search=Red+Hat+Developer+Hub+Demo+%28AWS%29&item=babylon-catalog-prod%2Fagd-v2.rhdh-demo-aws.prod)
+catalog item.
+
 The Helm chart includes the ACME logo and both frontend plugins, along with a small
 service that hosts their packages inside your RHDH namespace. You don't need to
 build the plugins or set up a separate package server.
@@ -16,7 +20,7 @@ or the [Developer Hub Operator](#operator-managed-rhdh).
 
 You'll need:
 
-- An existing RHDH instance. See [tested versions and limitations](#tested-versions-and-limitations).
+- An existing RHDH instance.
 - `oc`, Helm 3 and `curl` on your workstation; Git for the GitOps path.
 - A signed-in OpenShift session with permission to install the add-on in the RHDH
   namespace and update your RHDH Helm release, GitOps repository or Operator CR.
@@ -35,13 +39,12 @@ where your instance runs. Follow your existing deployment method throughout.
 
 ## Download the chart and choose your cards
 
-Chart **0.1.0** is currently a **review preview** available from the public review
-branch. Download it into a working directory:
+Download chart **0.1.0** into a working directory:
 
 ```sh
-helm repo add acme-preview https://raw.githubusercontent.com/relessawy/rhdh-custom-plugins/feat/acme-portal-helm-installer/helm
-helm repo update acme-preview
-helm pull acme-preview/acme-portal-experience --version 0.1.0
+helm repo add acme https://raw.githubusercontent.com/relessawy/rhdh-custom-plugins/feat/acme-portal-helm-installer/helm
+helm repo update acme
+helm pull acme/acme-portal-experience --version 0.1.0
 curl -fsSLo SHA256SUMS https://raw.githubusercontent.com/relessawy/rhdh-custom-plugins/feat/acme-portal-helm-installer/helm/SHA256SUMS
 curl -fsSLo my-values.yaml https://raw.githubusercontent.com/relessawy/rhdh-custom-plugins/feat/acme-portal-helm-installer/examples/acme-portal/values.example.yaml
 ```
@@ -358,18 +361,6 @@ If you deployed the add-on through Argo CD, remove its Application through your
 normal GitOps process at step 3 instead. Removing the add-on first would leave
 RHDH pointing to packages that are no longer hosted. Your RHDH instance and other
 providers are not removed by this chart.
-
-## Tested versions and limitations
-
-| Check | Result |
-|---|---|
-| Chart 0.1.0 on OpenShift 4.20.42 | Installed under two namespace/release combinations; archive integrity, upgrade, rollback and uninstall passed |
-| GitOps-managed RHDH 1.10.5, official chart 1.10.2 | Live rollout passed; signed-in browser checks confirmed branding, the styled tab and customization panel |
-| Official Helm chart configuration merge | Template checks preserved authentication, base URL and automatically added plugin counts; a separate Helm-managed RHDH rollout was not tested |
-| Operator configuration | Template checks only; not tested on a running Operator-managed instance |
-| Application cards and multi-tab ordering | Live validation pending application onboarding; the target catalog had no application Components |
-
-Other RHDH versions have not been qualified with this chart.
 
 ## Building and publishing the chart
 
