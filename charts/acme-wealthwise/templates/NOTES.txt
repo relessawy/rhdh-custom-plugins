@@ -5,4 +5,4 @@ Export and append these settings to your existing RHDH values through its curren
 
 In RHDH, open Self-service and choose WealthWise — Jenkins and GitOps.
 The template creates {{ .Values.global.gitlab.owner }}/{{ .Values.global.application.name }} in GitLab. It must not already exist.
-Jenkins will discover main through its two-minute poll. Argo CD needs that first build's images before the application can become healthy.
+Start the first Jenkins build with Build Now. The Jenkinsfile enables two-minute polling for subsequent source changes. Argo CD needs that first build's images before the application can become healthy.

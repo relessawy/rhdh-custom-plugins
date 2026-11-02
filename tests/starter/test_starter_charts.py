@@ -103,7 +103,8 @@ class Charts(unittest.TestCase):
         self.assertTrue(any(o and o['kind'] == 'PersistentVolumeClaim' for o in objects))
         bootstrap = next(o for o in objects if o and o['kind'] == 'ConfigMap'
                          and 'initacme-bootstrap.groovy' in o.get('data', {}))['data']['initacme-bootstrap.groovy']
-        self.assertIn("new SCMTrigger('H/2 * * * *')", bootstrap)
+        self.assertIn("job.setDefinition(definition)", bootstrap)
+        self.assertNotIn("job.addTrigger", bootstrap)
         self.assertIn('PathRestriction', bootstrap)
 
     def test_existing_jenkins_does_not_install_another_controller(self):

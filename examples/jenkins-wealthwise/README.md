@@ -135,8 +135,9 @@ outbound HTTPS to `raw.githubusercontent.com` when its pod starts.
 
 The server uses the official Jenkins chart's OpenShift `nonroot` support for its
 own service account. Agents run as separate pods. The configured Pipeline job
-reads `Jenkinsfile` from the new application's `main` branch and polls every two
-minutes. Its source repository appears when you run the software template.
+reads `Jenkinsfile` from the new application's `main` branch. Start its first build
+after running the software template; the Jenkinsfile then enables polling every
+two minutes.
 
 The RHDH integration uses the generated Jenkins admin account for this demo.
 Its Secret stays in the RHDH namespace. If you already have Jenkins, set
@@ -200,7 +201,19 @@ only in the application namespace. No pod-log proxy permission is added.
 ## 6. Create and try the application
 
 In RHDH, open **Self-service → WealthWise — Jenkins and GitOps** and run the template.
-Then open its catalog component:
+Open the Jenkins URL shown by Helm and sign in as `admin`. Retrieve its generated
+password from the existing Secret:
+
+```sh
+oc -n "$RHDH_NAMESPACE" get secret acme-jenkins \
+  -o jsonpath='{.data.jenkins-admin-password}' | base64 --decode
+```
+
+Open the `wealthwise` job and select **Build Now** once. Subsequent source changes
+are detected by its two-minute poll. If you connected an existing Jenkins server,
+use your existing account instead.
+
+Then open the catalog component in RHDH:
 
 - **CI** shows the Jenkins stages, recent builds and task logs.
 - **CD** shows Argo CD synchronization and health.

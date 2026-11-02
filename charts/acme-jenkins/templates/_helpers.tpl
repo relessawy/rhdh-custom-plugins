@@ -17,7 +17,6 @@ import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl
 import hudson.plugins.git.GitSCM
 import hudson.plugins.git.UserRemoteConfig
 import hudson.plugins.git.BranchSpec
-import hudson.triggers.SCMTrigger
 import org.jenkinsci.plugins.workflow.job.WorkflowJob
 import org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition
 
@@ -43,7 +42,6 @@ def scm = new GitSCM([new UserRemoteConfig(repo, null, null, 'acme-gitlab')], [n
 def definition = new CpsScmFlowDefinition(scm, 'Jenkinsfile')
 definition.setLightweight(true)
 job.setDefinition(definition)
-job.addTrigger(new SCMTrigger('H/2 * * * *'))
 job.save()
 println('ACME pipeline configured: ' + name)
 }
