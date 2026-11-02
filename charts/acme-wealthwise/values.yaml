@@ -10,7 +10,7 @@ global:
 application:
   sourceUrl: https://github.com/relessawy/wealthwise-demo/tree/86ee8250697d4ef9957f339a315a36960aaca1b8
   # This public folder is read by Backstage's fetch:template action.
-  skeletonUrl: https://github.com/relessawy/rhdh-custom-plugins/tree/0b9eb9c62d44e06c76c34a3260fe453e5aff9b07/charts/acme-wealthwise/files/skeleton
+  skeletonUrl: https://github.com/relessawy/rhdh-custom-plugins/tree/794bc62665d7fc10a2ecc6a157a65101cdcd5b67/charts/acme-wealthwise/files/skeleton
   devSpacesUrl: ''
   quayRepositoryPrefix: ''
   imagePullSecret: ''

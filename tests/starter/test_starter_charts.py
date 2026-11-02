@@ -156,6 +156,9 @@ class Charts(unittest.TestCase):
             runtime = list(yaml.safe_load_all(result.stdout))
             self.assertEqual(len([o for o in runtime if o and o['kind'] == 'Deployment']), 4)
             self.assertEqual(len([o for o in runtime if o and o['kind'] == 'StatefulSet']), 1)
+            frontend = next(o for o in runtime if o and o['kind'] == 'Deployment' and o['metadata']['name'] == 'ww-frontend')
+            environment = frontend['spec']['template']['spec']['containers'][0]['env']
+            self.assertTrue(any(e['name'] == 'WEALTHWISE_REQUEST_EVENTS_FILE' and e.get('value', '').startswith('/tmp/') for e in environment))
             self.assertIn('sslmode=verify-full', result.stdout)
             self.assertNotIn('${{', result.stdout)
 
