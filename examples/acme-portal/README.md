@@ -361,8 +361,3 @@ If you deployed the add-on through Argo CD, remove its Application through your
 normal GitOps process at step 3 instead. Removing the add-on first would leave
 RHDH pointing to packages that are no longer hosted. Your RHDH instance and other
 providers are not removed by this chart.
-
-## Building and publishing the chart
-
-If you're maintaining the packages, see the separate
-[maintainer guide](MAINTAINING.md). You don't need those steps to install the chart.
