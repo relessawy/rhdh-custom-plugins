@@ -3,10 +3,6 @@
 Add ACME branding, styled application tabs and customizable compact overview cards
 to your existing Red Hat Developer Hub instance.
 
-This setup was tested using the
-[Red Hat Developer Hub Demo (AWS)](https://catalog.demo.redhat.com/catalog/all?search=Red+Hat+Developer+Hub+Demo+%28AWS%29&item=babylon-catalog-prod%2Fagd-v2.rhdh-demo-aws.prod)
-catalog item.
-
 The Helm chart includes the ACME logo and both frontend plugins, along with a small
 service that hosts their packages inside your RHDH namespace. You don't need to
 build the plugins or set up a separate package server.
@@ -15,6 +11,11 @@ Installation has two parts: install the chart, then update your existing RHDH
 configuration to load the plugins. Choose the path below that matches how you
 manage RHDH: [Helm](#helm-managed-rhdh), [Argo CD/GitOps](#argo-cdgitops-managed-rhdh)
 or the [Developer Hub Operator](#operator-managed-rhdh).
+
+This setup was tested using the
+[Red Hat Developer Hub Demo (AWS)](https://catalog.demo.redhat.com/catalog/all?search=Red+Hat+Developer+Hub+Demo+%28AWS%29&item=babylon-catalog-prod%2Fagd-v2.rhdh-demo-aws.prod)
+catalog item. For this environment, follow the **[Argo CD/GitOps path](#argo-cdgitops-managed-rhdh)**:
+install the ACME add-on with Helm, then update RHDH through its GitOps repository.
 
 ## Before you start
 
