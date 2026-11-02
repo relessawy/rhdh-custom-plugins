@@ -4,14 +4,16 @@ import argparse,base64,hashlib,json,shutil,subprocess,tempfile
 from pathlib import Path
 import yaml
 ROOT=Path(__file__).resolve().parents[1]
-PLUGINS={'portal-appearance':'0.4.4','application-health':'0.7.0'}
+PLUGINS=('portal-appearance','application-health')
 def package(output,helm='helm'):
     output=output.resolve();output.mkdir(parents=True,exist_ok=True)
+    chart_meta=yaml.safe_load((ROOT/'charts/acme-portal-experience/Chart.yaml').read_text())
     with tempfile.TemporaryDirectory() as temp:
         chart=Path(temp)/'acme-portal-experience';shutil.copytree(ROOT/'charts/acme-portal-experience',chart)
         folder=chart/'files/packages';folder.mkdir()
         packages=[]
-        for slug,version in PLUGINS.items():
+        for slug in PLUGINS:
+            version=json.loads((ROOT/'plugins'/slug/'frontend/package.json').read_text())['version']
             source=ROOT/'artifacts'/slug/version
             records=json.loads((source/'packages.json').read_text())
             entries=yaml.safe_load((source/'dynamic-plugins.yaml').read_text())['plugins']
@@ -28,7 +30,7 @@ def package(output,helm='helm'):
         fixture=Path(temp)/'existing.yaml';fixture.write_text('rhdh:\n  existingDynamicPlugins: |\n    includes: [dynamic-plugins.default.yaml]\n    plugins: []\n')
         subprocess.run([helm,'lint',str(chart),'--strict','-f',str(fixture)],check=True)
         subprocess.run([helm,'package',str(chart),'--destination',str(output)],check=True)
-    archive=output/'acme-portal-experience-0.1.0.tgz'
+    archive=output/(chart_meta['name']+'-'+chart_meta['version']+'.tgz')
     output.joinpath('SHA256SUMS').write_text(hashlib.sha256(archive.read_bytes()).hexdigest()+'  '+archive.name+'\n')
     return archive
 if __name__=='__main__':

@@ -160,7 +160,7 @@ are not owned or removed by this chart.
 ## Qualification
 
 Chart 0.1.0 was installed and integrity-tested on OpenShift 4.20.42 with two
-namespace/release combinations; upgrade and rollback were also exercised.
+namespace/release combinations; upgrade, rollback and uninstall were also exercised.
 The GitOps handoff targets RHDH 1.10.5 on official chart 1.10.2. Live application
 card data and controls require an onboarded Component and configured provider;
 this environment has no application Components yet. Operator wiring is
