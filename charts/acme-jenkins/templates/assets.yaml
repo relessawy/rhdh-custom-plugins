@@ -1,18 +1,4 @@
-{{- $root := . -}}
 {{- $name := .Release.Name -}}
-{{- range $i, $p := (.Files.Get "files/packages.json" | fromJsonArray) }}
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ $name }}-package-{{ $i }}
-  labels:
-    {{- include "acme.jenkins.labels" $root | nindent 4 }}
-  annotations:
-    argocd.argoproj.io/sync-options: ServerSideApply=true
-binaryData:
-  {{ $p.file }}: {{ $root.Files.Get (printf "files/packages/%s" $p.file) | b64enc | quote }}
----
-{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -29,9 +15,34 @@ spec:
       labels:
         app: {{ $name }}-assets
       annotations:
-        checksum/packages: {{ .Files.Get "files/packages.json" | sha256sum }}
+        checksum/packages: {{ printf "%s%s" .Values.assets.packageBaseUrl (.Files.Get "files/packages.json") | sha256sum }}
     spec:
       automountServiceAccountToken: false
+      initContainers:
+        - name: download-packages
+          image: {{ .Values.assets.image | quote }}
+          command:
+            - python
+            - -c
+            - |
+              import base64,hashlib,json,urllib.request
+              from pathlib import Path
+              for p in json.loads({{ .Files.Get "files/packages.json" | toJson }}):
+                  url={{ .Values.assets.packageBaseUrl | quote }}+'/'+p['file']
+                  with urllib.request.urlopen(url,timeout=120) as r: data=r.read()
+                  assert 'sha512-'+base64.b64encode(hashlib.sha512(data).digest()).decode()==p['entry']['integrity'], 'Plugin integrity mismatch'
+                  Path('/assets',p['file']).write_bytes(data)
+                  print('Verified '+p['file'])
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+            seccompProfile: {type: RuntimeDefault}
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {memory: 128Mi}
+          volumeMounts:
+            - {name: packages, mountPath: /assets}
       containers:
         - name: assets
           image: {{ .Values.assets.image | quote }}
@@ -54,12 +65,7 @@ spec:
               readOnly: true
       volumes:
         - name: packages
-          projected:
-            sources:
-              {{- range $i, $p := (.Files.Get "files/packages.json" | fromJsonArray) }}
-              - configMap:
-                  name: {{ $name }}-package-{{ $i }}
-              {{- end }}
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

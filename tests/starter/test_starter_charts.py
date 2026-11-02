@@ -64,10 +64,12 @@ class Charts(unittest.TestCase):
         plugins = values['global']['dynamic']['plugins']
         self.assertEqual(plugins[0], SOURCE['global']['dynamic']['plugins'][0])
         self.assertEqual(len(plugins), 3)
-        binaries = {key: base64.b64decode(value) for o in objects if o and o['kind'] == 'ConfigMap'
-                    for key, value in o.get('binaryData', {}).items()}
+        assets = next(o for o in objects if o and o['kind'] == 'Deployment' and o['metadata']['name'].endswith('-assets'))
+        downloader = assets['spec']['template']['spec']['initContainers'][0]['command'][-1]
+        self.assertIn('/96a332c/', downloader)
+        self.assertIn("hashlib.sha512(data)", downloader)
         for plugin in plugins[1:]:
-            data = binaries[plugin['package'].rsplit('/', 1)[1]]
+            data = (ROOT / 'charts/acme-jenkins/files/packages' / plugin['package'].rsplit('/', 1)[1]).read_bytes()
             self.assertEqual(plugin['integrity'], 'sha512-' + base64.b64encode(hashlib.sha512(data).digest()).decode())
         backstage = values['upstream']['backstage']
         self.assertEqual(backstage['extraEnvVars'][0], SOURCE['upstream']['backstage']['extraEnvVars'][0])

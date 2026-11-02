@@ -15,23 +15,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def embed_jenkins(chart):
-    version = json.loads((ROOT / 'plugins/jenkins-stage-progress/frontend/package.json').read_text())['version']
-    source = ROOT / 'artifacts/jenkins-stage-progress' / version
-    records = json.loads((source / 'packages.json').read_text())
-    entries = yaml.safe_load((source / 'dynamic-plugins.yaml').read_text())['plugins']
-    assert len(records) == len(entries) == 2
-    folder = chart / 'files/packages'
-    folder.mkdir(parents=True, exist_ok=True)
-    manifest = []
+    # Immutable public archives are downloaded and verified by the asset pod.
+    # Embedding them again in rendered ConfigMaps exceeds Helm's release-Secret limit.
+    records = json.loads((chart / 'files/packages.json').read_text())
     for record in records:
-        data = (source / record['name']).read_bytes()
-        integrity = 'sha512-' + base64.b64encode(hashlib.sha512(data).digest()).decode()
-        assert integrity == record['integrity'] and len(data) < 700 * 1024
-        entry = next(e for e in entries if e['integrity'] == integrity).copy()
-        entry.pop('package')
-        shutil.copyfile(source / record['name'], folder / record['name'])
-        manifest.append({'file': record['name'], 'entry': entry})
-    (chart / 'files/packages.json').write_text(json.dumps(manifest, indent=2) + '\n')
+        data = (chart / 'files/packages' / record['file']).read_bytes()
+        assert record['entry']['integrity'] == 'sha512-' + base64.b64encode(hashlib.sha512(data).digest()).decode()
 
 
 def package(output, helm):

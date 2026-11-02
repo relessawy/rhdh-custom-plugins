@@ -125,6 +125,10 @@ oc -n "$RHDH_NAMESPACE" extract configmap/acme-jenkins-configuration \
   --keys=helm-values.yaml --to=- > jenkins-rhdh-values.yaml
 ```
 
+The package service downloads the two plugins from a pinned GitHub commit and
+checks their SHA-512 digests before serving them inside your namespace. Allow
+outbound HTTPS to `raw.githubusercontent.com` when its pod starts.
+
 The server uses the official Jenkins chart's OpenShift `nonroot` support for its
 own service account. Agents run as separate pods. The configured Pipeline job
 reads `Jenkinsfile` from the new application's `main` branch and polls every two
