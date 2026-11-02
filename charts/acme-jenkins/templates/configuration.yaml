@@ -6,7 +6,7 @@
 {{- if not (contains "jenkins-stage-progress-" $p.package) }}{{ $plugins = append $plugins $p }}{{ end -}}
 {{- end -}}
 {{- $manifest := .Files.Get "files/packages.json" | fromJsonArray -}}
-{{- if ne (len $manifest) 2 }}{{ fail "Use the packaged release chart with embedded Jenkins plugin archives" }}{{ end -}}
+{{- if ne (len $manifest) 2 }}{{ fail "Use the packaged release chart with the pinned Jenkins package manifest" }}{{ end -}}
 {{- range $p := $manifest -}}
 {{- $entry := deepCopy $p.entry -}}
 {{- $_ := set $entry "package" (printf "http://%s-assets.%s.svc:8080/%s" $.Release.Name $.Release.Namespace $p.file) -}}

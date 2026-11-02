@@ -67,7 +67,7 @@ class Charts(unittest.TestCase):
         self.assertEqual(len(plugins), 3)
         assets = next(o for o in objects if o and o['kind'] == 'Deployment' and o['metadata']['name'].endswith('-assets'))
         downloader = assets['spec']['template']['spec']['initContainers'][0]['command'][-1]
-        self.assertIn('/96a332c/', downloader)
+        self.assertIn('/96a332c43175dd26db132ad1d9c888cee5c388d4/', downloader)
         self.assertIn("hashlib.sha512(data)", downloader)
         for plugin in plugins[1:]:
             data = (ROOT / 'charts/acme-jenkins/files/packages' / plugin['package'].rsplit('/', 1)[1]).read_bytes()

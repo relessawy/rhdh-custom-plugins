@@ -20,7 +20,7 @@ existing:
   # Existing Secret keys: username, token.
   credentialsSecret: ''
 assets:
-  packageBaseUrl: https://raw.githubusercontent.com/relessawy/rhdh-custom-plugins/96a332c/charts/acme-jenkins/files/packages
+  packageBaseUrl: https://raw.githubusercontent.com/relessawy/rhdh-custom-plugins/96a332c43175dd26db132ad1d9c888cee5c388d4/charts/acme-jenkins/files/packages
   resources:
     requests: {cpu: 10m, memory: 32Mi}
     limits: {memory: 128Mi}
