@@ -1,0 +1,164 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "branding",
+    "overview",
+    "tabs",
+    "rhdh",
+    "assets"
+  ],
+  "properties": {
+    "fullnameOverride": {
+      "type": "string",
+      "pattern": "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+      "maxLength": 40
+    },
+    "branding": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "title",
+        "organization",
+        "primary",
+        "header"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "organization": {
+          "type": "string",
+          "minLength": 1
+        },
+        "primary": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "header": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        }
+      }
+    },
+    "overview": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "enabledCards",
+        "detailTabs",
+        "argoBackendId"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "argoBackendId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "enabledCards": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "argocd",
+              "jenkins",
+              "snyk",
+              "splunk",
+              "vault",
+              "sonarqube",
+              "pagerduty",
+              "mesh"
+            ]
+          }
+        },
+        "detailTabs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "argocd",
+              "jenkins",
+              "snyk",
+              "splunk",
+              "vault",
+              "sonarqube",
+              "pagerduty",
+              "mesh"
+            ]
+          }
+        },
+        "replaceNativeArgoOverview": {
+          "type": "boolean"
+        }
+      }
+    },
+    "tabs": {
+      "type": "object",
+      "required": [
+        "enabled"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        }
+      }
+    },
+    "rhdh": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "existingDynamicPlugins": {
+          "type": "string",
+          "minLength": 0
+        },
+        "existingHelmValues": {
+          "type": "string"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "existingHelmValues": {
+              "minLength": 1
+            },
+            "existingDynamicPlugins": {
+              "maxLength": 0
+            }
+          }
+        },
+        {
+          "properties": {
+            "existingDynamicPlugins": {
+              "minLength": 1
+            },
+            "existingHelmValues": {
+              "maxLength": 0
+            }
+          }
+        }
+      ]
+    },
+    "assets": {
+      "type": "object",
+      "required": [
+        "image",
+        "resources"
+      ],
+      "properties": {
+        "image": {
+          "type": "string",
+          "pattern": "@sha256:[a-f0-9]{64}$"
+        },
+        "resources": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

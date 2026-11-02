@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "acme.name" . }}-test
+  labels:
+    {{- include "acme.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+        restartPolicy: Never
+        automountServiceAccountToken: false
+        containers:
+          - name: verify
+            image: {{ .Values.assets.image | quote }}
+            command:
+              - python
+              - -c
+              - |
+                import base64,hashlib,json,urllib.request
+                packages=json.loads({{ .Files.Get "files/packages.json" | toJson }})
+                for p in packages:
+                    url='http://{{ include "acme.name" . }}-assets.{{ .Release.Namespace }}.svc:8080/'+p['file']
+                    with urllib.request.urlopen(url,timeout=30) as r: data=r.read()
+                    digest='sha512-'+base64.b64encode(hashlib.sha512(data).digest()).decode()
+                    assert digest==p['entry']['integrity'], 'Archive integrity mismatch'
+                    print('VERIFIED '+p['file'],flush=True)
+            resources:
+              requests: {cpu: 10m, memory: 32Mi}
+              limits: {memory: 128Mi}
+            securityContext:
+              runAsNonRoot: true
+              allowPrivilegeEscalation: false
+              capabilities: {drop: [ALL]}
+              seccompProfile: {type: RuntimeDefault}

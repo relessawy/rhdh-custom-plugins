@@ -1,0 +1,13 @@
+The ACME add-on resources are installed. This does not yet change your existing RHDH instance.
+
+1. Export the generated native RHDH Helm values:
+   oc -n {{ .Release.Namespace }} extract configmap/{{ include "acme.name" . }}-configuration --keys=helm-values.yaml --to=- > acme-rhdh-values.yaml
+
+2. Connect through the existing RHDH owner:
+   Helm: upgrade the SAME release/chart/version with --reuse-values -f acme-rhdh-values.yaml.
+   GitOps: add this generated values file to the existing RHDH application's Helm valueFiles.
+   Operator: reference {{ include "acme.name" . }}-app-config and {{ include "acme.name" . }}-dynamic-plugins.
+
+Do not run a separate Helm upgrade against an Argo-managed RHDH instance.
+Run helm test {{ .Release.Name }} -n {{ .Release.Namespace }} to verify archive serving.
+See the release quickstart for exact commands, verification and removal.

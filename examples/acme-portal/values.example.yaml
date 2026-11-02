@@ -1,0 +1,9 @@
+# Install the add-on in the SAME namespace as RHDH.
+branding:
+  title: ACME Bank Developer Hub
+  organization: ACME Bank
+overview:
+  # Leave empty until the corresponding providers are configured.
+  enabledCards: [argocd]
+  detailTabs: [argocd]
+  argoBackendId: argocd
