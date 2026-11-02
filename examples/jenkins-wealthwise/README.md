@@ -60,6 +60,10 @@ catalog component and Argo CD application. Set the owner to an existing catalog
 group or user. The GitLab project must not already
 exist when you run the template.
 
+Set `argocd.namespace` and `argocd.instanceName` to the Argo CD instance already
+connected to RHDH. In the tested AWS environment these are `janus-argocd` and
+`main`; the separate `openshift-gitops` instance manages RHDH itself.
+
 Set `identity.baseUrl` to Keycloak's base URL and `identity.realm` to the realm
 containing your demo users. The chart creates a separate WealthWise client in
 that realm. It does not change the portal's sign-in client.
@@ -71,7 +75,7 @@ Set the RHDH and application namespaces:
 ```sh
 RHDH_NAMESPACE=backstage
 APP_NAMESPACE=wealthwise
-ARGOCD_NAMESPACE=openshift-gitops
+ARGOCD_NAMESPACE=janus-argocd
 oc create namespace "$APP_NAMESPACE" --dry-run=client -o yaml | oc apply -f -
 oc label namespace "$APP_NAMESPACE" argocd.argoproj.io/managed-by="$ARGOCD_NAMESPACE"
 umask 077

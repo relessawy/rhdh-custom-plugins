@@ -21,9 +21,9 @@ identity:
   adminSecret: acme-keycloak-admin
 argocd:
   enabled: true
-  namespace: openshift-gitops
+  namespace: janus-argocd
   project: default
-  instanceName: ''
+  instanceName: main
 topology:
   readerServiceAccount: ''
   readerNamespace: backstage
