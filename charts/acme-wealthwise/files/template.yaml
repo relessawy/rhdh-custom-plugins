@@ -48,7 +48,6 @@ spec:
       action: publish:gitlab
       input:
         repoUrl: @@REPO_URL@@
-        description: WealthWise application and GitOps deployment
         repoVisibility: public
         defaultBranch: main
     - id: register
