@@ -1,0 +1,8 @@
+WealthWise onboarding resources installed.
+
+Export and append these settings to your existing RHDH values through its current Helm/GitOps process:
+  oc -n {{ .Release.Namespace }} extract configmap/{{ .Release.Name }}-configuration --keys=helm-values.yaml --to=- > wealthwise-rhdh-values.yaml
+
+In RHDH, open Self-service and choose WealthWise — Jenkins and GitOps.
+The template creates {{ .Values.global.gitlab.owner }}/{{ .Values.global.application.name }} in GitLab. It must not already exist.
+Start the first Jenkins build with Build Now. The Jenkinsfile enables two-minute polling for subsequent source changes. Argo CD needs that first build's images before the application can become healthy.

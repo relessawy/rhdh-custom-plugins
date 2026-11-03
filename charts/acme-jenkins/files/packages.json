@@ -1,0 +1,41 @@
+[
+  {
+    "file": "jenkins-stage-progress-frontend-0.1.2.tgz",
+    "entry": {
+      "integrity": "sha512-ZQbx0m9uuAERLM+TuCf1R/6USeeJLbKd05d5/r5K6k+X3hqvjqPFffw/UgEuRrJjwVxAukO1HpRlz/huhtDccg==",
+      "disabled": false,
+      "pluginConfig": {
+        "dynamicPlugins": {
+          "frontend": {
+            "rhdh-custom-plugins.plugin-jenkins-stage-progress": {
+              "mountPoints": [
+                {
+                  "mountPoint": "entity.page.ci/cards",
+                  "importName": "PipelineProgress",
+                  "config": {
+                    "priority": 100,
+                    "layout": {
+                      "gridColumn": "1 / -1"
+                    },
+                    "if": {
+                      "allOf": [
+                        "isPipelineProgressAvailable"
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "jenkins-stage-progress-backend-0.1.2.tgz",
+    "entry": {
+      "integrity": "sha512-mqXGXqfKxfnIMXqCyicPoW2l+Sm0YUgzo55vz9KRDOKXBv51+uRxEjMHAlnMbh5/ix7tu2acXc3mWNaVwaUk/Q==",
+      "disabled": false
+    }
+  }
+]

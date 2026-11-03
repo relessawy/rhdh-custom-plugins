@@ -1,0 +1,67 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: @@TEMPLATE_NAME@@
+  title: WealthWise — Jenkins and GitOps
+  description: Create WealthWise in GitLab with Jenkins CI, Quay images, Dev Spaces, TechDocs and Argo CD.
+  tags: [java, quarkus, fsi, jenkins, openshift]
+spec:
+  owner: @@OWNER@@
+  type: service
+  parameters:
+    - title: Create your WealthWise application
+      required: [name]
+      properties:
+        name:
+          title: Application name
+          type: string
+          default: @@APP@@
+          enum: [@@APP@@]
+          description: Configured for this environment's Jenkins job and Argo CD application.
+  steps:
+    - id: application
+      name: Fetch WealthWise source
+      action: fetch:plain
+      input:
+        url: @@SOURCE@@
+    - id: delivery
+      name: Add delivery and developer configuration
+      action: fetch:template
+      input:
+        url: @@SKELETON@@
+        replace: true
+        values:
+          name: ${{ parameters.name }}
+          owner: @@OWNER@@
+          catalogNamespace: @@CATALOG_NAMESPACE@@
+          namespace: @@NAMESPACE@@
+          gitlabUrl: @@GITLAB_URL@@
+          gitlabOwner: @@GITLAB_OWNER@@
+          quayRepositoryPrefix: @@QUAY@@
+          devSpacesUrl: @@DEVSPACES@@
+          routeHost: @@ROUTE@@
+          argocdInstance: @@ARGO_INSTANCE@@
+          argocdNamespace: @@ARGO_NAMESPACE@@
+          imagePullSecret: @@PULL_SECRET@@
+    - id: publish
+      name: Create application repository
+      action: publish:gitlab
+      input:
+        repoUrl: @@REPO_URL@@
+        repoVisibility: public
+        defaultBranch: main
+    - id: register
+      name: Register application in RHDH
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+  output:
+    links:
+      - title: Open in catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}
+      - title: Open repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Open in Dev Spaces
+        url: @@WORKSPACE_URL@@

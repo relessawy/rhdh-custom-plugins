@@ -54,3 +54,33 @@ jobs:
         with:
           name: acme-portal-experience-chart
           path: artifacts/acme-portal-experience/
+  starter-charts:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.16.4
+      - run: pip install PyYAML==6.0.2
+      - run: npm install --prefix /tmp/starter-test-deps --ignore-scripts --no-audit --no-fund nunjucks@3.2.4 js-yaml@4.1.1
+      - uses: actions/download-artifact@v4
+        with:
+          name: jenkins-stage-progress-packages
+          path: artifacts/jenkins-stage-progress
+      - run: python3 scripts/package-starter-charts.py
+      - run: python3 -m unittest discover -s tests/starter -p 'test_*.py'
+        env:
+          STARTER_CHART_DIR: artifacts/starter-charts
+          NUNJUCKS_MODULE: /tmp/starter-test-deps/node_modules/nunjucks
+          YAML_MODULE: /tmp/starter-test-deps/node_modules/js-yaml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jenkins-wealthwise-charts
+          path: artifacts/starter-charts/

@@ -1,0 +1,82 @@
+{{- $name := .Release.Name -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}-assets
+  labels:
+    {{- include "acme.jenkins.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $name }}-assets
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}-assets
+      annotations:
+        checksum/packages: {{ printf "%s%s" .Values.assets.packageBaseUrl (.Files.Get "files/packages.json") | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      initContainers:
+        - name: download-packages
+          image: {{ .Values.assets.image | quote }}
+          command:
+            - python
+            - -c
+            - |
+              import base64,hashlib,json,urllib.request
+              from pathlib import Path
+              for p in json.loads({{ .Files.Get "files/packages.json" | toJson }}):
+                  url={{ .Values.assets.packageBaseUrl | quote }}+'/'+p['file']
+                  with urllib.request.urlopen(url,timeout=120) as r: data=r.read()
+                  assert 'sha512-'+base64.b64encode(hashlib.sha512(data).digest()).decode()==p['entry']['integrity'], 'Plugin integrity mismatch'
+                  Path('/assets',p['file']).write_bytes(data)
+                  print('Verified '+p['file'])
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+            seccompProfile: {type: RuntimeDefault}
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {memory: 128Mi}
+          volumeMounts:
+            - {name: packages, mountPath: /assets}
+      containers:
+        - name: assets
+          image: {{ .Values.assets.image | quote }}
+          command: [python, -m, http.server, '8080', --directory, /assets]
+          ports:
+            - name: http
+              containerPort: 8080
+          resources:
+            {{- toYaml .Values.assets.resources | nindent 12 }}
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+            seccompProfile: {type: RuntimeDefault}
+          readinessProbe:
+            httpGet: {path: /, port: http}
+          volumeMounts:
+            - name: packages
+              mountPath: /assets
+              readOnly: true
+      volumes:
+        - name: packages
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}-assets
+  labels:
+    {{- include "acme.jenkins.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: {{ $name }}-assets
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

@@ -1,0 +1,22 @@
+{{- if .Values.argocd.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.global.application.name }}
+  namespace: {{ .Values.argocd.namespace }}
+  labels:
+    app.kubernetes.io/part-of: {{ .Values.global.application.name }}
+spec:
+  project: {{ .Values.argocd.project }}
+  source:
+    repoURL: {{ printf "%s/%s/%s.git" (trimSuffix "/" .Values.global.gitlab.baseUrl) .Values.global.gitlab.owner .Values.global.application.name | quote }}
+    targetRevision: main
+    path: deploy/acme-app
+    helm:
+      valueFiles: [values.yaml, values-images.yaml]
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Release.Namespace }}
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+{{- end }}

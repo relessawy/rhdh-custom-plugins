@@ -31,7 +31,7 @@ def package(output,helm='helm'):
         subprocess.run([helm,'lint',str(chart),'--strict','-f',str(fixture)],check=True)
         subprocess.run([helm,'package',str(chart),'--destination',str(output)],check=True)
     archive=output/(chart_meta['name']+'-'+chart_meta['version']+'.tgz')
-    output.joinpath('SHA256SUMS').write_text(hashlib.sha256(archive.read_bytes()).hexdigest()+'  '+archive.name+'\n')
+    output.joinpath('SHA256SUMS').write_text(''.join(hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n' for p in sorted(output.glob('*.tgz'))))
     return archive
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,default=ROOT/'artifacts/acme-portal-experience');p.add_argument('--helm',default='helm');a=p.parse_args();print(package(a.output,a.helm))

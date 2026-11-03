@@ -1,0 +1,6 @@
+# Jenkins replaces these tags with immutable digests after the first successful build.
+images:
+  ww-frontend: ${{ values.quayRepositoryPrefix }}/${{ values.name }}-ww-frontend:pending
+  financial-advisor: ${{ values.quayRepositoryPrefix }}/${{ values.name }}-financial-advisor:pending
+  investment-advisor: ${{ values.quayRepositoryPrefix }}/${{ values.name }}-investment-advisor:pending
+  advisor-history: ${{ values.quayRepositoryPrefix }}/${{ values.name }}-advisor-history:pending

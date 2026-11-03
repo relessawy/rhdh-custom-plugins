@@ -1,0 +1,88 @@
+properties([disableConcurrentBuilds(), buildDiscarder(logRotator(numToKeepStr: '10')),
+            pipelineTriggers([pollSCM('H/2 * * * *')])])
+timeout(time: 45, unit: 'MINUTES') {
+  podTemplate(inheritFrom: 'default', yaml: '''
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - name: maven
+      image: docker.io/library/maven:3.9.11-eclipse-temurin-21
+      command: [sleep, infinity]
+      workingDir: /tmp/agent
+      env: [{name: HOME, value: /tmp/ci-home}]
+      resources:
+        requests: {cpu: 250m, memory: 512Mi}
+        limits: {cpu: '2', memory: 3Gi}
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities: {drop: [ALL]}
+        seccompProfile: {type: RuntimeDefault}
+''') {
+    node(POD_LABEL) {
+      stage('Checkout') {
+        def revision = checkout scm
+        env.SOURCE_COMMIT = revision.GIT_COMMIT
+        if (!env.SOURCE_COMMIT?.matches('[a-f0-9]{40}')) error('Missing source commit')
+      }
+      if (sh(script: 'git log -1 --pretty=%s', returnStdout: true).trim().startsWith('[skip ci]')) {
+        currentBuild.result = 'NOT_BUILT'
+        return
+      }
+      container('maven') {
+        withEnv(['MAVEN_OPTS=-Dmaven.repo.local=/tmp/ci-home/.m2/repository']) {
+          stage('Build and test') {
+            try { sh 'mkdir -p "$HOME"; mvn -B -ntp verify' }
+            finally { junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: false }
+          }
+          def modules = ['ww-frontend', 'financial-advisor', 'investment-advisor', 'advisor-history']
+          def images = [:]
+          stage('Publish images to Quay') {
+            withCredentials([usernamePassword(credentialsId: 'acme-quay', usernameVariable: 'QUAY_USERNAME', passwordVariable: 'QUAY_TOKEN')]) {
+              modules.each { module ->
+                def repository = '${{ values.quayRepositoryPrefix }}/${{ values.name }}-' + module
+                withEnv(['IMAGE_MODULE=' + module, 'IMAGE_REPOSITORY=' + repository]) {
+                  sh '''#!/bin/bash
+set -euo pipefail
+set +x
+mvn -B -ntp -pl "$IMAGE_MODULE" -Psecurity-image \
+  com.google.cloud.tools:jib-maven-plugin:3.4.5:build -DskipTests \
+  -Djib.to.image="$IMAGE_REPOSITORY:$SOURCE_COMMIT" \
+  -Djib.to.auth.username="$QUAY_USERNAME" -Djib.to.auth.password="$QUAY_TOKEN"
+'''
+                }
+                def digest = readFile(module + '/target/jib-image.digest').trim()
+                if (!(digest ==~ /sha256:[a-f0-9]{64}/)) error('Invalid image digest for ' + module)
+                images[module] = repository + '@' + digest
+              }
+            }
+          }
+          stage('Update GitOps deployment') {
+            def content = 'images:\n' + modules.collect { "  ${it}: ${images[it]}\n" }.join('')
+            writeFile file: 'deploy/acme-app/values-images.yaml', text: content
+            withCredentials([usernamePassword(credentialsId: 'acme-gitlab', usernameVariable: 'GITLAB_USERNAME', passwordVariable: 'GITLAB_TOKEN')]) {
+              sh '''#!/bin/bash
+set -euo pipefail
+set +x
+if git diff --quiet -- deploy/acme-app/values-images.yaml; then exit 0; fi
+cat > .git/ci-askpass <<'ASKPASS'
+#!/bin/sh
+case "$1" in
+  *sername*) printf '%s\n' "$GITLAB_USERNAME" ;;
+  *) printf '%s\n' "$GITLAB_TOKEN" ;;
+esac
+ASKPASS
+chmod 700 .git/ci-askpass
+trap 'rm -f .git/ci-askpass' EXIT
+git add deploy/acme-app/values-images.yaml
+git -c user.name='ACME Jenkins' -c user.email='jenkins@example.invalid' \
+  commit -m "[skip ci] Update deployment images for $SOURCE_COMMIT"
+GIT_TERMINAL_PROMPT=0 GIT_ASKPASS="$PWD/.git/ci-askpass" git push origin HEAD:main
+'''
+            }
+          }
+        }
+      }
+    }
+  }
+}

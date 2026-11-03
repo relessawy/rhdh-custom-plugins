@@ -1,0 +1,85 @@
+{{- $dbName := printf "%s-db-app" .Values.global.application.name -}}
+{{- $oldDb := lookup "v1" "Secret" .Release.Namespace $dbName -}}
+{{- $dbPassword := randAlphaNum 40 -}}
+{{- if $oldDb }}{{ $dbPassword = index $oldDb.data "password" | b64dec }}{{ end -}}
+{{- $name := printf "%s-oidc" .Values.global.application.name -}}
+{{- $old := lookup "v1" "Secret" .Release.Namespace $name -}}
+{{- $clientSecret := randAlphaNum 40 -}}
+{{- if $old }}{{ $clientSecret = index $old.data "client-secret" | b64dec }}{{ end -}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $name }}
+type: Opaque
+stringData:
+  issuer: {{ printf "%s/realms/%s" (trimSuffix "/" (required "Set identity.baseUrl" .Values.identity.baseUrl)) .Values.identity.realm | quote }}
+  client-id: {{ .Values.global.application.name | quote }}
+  client-secret: {{ $clientSecret | quote }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $dbName }}
+type: Opaque
+stringData:
+  password: {{ $dbPassword | quote }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.global.application.name }}-db-ca
+  annotations:
+    service.beta.openshift.io/inject-cabundle: 'true'
+---
+{{- if .Values.identity.bootstrap }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-identity
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      containers:
+        - name: configure-client
+          image: {{ .Values.assets.image | quote }}
+          command: [python, /setup/identity.py]
+          env:
+            - {name: KEYCLOAK_URL, value: {{ trimSuffix "/" .Values.identity.baseUrl | quote }}}
+            - {name: KEYCLOAK_REALM, value: {{ .Values.identity.realm | quote }}}
+            - {name: APPLICATION_URL, value: {{ printf "https://%s" (include "acme.wealthwise.route" .) | quote }}}
+            - {name: CLIENT_OWNER, value: {{ printf "%s/%s" .Release.Namespace .Release.Name | quote }}}
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {memory: 128Mi}
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+            seccompProfile: {type: RuntimeDefault}
+          volumeMounts:
+            - {name: setup, mountPath: /setup, readOnly: true}
+            - {name: admin, mountPath: /admin, readOnly: true}
+            - {name: client, mountPath: /client, readOnly: true}
+      volumes:
+        - name: setup
+          configMap: {name: {{ .Release.Name }}-identity}
+        - name: admin
+          secret: {secretName: {{ .Values.identity.adminSecret }}}
+        - name: client
+          secret: {secretName: {{ $name }}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-identity
+data:
+  identity.py: |
+    {{- .Files.Get "files/identity.py" | nindent 4 }}
+{{- end }}

@@ -1,0 +1,12 @@
+Jenkins CI add-on installed.
+
+1. Export the RHDH configuration:
+   oc -n {{ .Release.Namespace }} extract configmap/{{ .Release.Name }}-configuration --keys=helm-values.yaml --to=- > jenkins-rhdh-values.yaml
+2. Append this file to your existing RHDH Helm/GitOps values and wait for RHDH to roll out.
+3. Install the WealthWise onboarding chart with the same global.application and global.gitlab values.
+
+{{ if .Values.jenkins.enabled }}Jenkins: {{ include "acme.jenkins.url" . }}
+Its pipeline reads {{ .Values.global.gitlab.baseUrl }}/{{ .Values.global.gitlab.owner }}/{{ .Values.global.application.name }}.git ; start the first build after the software template creates the repository. The Jenkinsfile then enables two-minute polling.
+{{ else }}Existing Jenkins: {{ .Values.existing.publicUrl }}
+Configure the {{ .Values.global.application.name }} Pipeline job to read Jenkinsfile from your application repository. Use credentials IDs acme-gitlab and acme-quay.
+{{ end }}

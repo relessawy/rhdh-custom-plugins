@@ -1,0 +1,12 @@
+apiVersion: v2
+name: acme-jenkins
+description: Jenkins server and RHDH pipeline stages integration for an existing OpenShift demo
+version: 0.1.0
+appVersion: '2.580.2'
+kubeVersion: '>=1.27.0-0'
+type: application
+dependencies:
+  - name: jenkins
+    version: 5.10.9
+    repository: https://charts.jenkins.io
+    condition: jenkins.enabled
